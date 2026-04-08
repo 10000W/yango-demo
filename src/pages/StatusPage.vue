@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 
 const route = useRoute()
 const router = useRouter()
+const onCloseCallback = inject<(() => void) | null>('onClose', null)
 
 const status = computed(() => (route.query.status as string) || 'success')
 const title = computed(() => (route.query.title as string) || (status.value === 'success' ? 'Payment Successful' : 'Payment Failed'))
 const description = computed(() => (route.query.description as string) || (status.value === 'success' ? 'Your payment has been processed successfully.' : 'There was an error processing your payment.'))
 
 const onClose = () => {
-  router.push({ name: 'chain' })
+  if (onCloseCallback) {
+    onCloseCallback()
+  }
+  else {
+    router.replace({ name: 'chain' })
+  }
 }
 </script>
 
 <template>
-  <div :class="$style.page">
+  <div :class="$style.StatusPage">
     <div :class="$style.content">
       <div
         :class="[$style.icon, $style[status]]"
@@ -73,24 +79,34 @@ const onClose = () => {
         {{ description }}
       </p>
     </div>
-    <div :class="$style.footer">
-      <BaseButton
-        :class="$style.button"
-        @click="onClose"
-      >
-        Close
-      </BaseButton>
-    </div>
+
+    <RouterLink
+      to="/promo"
+      style="text-decoration: none"
+    >
+      <div :class="$style.promo">
+        Open Yango card and get cashback for your rides
+        <div :class="$style.promoCard" />
+      </div>
+    </RouterLink>
+    <BaseButton
+      wide
+      size="large"
+      variant="danger"
+      @click="onClose"
+    >
+      {{ status === 'success' ? 'Great!' : 'Close' }}
+    </BaseButton>
   </div>
 </template>
 
 <style module lang="scss">
-.page {
+.StatusPage {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  min-height: calc(100vh - 24px);
+  height: 100%;
   text-align: center;
 }
 
@@ -106,11 +122,11 @@ const onClose = () => {
   margin-bottom: 24px;
 
   &.success {
-    color: var(--c-yango-green);
+    color: var(--c-success);
   }
 
   &.failed {
-    color: var(--c-yango-red);
+    color: var(--c-danger);
   }
 }
 
@@ -121,16 +137,30 @@ const onClose = () => {
 }
 
 .description {
-  color: #666;
+  color: var(--c-text-soft);
   max-width: 280px;
+  text-align: center;
 }
 
-.footer {
-  width: 100%;
-  padding-bottom: 12px;
+.promo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--c-text);
+  text-decoration: none;
+  text-align: left;
+  padding: 16px;
+  background-color: oklch(from var(--c-primary) l c h / 20%);
+  border-radius: 16px;
+  margin-bottom: 16px;
 }
 
-.button {
-  width: 100%;
+.promoCard {
+  width: 80px;
+  height: 40px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-image: url("/card.png");
 }
 </style>

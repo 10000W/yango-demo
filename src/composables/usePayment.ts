@@ -5,8 +5,8 @@ import { nextTick, type Ref, ref } from 'vue'
 import { useTimeoutPoll } from '@vueuse/core'
 import type { PaymentChainType } from '@/entities/payment'
 import { type Asset } from '@/entities/asset'
-import { getAddress, parseUnits } from 'viem'
-import { simulateContract, writeContract, waitForTransactionReceipt } from '@wagmi/core'
+import {encodeFunctionData, getAddress, parseUnits} from 'viem'
+import { simulateContract, writeContract, waitForTransactionReceipt, estimateGas } from '@wagmi/core'
 import { useAppKit } from '@/composables/useAppKit.ts'
 
 const { address } = useAppKit()
@@ -28,9 +28,40 @@ const updateSession = async () => {
   const { data } = await axios.get<{ data: PayZapSession }>(`${PAYZAP_API_URL}/v1/payments/session/${activeSession.value.id}`)
   activeSession.value = data.data
 }
-
 const poll = useTimeoutPoll(updateSession, 3000, { immediate: false })
 
+const estimateGasFee = async () => {
+  console.log(activeSession.value, address.value, selectedChain.value)
+  if (!activeSession.value || !address.value || selectedChain.value !== 'evm') {
+    return
+  }
+
+  switch (selectedChain.value) {
+    case 'evm':
+      const res = await estimateGas(wagmiAdapter.wagmiConfig, {
+        to: getAddress('0xdAC17F958D2ee523a2206206994597C13D831ec7'),
+        account: address.value as `0x${string}`,
+        data: encodeFunctionData({
+          abi: [{
+            name: 'transfer',
+            type: 'function',
+            inputs: [
+              { name: 'to', type: 'address' },
+              { name: 'amount', type: 'uint256' },
+            ],
+            outputs: [],
+          }],
+          functionName: 'transfer',
+          args: [
+            activeSession.value.merchantWallet as `0x${string}`,
+            parseUnits(activeSession.value.amount, selectedAsset.value?.decimals || 6),
+          ],
+        })
+      })
+
+      return res
+  }
+}
 const createSession = async () => {
   console.log(selectedChain.value, selectedAsset.value)
 
@@ -52,6 +83,7 @@ const createSession = async () => {
     activeSession.value = data.data
     nextTick(() => {
       poll.resume()
+      estimateGasFee()
     })
     return data.data
   }
@@ -104,5 +136,6 @@ export const usePayment = () => {
     activeSession,
     selectedChain,
     selectedAsset,
+    estimateGasFee,
   }
 }

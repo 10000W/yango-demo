@@ -1,5 +1,36 @@
 :root {
-  --c-yango-red:  #ff1a1a;
-  --c-yango-purple: #7137ff;
-  --c-yango-green: #2ecc71;
+  /* Brand colors in OKLCH (Modern & Vibrant) */
+  --c-primary: oklch(65% 0.28 285);
+  --c-danger: oklch(62% 0.26 29); /* Keep the red vibrancy */
+  --c-success: oklch(72% 0.22 150);
+  --c-warning: oklch(82% 0.22 88);
+
+  /* Neutrals - Light mode */
+  --c-bg: oklch(100% 0 0);
+  --c-bg-soft: oklch(98% 0.01 285);
+  --c-bg-mute: oklch(95% 0.02 285);
+  --c-text: oklch(25% 0.02 285);
+  --c-text-soft: oklch(50% 0.02 285);
+  --c-border: oklch(92% 0.02 285);
+
+  /* Legacy aliases for compatibility */
+  --c-yango-red: var(--c-danger);
+  --c-yango-purple: var(--c-primary);
+  --c-yango-green: var(--c-success);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: oklch(18% 0.02 285);
+    --c-bg-soft: oklch(22% 0.03 285);
+    --c-bg-mute: oklch(28% 0.04 285);
+    --c-text: oklch(98% 0.01 285);
+    --c-text-soft: oklch(80% 0.02 285);
+    --c-border: oklch(35% 0.04 285);
+
+    /* Slightly brighter primary/vibrant colors for dark mode to ensure contrast */
+    --c-primary: oklch(72% 0.25 285);
+    --c-danger: oklch(68% 0.24 29);
+    --c-success: oklch(78% 0.2 150);
+  }
 }

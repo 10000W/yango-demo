@@ -5,7 +5,7 @@ import { usePayment } from '@/composables/usePayment.ts'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const { selectedChain, selectedAsset } = usePayment()
+const { selectedAsset } = usePayment()
 
 const onClickAsset = async (asset: Asset) => {
   selectedAsset.value = asset
@@ -14,29 +14,38 @@ const onClickAsset = async (asset: Asset) => {
 </script>
 
 <template>
-  <h1>
-    Select asset
-  </h1>
-  <p>
-    Which asset you want to pay with
-  </p>
-  <p v-if="selectedChain">
-    Selected chain: {{ selectedChain }}
-  </p>
-  <ul :class="$style.list">
-    <li
-      v-for="asset in assets"
-      :key="asset.name"
-    >
-      <AssetOption
-        :asset="asset"
-        @click="onClickAsset(asset)"
-      />
-    </li>
-  </ul>
+  <div>
+    <h1 :class="$style.title">
+      Select asset
+    </h1>
+    <p :class="$style.description">
+      Which asset you want to pay with
+    </p>
+    <ul :class="$style.list">
+      <li
+        v-for="asset in assets"
+        :key="asset.name"
+      >
+        <AssetOption
+          :asset="asset"
+          :disabled="asset.disabled"
+          @click="onClickAsset(asset)"
+        />
+      </li>
+    </ul>
+  </div>
 </template>
 
 <style module lang="scss">
+.title {
+  margin-bottom: 8px;
+}
+
+.description {
+  color: var(--c-text-soft);
+  margin-bottom: 24px;
+}
+
 .list {
   list-style: none;
   padding: 0;

@@ -114,7 +114,7 @@ const handleDisconnectTon = async () => {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #333;
+  color: var(--c-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,9 +137,9 @@ const handleDisconnectTon = async () => {
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: #f8f8f8;
+  background: var(--c-bg-soft);
   border-radius: 12px;
-  border: 1px solid #eee;
+  border: 1px solid var(--c-border);
 }
 
 .walletInfo {
@@ -150,20 +150,20 @@ const handleDisconnectTon = async () => {
 
 .walletName {
   font-weight: 600;
-  color: #333;
+  color: var(--c-text);
 }
 
 .address {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--c-text-soft);
 }
 
 .emptyState {
   text-align: center;
-  color: #666;
+  color: var(--c-text-soft);
   margin-top: 48px;
   padding: 24px;
-  background: #f8f8f8;
+  background: var(--c-bg-soft);
   border-radius: 12px;
 }
 </style>

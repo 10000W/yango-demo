@@ -35,6 +35,8 @@ const iconStyle = computed(() => {
 <style module lang="scss">
 .AssetOption {
   width: 100%;
+  height: 60px;
+  padding: 8px 16px;
 }
 
 .content {
@@ -64,12 +66,12 @@ const iconStyle = computed(() => {
 
 .name {
   font-weight: 600;
-  color: #333;
+  color: var(--c-text);
 }
 
 .description {
   font-size: 0.75rem;
-  color: #666;
+  color: var(--c-text-soft);
   line-height: 1rem;
 }
 </style>

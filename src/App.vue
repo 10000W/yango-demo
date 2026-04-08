@@ -1,38 +1,56 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import BaseSpinner from '@/components/base/BaseSpinner.vue'
+import { ref, nextTick, watch, type App } from 'vue'
+import SkeletonPage from '@/components/skeleton/SkeletonPage.vue'
+import BaseBottomSheet from '@/components/base/BaseBottomSheet.vue'
+import { mount } from '@/payment-entry'
 
-const router = useRouter()
-const isLoading = ref(true)
+const isModalOpen = ref(false)
+const paymentApp = ref<App | null>(null)
 
-onMounted(() => {
-  setTimeout(() => {
-    isLoading.value = false
-    router.replace({ name: 'chain' })
-  }, 2300)
+const mountPaymentApp = async () => {
+  isModalOpen.value = true
+
+  await nextTick()
+  if (paymentApp.value) {
+    paymentApp.value.unmount()
+    paymentApp.value = null
+  }
+  paymentApp.value = mount('#payment-container', {
+    onClose: () => {
+      isModalOpen.value = false
+    },
+  })
+}
+
+watch(isModalOpen, (isOpen) => {
+  if (!isOpen && paymentApp.value) {
+    setTimeout(() => {
+      if (!isModalOpen.value && paymentApp.value) {
+        paymentApp.value.unmount()
+        paymentApp.value = null
+      }
+    }, 400)
+  }
 })
 </script>
 
 <template>
-  <main>
-    <div
-      v-if="isLoading"
-      :class="$style.loader"
-    >
-      <BaseSpinner />
-    </div>
-    <RouterView v-else />
-  </main>
+  <div class="host-app">
+    <SkeletonPage @pay="mountPaymentApp" />
+
+    <BaseBottomSheet v-model="isModalOpen">
+      <div id="payment-container" />
+    </BaseBottomSheet>
+  </div>
 </template>
 
-<style module lang="scss">
-@use "@/assets/styles/main" as *;
+<style scoped>
+.host-app {
+  width: 100%;
+  height: 100dvh;
+}
 
-.loader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+#payment-container {
+  min-height: 400px;
 }
 </style>

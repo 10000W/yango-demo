@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue'
 import { PaymentOption, paymentOptions } from '@/entities/payment'
 import BaseButton from '@/components/base/BaseButton.vue'
+import BaseChip from '@/components/base/BaseChip.vue'
 import { useAppKit } from '@/composables/useAppKit.ts'
 import { useTonConnect } from '@/composables/useTonConnect.ts'
 import {
@@ -109,12 +110,13 @@ const handleClick = async () => {
           {{ paymentOption.description }}
         </span>
       </span>
-      <span
+      <BaseChip
         v-if="isOptionConnected"
-        :class="$style.connectedLabel"
+        :class="$style.connectedChip"
+        variant="success"
       >
         Connected
-      </span>
+      </BaseChip>
     </div>
   </BaseButton>
 </template>
@@ -122,6 +124,8 @@ const handleClick = async () => {
 <style module lang="scss">
 .PaymentOption {
   width: 100%;
+  height: 60px;
+  padding: 8px 16px;
 }
 
 .content {
@@ -151,22 +155,16 @@ const handleClick = async () => {
 
 .name {
   font-weight: 600;
-  color: #333;
+  color: var(--c-text);
 }
 
 .description {
   font-size: 0.75rem;
-  color: #666;
+  color: var(--c-text-soft);
   line-height: 1rem;
 }
 
-.connectedLabel {
+.connectedChip {
   margin-left: auto;
-  font-size: 0.75rem;
-  color: #1aae21;
-  font-weight: 600;
-  background: #f0fff0;
-  padding: 4px 12px;
-  border-radius: 6px;
 }
 </style>

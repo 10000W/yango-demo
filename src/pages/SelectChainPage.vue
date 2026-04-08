@@ -4,29 +4,31 @@ import PaymentOption from '@/components/entities/payment/PaymentOption.vue'
 </script>
 
 <template>
-  <div :class="$style.header">
-    <h1 :class="$style.title">
-      Select your Crypto Wallet
-    </h1>
-    <RouterLink
-      :to="{ name: 'edit' }"
-      :class="$style.editLink"
-    >
-      Edit
-    </RouterLink>
-  </div>
-  <p>
-    Which crypto wallet use for deposit
-  </p>
+  <div>
+    <div :class="$style.header">
+      <h1 :class="$style.title">
+        Select your Crypto Wallet
+      </h1>
+      <RouterLink
+        :to="{ name: 'edit' }"
+        :class="$style.editLink"
+      >
+        Edit
+      </RouterLink>
+    </div>
+    <p>
+      Which crypto wallet use for deposit
+    </p>
 
-  <ul :class="$style.list">
-    <li
-      v-for="o in paymentOptions"
-      :key="o.name"
-    >
-      <PaymentOption :payment-option="o" />
-    </li>
-  </ul>
+    <ul :class="$style.list">
+      <li
+        v-for="o in paymentOptions"
+        :key="o.name"
+      >
+        <PaymentOption :payment-option="o" />
+      </li>
+    </ul>
+  </div>
 </template>
 
 <style module lang="scss">
@@ -42,10 +44,11 @@ import PaymentOption from '@/components/entities/payment/PaymentOption.vue'
 }
 
 .editLink {
-  color: var(--c-yango-purple, #7137ff);
+  color: var(--c-primary);
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 14px;
+  margin-left: 12px;
 
   &:hover {
     text-decoration: underline;
@@ -75,7 +78,7 @@ import PaymentOption from '@/components/entities/payment/PaymentOption.vue'
 }
 
 .muted {
-  color: #666;
+  color: var(--c-text-soft);
   font-size: 0.85rem;
 }
 </style>

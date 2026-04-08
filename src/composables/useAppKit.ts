@@ -19,16 +19,15 @@ const modal = createAppKit({
   networks: [mainnet],
   projectId: REOWN_PROJECT_ID,
   metadata: {
-    name: 'TEST',
-    description: 'TEST',
-    url: 'https://bridge.tac.build',
-    icons: ['https://bridge.tac.build/manifest-img.jpg'],
+    name: 'Yango Payment DEMO',
+    description: 'Yango Payment DEMO',
+    url: 'https://yango-demo.vercel.app',
+    icons: ['https://yango-demo.vercel.app/manifest-img.png'],
   },
   features: {
     email: false,
     socials: false,
     analytics: false,
-
   },
 })
 

@@ -1,49 +1,54 @@
 <script setup lang="ts">
-const { variant = 'primary', size = 'medium' } = defineProps<{
+const { variant = 'primary', size = 'medium', loading = false } = defineProps<{
   variant?: 'primary' | 'secondary' | 'danger' | 'transparent'
   size?: 'small' | 'medium' | 'large'
+  wide?: boolean
+  disabled?: boolean
+  loading?: boolean
 }>()
 </script>
 
 <template>
   <button
     class="base-button"
-    :class="[`is-${variant}`, `is-${size}`]"
+    :class="[`is-${variant}`, `is-${size}`, wide && 'is-wide', loading && 'is-loading']"
     type="button"
+    :disabled="loading || disabled"
   >
-    <slot />
+    <span v-if="loading" class="spinner" />
+    <slot v-else />
   </button>
 </template>
 
 <style lang="scss">
 .base-button {
-  --b-padding-y: 12px;
-  --b-padding-x: 20px;
+  --b-height: 40px;
   --b-font-size: 16px;
   --b-border-radius: 8px;
   --b-transition: all 0.2s ease-in-out;
 
-  --b-color-primary: var(--c-yango-purple, #7137ff);
-  --b-color-primary-hover: #5a2bcc;
-  --b-color-primary-active: #4a24a6;
+  --b-color-primary: var(--c-primary);
+  --b-color-primary-hover: oklch(62% 0.28 285);
+  --b-color-primary-active: oklch(58% 0.28 285);
 
-  --b-color-secondary: #f0f0f0;
-  --b-color-secondary-hover: #e0e0e0;
-  --b-color-secondary-active: #d0d0d0;
+  --b-color-secondary: var(--c-bg-mute);
+  --b-color-secondary-hover: var(--c-border);
+  --b-color-secondary-active: var(--c-border);
 
-  --b-color-danger: var(--c-yango-red, #ff1a1a);
-  --b-color-danger-hover: #e61717;
-  --b-color-danger-active: #cc1414;
+  --b-color-danger: var(--c-danger);
+  --b-color-danger-hover: oklch(58% 0.26 29);
+  --b-color-danger-active: oklch(54% 0.26 29);
 
-  --b-color-transparent-hover: #f0f0f0;
-  --b-color-transparent-active: #e0e0e0;
+  --b-color-transparent-hover: var(--c-bg-soft);
+  --b-color-transparent-active: var(--c-bg-mute);
 
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--b-padding-y) var(--b-padding-x);
+  padding: 4px 12px;
+  height: var(--b-height);
   font-size: var(--b-font-size);
-  font-weight: 400;
+  font-weight: 500;
   border-radius: var(--b-border-radius);
   border: none;
   cursor: pointer;
@@ -52,7 +57,7 @@ const { variant = 'primary', size = 'medium' } = defineProps<{
   touch-action: manipulation;
   outline: none;
 
-  &[disabled="disabled"] {
+  &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
@@ -73,7 +78,7 @@ const { variant = 'primary', size = 'medium' } = defineProps<{
 
   &.is-secondary {
     background-color: var(--b-color-secondary);
-    color: #333;
+    color: var(--c-text);
 
     &:hover:not(:disabled) {
       background-color: var(--b-color-secondary-hover);
@@ -101,7 +106,7 @@ const { variant = 'primary', size = 'medium' } = defineProps<{
 
   &.is-transparent {
     background-color: transparent;
-    color: #333;
+    color: var(--c-text);
 
     &:hover:not(:disabled) {
       background-color: var(--b-color-transparent-hover);
@@ -114,19 +119,47 @@ const { variant = 'primary', size = 'medium' } = defineProps<{
   }
 
   &.is-small {
-    --b-padding-y: 8px;
-    --b-padding-x: 16px;
     --b-font-size: 14px;
+    --b-height: 32px;
   }
 
   &.is-large {
-    --b-padding-y: 16px;
-    --b-padding-x: 24px;
     --b-font-size: 18px;
+    --b-height: 48px;
+  }
+
+  &.is-wide {
+    width: 100%;
+  }
+
+  &.is-loading {
+    cursor: wait;
+    pointer-events: none;
   }
 }
 
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.is-secondary .spinner,
+.is-transparent .spinner {
+  border-color: oklch(from var(--c-text) l c h / 10%);
+  border-top-color: var(--c-text);
+}
+
 .base-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(113, 55, 255, 0.4);
+  box-shadow: 0 0 0 3px oklch(from var(--c-primary) l c h / 40%);
 }
 </style>

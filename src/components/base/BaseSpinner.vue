@@ -9,7 +9,7 @@
 .spinner {
   width: 48px;
   height: 48px;
-  border: 2px solid var(--c-yango-red, #ff1a1a);
+  border: 2px solid var(--c-yango-purple);
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;

@@ -27,20 +27,21 @@ tonConnectUI.uiOptions = {
   },
 }
 
-tonConnectUI.connectionRestored.then(() => {
-  isLoaded.value = true
-  if (address.value) {
-    console.log(`[TVM]: Connection restored with wallet ${address.value}`)
-    return
-  }
-  console.log(`[TVM]: Connection restored without wallet`)
-})
-tonConnectUI.onStatusChange((walletInfo) => {
-  if (walletInfo?.account?.address) {
-    Object.assign(account, walletInfo.account)
-    walletName.value = walletInfo?.name
-  }
-})
+// FIXME: ton connect is disabled
+// tonConnectUI.connectionRestored.then(() => {
+//   isLoaded.value = true
+//   if (address.value) {
+//     console.log(`[TVM]: Connection restored with wallet ${address.value}`)
+//     return
+//   }
+//   console.log(`[TVM]: Connection restored without wallet`)
+// })
+// tonConnectUI.onStatusChange((walletInfo) => {
+//   if (walletInfo?.account?.address) {
+//     Object.assign(account, walletInfo.account)
+//     walletName.value = walletInfo?.name
+//   }
+// })
 
 const disconnect = async () => {
   console.log('is disconnected')
