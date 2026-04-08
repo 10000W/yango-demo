@@ -1,0 +1,28 @@
+<script setup lang="ts">
+</script>
+
+<template>
+  <div :class="$style.spinner" />
+</template>
+
+<style module lang="scss">
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--c-yango-red, #ff1a1a);
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+</style>
