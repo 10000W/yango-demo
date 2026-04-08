@@ -22,7 +22,7 @@ const modal = createAppKit({
     name: 'Yango Payment DEMO',
     description: 'Yango Payment DEMO',
     url: 'https://yango-demo.vercel.app',
-    icons: ['https://yango-demo.vercel.app/manifest-img.png'],
+    icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
   },
   features: {
     email: false,
