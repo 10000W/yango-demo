@@ -18,11 +18,14 @@ const isOpen = ref(false)
 const isDragging = ref(false)
 
 const onTouchStart = (e: TouchEvent) => {
+  if (!e.touches[0]) {
+    return
+  }
   startY.value = e.touches[0].clientY
   isDragging.value = true
 }
 const onTouchMove = (e: TouchEvent) => {
-  if (!isDragging.value) return
+  if (!isDragging.value || !e.touches[0]) return
   const currentY = e.touches[0].clientY
   const diff = currentY - startY.value
   if (diff > 0) {

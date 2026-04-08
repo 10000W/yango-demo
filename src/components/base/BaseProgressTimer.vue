@@ -20,7 +20,7 @@ const {
 
 const timeLeft = ref(props.duration)
 const endTime = ref<number | null>(null)
-const timer = ref<number | null>(null)
+const timer = ref<ReturnType<typeof setTimeout> | null>(null)
 const isExpired = ref(false)
 
 const radius = (size - strokeWidth) / 2
@@ -51,7 +51,8 @@ const updateTimer = () => {
       isExpired.value = true
       emit('complete')
     }
-  } else {
+  }
+  else {
     timeLeft.value = remaining
   }
 }

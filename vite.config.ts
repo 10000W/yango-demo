@@ -13,7 +13,7 @@ export default defineConfig({
     vueDevTools(),
     mkcert(),
     nodePolyfills({
-      include: ["buffer"],
+      include: ['buffer'],
       globals: {
         Buffer: true,
       },
@@ -23,6 +23,15 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+  build: {
+    rolldownOptions: {
+      output: {
+        // codeSplitting: false,
+        // inlineDynamicImports: true,
+      },
+    },
+    target: 'esnext',
   },
   server: {
     https: {
