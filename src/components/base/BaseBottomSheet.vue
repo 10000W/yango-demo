@@ -177,7 +177,7 @@ watch(() => props.modelValue, (v) => {
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 0 16px 32px;
+  padding: 0 16px 16px;
 }
 </style>
 

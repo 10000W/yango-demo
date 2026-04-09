@@ -36,7 +36,7 @@ onMounted(async () => {
   try {
     isPaying.value = true
     await createSession()
-    estimatedGas.value = (await estimateGasFee()) || 0n
+    // estimatedGas.value = (await estimateGasFee()) || 0n
   }
   catch (e) {
     handleError(e, 'Failed to initialize payment')
@@ -112,17 +112,17 @@ const submit = async () => {
           </div>
         </div>
 
-        <div :class="$style.infoRow">
-          <span :class="$style.label">Gas fee</span>
-          <div :class="$style.value">
-            <img
-              src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png"
-              :class="$style.icon"
-              alt="gas icon"
-            >
-            <span>{{ compactNumber(Math.max(+formatUnits(estimatedGas, 18), 0.0001), 4) || '...' }} ETH</span>
-          </div>
-        </div>
+        <!--        <div :class="$style.infoRow">-->
+        <!--          <span :class="$style.label">Gas fee</span>-->
+        <!--          <div :class="$style.value">-->
+        <!--            <img-->
+        <!--              src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png"-->
+        <!--              :class="$style.icon"-->
+        <!--              alt="gas icon"-->
+        <!--            >-->
+        <!--            <span>{{ compactNumber(Math.max(+formatUnits(estimatedGas, 18), 0.0001), 4) || '...' }} ETH</span>-->
+        <!--          </div>-->
+        <!--        </div>-->
 
         <div :class="$style.infoRow">
           <span :class="$style.label">Expires in</span>
@@ -229,6 +229,7 @@ const submit = async () => {
 .btns {
   display: flex;
   flex-direction: column;
+  margin-top: 12px;
   gap: 8px;
 }
 </style>

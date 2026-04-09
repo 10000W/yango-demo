@@ -5,7 +5,7 @@ import { nextTick, type Ref, ref } from 'vue'
 import { useTimeoutPoll } from '@vueuse/core'
 import type { PaymentChainType } from '@/entities/payment'
 import { type Asset } from '@/entities/asset'
-import {encodeFunctionData, getAddress, parseUnits} from 'viem'
+import { encodeFunctionData, getAddress, parseUnits } from 'viem'
 import { simulateContract, writeContract, waitForTransactionReceipt, estimateGas } from '@wagmi/core'
 import { useAppKit } from '@/composables/useAppKit.ts'
 
@@ -56,7 +56,7 @@ const estimateGasFee = async () => {
             activeSession.value.merchantWallet as `0x${string}`,
             parseUnits(activeSession.value.amount, selectedAsset.value?.decimals || 6),
           ],
-        })
+        }),
       })
 
       return res
