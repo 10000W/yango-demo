@@ -40,7 +40,7 @@ const estimateGasFee = async () => {
     case 'evm':
       const res = await estimateGas(wagmiAdapter.wagmiConfig, {
         to: getAddress('0xdAC17F958D2ee523a2206206994597C13D831ec7'),
-        account: address.value as `0x${string}`,
+        // account: address.value as `0x${string}`,
         data: encodeFunctionData({
           abi: [{
             name: 'transfer',
@@ -83,7 +83,7 @@ const createSession = async () => {
     activeSession.value = data.data
     nextTick(() => {
       poll.resume()
-      estimateGasFee()
+      // estimateGasFee()
     })
     return data.data
   }

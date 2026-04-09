@@ -7,13 +7,13 @@ import BaseProgressTimer from '@/components/base/BaseProgressTimer.vue'
 import { useRouter } from 'vue-router'
 import { useAppKit } from '@/composables/useAppKit.ts'
 import { formatUnits, BaseError } from 'viem'
-import { compactNumber } from '@/utils/string-utils.ts'
+// import { compactNumber } from '@/utils/string-utils.ts'
 
-const { createSession, pay, amount, selectedAsset, estimateGasFee } = usePayment()
+const { createSession, pay, amount, selectedAsset } = usePayment()
 const { walletInfo, shortAddress } = useAppKit()
 const router = useRouter()
 
-const estimatedGas = ref(0n)
+// const estimatedGas = ref(0n)
 const isPaying = ref(false)
 const errorMessage = ref('')
 const isExpired = ref(false)
