@@ -1,7 +1,7 @@
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { mainnet } from 'viem/chains'
 
-export const PAYZAP_PRODUCT_ID = 'e9a8d0c1-3216-48d4-a339-3db021efd703'
+export const PAYZAP_PRODUCT_ID = '734987a6-3a30-4fe1-bf84-88e3e7960e2f'
 export const PAYZAP_API_URL = 'https://api.payzap.cc'
 
 // export const REOWN_PROJECT_ID = 'b56e18d47c72ab683b10814fe9495694' // localhost

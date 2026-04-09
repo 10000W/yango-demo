@@ -11,7 +11,7 @@ import { useAppKit } from '@/composables/useAppKit.ts'
 
 const { address } = useAppKit()
 
-const amount = '0.01'
+const amount = '0.1'
 const activeSession: Ref<PayZapSession | undefined> = ref()
 const selectedChain: Ref<PaymentChainType | undefined> = ref()
 const selectedAsset: Ref<Asset | undefined> = ref()
