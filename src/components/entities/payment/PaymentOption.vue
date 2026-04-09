@@ -151,6 +151,7 @@ const handleClick = async () => {
   background-repeat: no-repeat;
   background-size: contain;
   border-radius: 8px;
+  margin-left: -4px;
   background-image: url("/manifest-img.jpg");
 }
 
