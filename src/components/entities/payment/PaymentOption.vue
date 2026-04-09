@@ -65,6 +65,9 @@ const handleClick = async () => {
     return
   }
   switch (paymentOption.type) {
+    case 'yango':
+      router.push('/promo')
+      return
     case 'ton':
       tonconnectModal.open()
       return
@@ -98,7 +101,11 @@ const handleClick = async () => {
   >
     <div :class="$style.content">
       <div
-        v-if="paymentOption.icon"
+        v-if="paymentOption.icon === 'yango'"
+        :class="$style.card"
+      />
+      <div
+        v-else-if="paymentOption.icon"
         :class="$style.icon"
         :style="iconStyle"
       />
@@ -135,6 +142,16 @@ const handleClick = async () => {
   text-align: left;
   width: 100%;
   gap: 12px;
+}
+
+.card {
+  width: 32px;
+  height: 32px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 8px;
+  background-image: url("/manifest-img.jpg");
 }
 
 .icon {

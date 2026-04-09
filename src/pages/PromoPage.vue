@@ -102,8 +102,7 @@ const onDismiss = () => {
   perspective: 1000px;
   display: flex;
   justify-content: center;
-  margin-bottom: 32px;
-  padding: 20px;
+  padding: 16px;
 }
 
 .card {
