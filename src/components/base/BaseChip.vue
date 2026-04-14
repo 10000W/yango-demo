@@ -1,11 +1,20 @@
 <script setup lang="ts">
-const { variant = 'info' } = defineProps<{
+import BaseIcon from '@/components/base/BaseIcon.vue'
+
+const { square, variant = 'info' } = defineProps<{
   variant?: 'info' | 'error' | 'warning' | 'success' | 'primary'
+  square?: boolean
+  icon?: string
 }>()
 </script>
 
 <template>
-  <span :class="[$style.BaseChip, $style[`is-${variant}`]]">
+  <span :class="[$style.BaseChip, $style[`is-${variant}`], { [$style['is-square']]: square }]">
+    <BaseIcon
+      v-if="icon"
+      :name="icon"
+      size="18"
+    />
     <slot />
   </span>
 </template>
@@ -15,32 +24,40 @@ const { variant = 'info' } = defineProps<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1rem;
+  padding: 2px 8px;
+  gap: 4px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
   white-space: nowrap;
 
   &.is-info,
   &.is-primary {
-    background-color: oklch(from var(--c-primary) l c h / 10%);
-    color: var(--c-primary);
+    background-color: oklch(from var(--ypm-color-brand-primary) l c h / 10%);
+    color: var(--ypm-color-brand-primary);
   }
 
   &.is-error {
-    background-color: oklch(from var(--c-danger) l c h / 10%);
-    color: var(--c-danger);
+    background-color: oklch(from var(--ypm-color-state-error) l c h / 10%);
+    color: var(--ypm-color-state-error);
   }
 
   &.is-warning {
-    background-color: oklch(from var(--c-warning) l c h / 10%);
-    color: var(--c-warning);
+    background-color: oklch(from var(--ypm-color-state-warning) l c h / 10%);
+    color: var(--ypm-color-state-warning);
   }
 
   &.is-success {
-    background-color: oklch(from var(--c-success) l c h / 10%);
-    color: var(--c-success);
+    background-color: oklch(from var(--ypm-color-state-success) l c h / 10%);
+    color: var(--ypm-color-state-success);
+  }
+
+  &.is-square {
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
   }
 }
 </style>

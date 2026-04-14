@@ -2,7 +2,7 @@
 import { ref, nextTick, watch, type App } from 'vue'
 import SkeletonPage from '@/components/skeleton/SkeletonPage.vue'
 import BaseBottomSheet from '@/components/base/BaseBottomSheet.vue'
-import { mount } from '@/payment-entry'
+import { mount } from '@/index.ts'
 
 const isModalOpen = ref(false)
 const paymentApp = ref<App | null>(null)
@@ -46,6 +46,13 @@ watch(isModalOpen, (isOpen) => {
 
 <style scoped>
 .host-app {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  background-color: var(--ypm-color-bg-primary);
+  color: var(--ypm-color-text-primary);
+  transition: background-color 0.3s, color 0.3s;
   width: 100%;
   height: 100dvh;
 }

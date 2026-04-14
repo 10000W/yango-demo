@@ -22,8 +22,7 @@ defineEmits<{
         <div :class="$style.rect" />
         <BaseButton
           style="align-self: flex-start"
-          color="danger"
-          size="small"
+          variant="danger"
           @click="$emit('pay')"
         >
           Pay with Crypto
@@ -41,7 +40,7 @@ defineEmits<{
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  background: var(--c-bg);
+  background: var(--ypm-color-bg-primary);
   padding: 24px;
   align-items: center;
 }
@@ -66,21 +65,21 @@ defineEmits<{
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--c-bg-mute);
+  background: var(--ypm-color-bg-secondary);
 }
 
 .rectShort {
   width: 100px;
   height: 20px;
   border-radius: 4px;
-  background: var(--c-bg-mute);
+  background: var(--ypm-color-bg-secondary);
 }
 
 .hero {
   width: 100%;
   height: 240px;
   border-radius: 16px;
-  background: var(--c-bg-mute);
+  background: var(--ypm-color-bg-secondary);
 }
 
 .rows {
@@ -93,14 +92,14 @@ defineEmits<{
   width: 100%;
   height: 14px;
   border-radius: 4px;
-  background: var(--c-bg-mute);
+  background: var(--ypm-color-bg-secondary);
 }
 
 .rectHalf {
   width: 60%;
   height: 14px;
   border-radius: 4px;
-  background: var(--c-bg-mute);
+  background: var(--ypm-color-bg-secondary);
 }
 
 .footer {

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-const props = defineProps<{
+const { to = 'body', modelValue } = defineProps<{
+  to?: string
   modelValue: boolean
 }>()
 
@@ -48,7 +49,7 @@ const close = () => {
   isDragging.value = false
 }
 
-watch(() => props.modelValue, (v) => {
+watch(() => modelValue, (v) => {
   if (v) {
     isOpen.value = true
     document.body.style.overflow = 'hidden'
@@ -64,7 +65,7 @@ watch(() => props.modelValue, (v) => {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="to">
     <Transition name="fade">
       <div
         v-if="modelValue"
@@ -119,7 +120,7 @@ watch(() => props.modelValue, (v) => {
 }
 
 .sheet {
-  background: var(--c-bg);
+  background: var(--ypm-color-bg-primary);
   border-radius: 24px 24px 0 0;
   max-height: 90dvh;
   width: 100%;
@@ -138,7 +139,7 @@ watch(() => props.modelValue, (v) => {
 .handle {
   width: 40px;
   height: 4px;
-  background: var(--c-border);
+  background: var(--ypm-color-border-default);
   border-radius: 2px;
   margin: 12px auto;
   flex-shrink: 0;
@@ -177,7 +178,6 @@ watch(() => props.modelValue, (v) => {
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 0 16px 16px;
 }
 </style>
 
@@ -185,6 +185,7 @@ watch(() => props.modelValue, (v) => {
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s;
 }
+
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
@@ -192,6 +193,7 @@ watch(() => props.modelValue, (v) => {
 .slide-enter-active, .slide-leave-active {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .slide-enter-from, .slide-leave-to {
   transform: translateY(100%);
 }

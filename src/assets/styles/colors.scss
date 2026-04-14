@@ -1,36 +1,64 @@
 :root {
-  /* Brand colors in OKLCH (Modern & Vibrant) */
-  --c-primary: oklch(65% 0.28 285);
-  --c-danger: oklch(62% 0.26 29); /* Keep the red vibrancy */
-  --c-success: oklch(72% 0.22 150);
-  --c-warning: oklch(82% 0.22 88);
+  --ypm-color-brand-primary: #953CA3;
+  --ypm-color-brand-light: #C397FE;
+  --ypm-color-brand-dark: #6B1F7A;
 
-  /* Neutrals - Light mode */
-  --c-bg: oklch(100% 0 0);
-  --c-bg-soft: oklch(98% 0.01 285);
-  --c-bg-mute: oklch(95% 0.02 285);
-  --c-text: oklch(25% 0.02 285);
-  --c-text-soft: oklch(50% 0.02 285);
-  --c-border: oklch(92% 0.02 285);
+  --ypm-color-text-primary: #1E172C;
+  --ypm-color-text-secondary: #1E172C99;
+  --ypm-color-text-tertiary: #1E172C;
+  --ypm-color-text-inverse: #FFFFFF;
+  --ypm-color-text-brand: #953CA3;
 
-  /* Legacy aliases for compatibility */
-  --c-yango-red: var(--c-danger);
-  --c-yango-purple: var(--c-primary);
-  --c-yango-green: var(--c-success);
+  --ypm-color-bg-primary: #FFFFFF;
+  --ypm-color-bg-secondary: #F2EBFF;
+  --ypm-color-bg-tertiary: #F2EBFF;
+
+  --ypm-color-btn-main-bg: #953CA3;
+  --ypm-color-btn-main-text: #FFFFFF;
+  --ypm-color-btn-secondary-bg: #F2EBFF;
+  --ypm-color-btn-secondary-text: #1E172C;
+  --ypm-color-btn-white-bg: #FFFFFF;
+  --ypm-color-btn-white-text: #1E172C;
+
+  --ypm-color-state-success: #22C55E;
+  --ypm-color-state-error: #EF4444;
+  --ypm-color-state-warning: #F59E0B;
+
+  --ypm-color-border-default: #E1E1E1;
+  --ypm-color-border-subtle: #F2EBFF;
+  --ypm-color-border-brand: #953CA3;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --c-bg: oklch(18% 0.02 285);
-    --c-bg-soft: oklch(22% 0.03 285);
-    --c-bg-mute: oklch(28% 0.04 285);
-    --c-text: oklch(98% 0.01 285);
-    --c-text-soft: oklch(80% 0.02 285);
-    --c-border: oklch(35% 0.04 285);
+    --ypm-color-brand-primary: #953CA3;
+    --ypm-color-brand-light: #C397FE;
+    --ypm-color-brand-dark: #6B1F7A;
 
-    /* Slightly brighter primary/vibrant colors for dark mode to ensure contrast */
-    --c-primary: oklch(72% 0.25 285);
-    --c-danger: oklch(68% 0.24 29);
-    --c-success: oklch(78% 0.2 150);
+    --ypm-color-text-primary: #FFFFFF;
+    --ypm-color-text-secondary: #F6F0FFB2;
+    --ypm-color-text-tertiary: #C397FE;
+    --ypm-color-text-inverse: #1E172C;
+    --ypm-color-text-brand: #953CA3;
+
+    --ypm-color-bg-primary: #020109;
+    --ypm-color-bg-secondary: #3D294C;
+    --ypm-color-bg-tertiary: #0C0612;
+
+    --ypm-color-btn-secondary-bg: #231E27;
+    --ypm-color-btn-secondary-text: #E8E0F5;
+
+    --ypm-color-border-default: #1F1829;
+    --ypm-color-border-subtle: #2A1F3D;
+  }
+}
+
+.yango-crypto-pay {
+  .c-text-primary {
+    color: var(--ypm-color-brand-primary)
+  }
+
+  .c-text-secondary {
+    color: var(--ypm-color-text-secondary)
   }
 }

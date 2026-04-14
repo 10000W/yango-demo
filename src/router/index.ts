@@ -1,19 +1,19 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import SelectChainPage from '@/pages/SelectChainPage.vue'
+import { createMemoryHistory, createRouter, createWebHashHistory } from 'vue-router'
+import SelectPaymentPage from '@/pages/SelectPaymentPage.vue'
 import SelectAssetPage from '@/pages/SelectAssetPage.vue'
 import PayPage from '@/pages/PayPage.vue'
 import StatusPage from '@/pages/StatusPage.vue'
 import EditConnectionsPage from '@/pages/EditConnectionsPage.vue'
 import PromoPage from '@/pages/PromoPage.vue'
-import WhitelistSuccessPage from '@/pages/WhitelistSuccessPage.vue'
+import WhitelistPage from '@/pages/WhitelistPage.vue'
 
 export const createPaymentRouter = (base = '/') => createRouter({
-  history: createWebHashHistory(),
+  history: createMemoryHistory(),
   routes: [
     {
-      name: 'chain',
-      path: '/chain',
-      component: SelectChainPage,
+      name: '',
+      path: '/',
+      component: SelectPaymentPage,
     },
     {
       name: 'asset',
@@ -41,9 +41,9 @@ export const createPaymentRouter = (base = '/') => createRouter({
       component: PromoPage,
     },
     {
-      name: 'whitelist-success',
-      path: '/whitelist-success',
-      component: WhitelistSuccessPage,
+      name: 'whitelist',
+      path: '/whitelist',
+      component: WhitelistPage,
     },
   ],
 })

@@ -7,7 +7,7 @@ import {
   useWalletInfo,
 } from '@reown/appkit/vue'
 import { whenever } from '@vueuse/core'
-import { mainnet } from 'viem/chains'
+import { mainnet, polygon } from 'viem/chains'
 import { computed, nextTick, ref, watch } from 'vue'
 import { REOWN_PROJECT_ID, wagmiAdapter } from '@/entities/config'
 import { truncate } from '@/utils/string-utils'
@@ -16,7 +16,7 @@ const isLoaded = ref(false)
 const modal = createAppKit({
   adapters: [wagmiAdapter],
   defaultNetwork: mainnet,
-  networks: [mainnet],
+  networks: [mainnet, polygon],
   projectId: REOWN_PROJECT_ID,
   metadata: {
     name: 'Yango Payment DEMO',

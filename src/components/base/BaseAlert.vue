@@ -1,18 +1,23 @@
 <script setup lang="ts">
-const { icon, variant = 'info' } = defineProps<{
+import BaseIcon from '@/components/base/BaseIcon.vue'
+
+const { icon = 'important', variant = 'info' } = defineProps<{
   icon?: string
-  variant?: 'info' | 'error' | 'warning' | 'success'
+  variant?: 'error' | 'warning' | 'success'
 }>()
 </script>
 
 <template>
-  <div :class="[$style.BaseAlert, $style[`is-${variant}`]]">
-    <img
-      v-if="icon"
-      :src="icon"
+  <div
+    :class="[$style.BaseAlert, $style[`is-${variant}`]]"
+    class="flex p3 align-center p-12 br-md gap-10"
+  >
+    <BaseIcon
       :class="$style.icon"
-      alt="alert icon"
-    >
+      class="c-text-primary"
+      :name="icon"
+    />
+
     <div :class="$style.content">
       <slot />
     </div>
@@ -21,19 +26,8 @@ const { icon, variant = 'info' } = defineProps<{
 
 <style module lang="scss">
 .BaseAlert {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 20px;
   width: 100%;
-
-  &.is-info {
-    background-color: oklch(from var(--c-primary) l c h / 10%);
-    color: var(--c-primary);
-  }
+  background-color: var(--ypm-color-bg-secondary);
 
   &.is-error {
     background-color: oklch(from var(--c-danger) l c h / 10%);
@@ -52,10 +46,7 @@ const { icon, variant = 'info' } = defineProps<{
 }
 
 .icon {
-  width: 20px;
-  height: 20px;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .content {

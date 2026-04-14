@@ -2,55 +2,22 @@
 import { useRouter } from 'vue-router'
 import { useAppKit } from '@/composables/useAppKit.ts'
 import { useTonConnect } from '@/composables/useTonConnect.ts'
-import BaseButton from '@/components/base/BaseButton.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import WalletDisconnectEVM from '@/components/entities/wallet/WalletDisconnectEVM.vue'
+import WalletDisconnectTVM from '@/components/entities/wallet/WalletDisconnectTVM.vue'
 
-const router = useRouter()
-const { isConnected: isEvmConnected, shortAddress: evmAddress, disconnect: evmDisconnect, walletInfo } = useAppKit()
-const { isConnected: isTonConnected, shortAddress: tonAddress, disconnect: tonDisconnect, walletName: tonWalletName } = useTonConnect()
-
-const handleBack = () => {
-  router.push('/chain')
-}
-
-const handleDisconnectEvm = async () => {
-  await evmDisconnect()
-}
-
-const handleDisconnectTon = async () => {
-  await tonDisconnect()
-}
+const { isConnected: isEvmConnected } = useAppKit()
+const { isConnected: isTonConnected } = useTonConnect()
 </script>
 
 <template>
   <div :class="$style.EditConnectionsPage">
-    <div :class="$style.header">
-      <button
-        :class="$style.backButton"
-        type="button"
-        @click="handleBack"
-      >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M15 18L9 12L15 6"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
-      <h1 :class="$style.title">
-        Manage Wallets
-      </h1>
-    </div>
+    <PageHeader title="Connected wallets" />
 
-    <div :class="$style.content">
+    <div
+      :class="$style.content"
+      class="column"
+    >
       <div
         v-if="!isEvmConnected && !isTonConnected"
         :class="$style.emptyState"
@@ -58,39 +25,9 @@ const handleDisconnectTon = async () => {
         <p>No wallets connected</p>
       </div>
 
-      <div
-        v-if="isEvmConnected"
-        :class="$style.connection"
-      >
-        <div :class="$style.walletInfo">
-          <span :class="$style.walletName">{{ walletInfo?.name || 'EVM Wallet' }}</span>
-          <span :class="$style.address">{{ evmAddress }}</span>
-        </div>
-        <BaseButton
-          variant="danger"
-          size="small"
-          @click="handleDisconnectEvm"
-        >
-          Disconnect
-        </BaseButton>
-      </div>
+      <WalletDisconnectEVM v-if="isEvmConnected" />
 
-      <div
-        v-if="isTonConnected"
-        :class="$style.connection"
-      >
-        <div :class="$style.walletInfo">
-          <span :class="$style.walletName">{{ tonWalletName || 'TON Wallet' }}</span>
-          <span :class="$style.address">{{ tonAddress }}</span>
-        </div>
-        <BaseButton
-          variant="danger"
-          size="small"
-          @click="handleDisconnectTon"
-        >
-          Disconnect
-        </BaseButton>
-      </div>
+      <WalletDisconnectTVM v-if="isTonConnected" />
     </div>
   </div>
 </template>
@@ -101,61 +38,10 @@ const handleDisconnectTon = async () => {
   flex-direction: column;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.backButton {
-  padding: 8px;
-  margin-left: -8px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--c-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
 .content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.connection {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  background: var(--c-bg-soft);
-  border-radius: 12px;
-  border: 1px solid var(--c-border);
-}
-
-.walletInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.walletName {
-  font-weight: 600;
-  color: var(--c-text);
-}
-
-.address {
-  font-size: 0.85rem;
-  color: var(--c-text-soft);
+  & > *:not(:last-child) {
+    border-bottom: 1px solid var(--ypm-color-border-default)
+  }
 }
 
 .emptyState {

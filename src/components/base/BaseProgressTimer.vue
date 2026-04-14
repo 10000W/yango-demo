@@ -2,9 +2,9 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const props = defineProps<{
-  duration: number // seconds
-  size?: number // px
-  strokeWidth?: number // px
+  duration: number
+  size?: number
+  strokeWidth?: number
   color?: string
 }>()
 
@@ -13,9 +13,9 @@ const emit = defineEmits<{
 }>()
 
 const {
-  size = 24,
+  size = 16,
   strokeWidth = 2,
-  color = 'currentColor',
+  color = 'var(--ypm-color-brand-primary)',
 } = props
 
 const timeLeft = ref(props.duration)
@@ -94,7 +94,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="$style.BaseProgressTimer">
+  <div
+    :class="$style.BaseProgressTimer"
+    class="flex align-center gap-6"
+  >
     <div
       :class="$style.circle"
       :style="{ width: `${size}px`, height: `${size}px` }"
@@ -129,8 +132,9 @@ onUnmounted(() => {
     </div>
 
     <div
-      v-if="size > 40 || $slots.default"
+      v-if="$slots.default"
       :class="$style.label"
+      :style="{ color }"
     >
       <slot :time-formatted="timeFormatted">
         {{ timeFormatted }}
@@ -141,10 +145,9 @@ onUnmounted(() => {
 
 <style module lang="scss">
 .BaseProgressTimer {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  //
 }
+
 .circle {
   position: relative;
   display: inline-flex;
@@ -157,7 +160,7 @@ onUnmounted(() => {
 }
 
 .background {
-  stroke: var(--c-border);
+  stroke: var(--ypm-color-border-default);
 }
 
 .progress {
@@ -165,6 +168,7 @@ onUnmounted(() => {
 }
 
 .label {
+  font-family: monospace;
   font-variant-numeric: tabular-nums;
 }
 </style>

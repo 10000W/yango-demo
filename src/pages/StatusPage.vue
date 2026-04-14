@@ -2,85 +2,147 @@
 import { useRoute, useRouter } from 'vue-router'
 import { computed, inject } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
+import { usePayment } from '@/composables/usePayment.ts'
+import { formatNumber } from '@/utils/string-utils.ts'
+import BaseIcon from '@/components/base/BaseIcon.vue'
+import BaseSpinner from '@/components/base/BaseSpinner.vue'
+import { useAppKit } from '@/composables/useAppKit.ts'
+import type { PayZapSessionStatus } from '@/entities/payzap.ts'
 
 const route = useRoute()
 const router = useRouter()
+const { activeSession, selectedChain, amount, reset } = usePayment()
+
 const onCloseCallback = inject<(() => void) | null>('onClose', null)
 
-const status = computed(() => (route.query.status as string) || 'success')
-const title = computed(() => (route.query.title as string) || (status.value === 'success' ? 'Payment Successful' : 'Payment Failed'))
-const description = computed(() => (route.query.description as string) || (status.value === 'success' ? 'Your payment has been processed successfully.' : 'There was an error processing your payment.'))
-
-const onClose = () => {
-  if (onCloseCallback) {
-    onCloseCallback()
+const status = computed(() => {
+  if (route.query.status) {
+    return route.query.status as PayZapSessionStatus
   }
-  else {
-    router.replace({ name: 'chain' })
+
+  return activeSession.value?.status
+})
+const title = computed(() => {
+  if (route.query.title) {
+    return route.query.title
+  }
+  switch (status.value) {
+    case 'expired':
+      return 'The payment time has expired'
+    case 'failed':
+      return 'The payment has failed'
+    case 'confirming':
+      return 'Payment is processing...'
+    case 'completed':
+      return 'Payment successful'
+    default:
+      return 'Processing...'
+  }
+})
+const description = computed(() => {
+  if (route.query.description) {
+    return route.query.description
+  }
+  switch (status.value) {
+    case 'expired':
+      return 'If you have already submitted a transaction, do not create a new payment. The funds will be credited automatically.'
+    case 'failed':
+      return 'The payment has failed'
+    case 'confirming':
+      return 'Please wait while your transaction is being processed.'
+    case 'completed':
+      return `${formatNumber(amount)} ${activeSession.value?.asset}`
+    default:
+      return 'Please wait until transaction status is updated.'
+  }
+})
+const icon = computed(() => {
+  switch (status.value) {
+    case 'expired':
+      return 'expired'
+    case 'failed':
+      return 'important'
+    case 'completed':
+      return `success`
+    case 'confirming':
+    default:
+      return 'loading'
+  }
+})
+const paymentTypeIconUrl = computed(() => {
+  const { walletInfo } = useAppKit()
+  switch (selectedChain.value) {
+    case 'evm':
+      return walletInfo.value?.icon
+    default:
+      return '/tac.png'
+  }
+})
+const submitLabel = computed(() => {
+  switch (status.value) {
+    case 'expired':
+    case 'failed':
+      return 'Create a new payment'
+    case 'completed':
+      return 'Return to the app'
+    case 'confirming':
+    default:
+      return ''
+  }
+})
+const isSubmitVisible = computed(() => !!submitLabel.value)
+
+const handleSubmit = () => {
+  switch (status.value) {
+    case 'expired':
+      router.replace('/')
+      reset()
+      return
+    case 'failed':
+      router.replace('/')
+      return
+    case 'completed':
+      if (onCloseCallback) {
+        onCloseCallback()
+      }
+      return
+    case 'confirming':
+    default:
+      return
   }
 }
 </script>
 
 <template>
-  <div :class="$style.StatusPage">
+  <div
+    :class="[$style.StatusPage, $style[`_${status}`]]"
+    class="column gap-16"
+  >
     <div :class="$style.content">
-      <div
-        :class="[$style.icon, $style[status]]"
-      >
-        <svg
-          v-if="status === 'success'"
-          width="64"
-          height="64"
-          viewBox="0 0 64 64"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle
-            cx="32"
-            cy="32"
-            r="32"
-            fill="currentColor"
-          />
-          <path
-            d="M18 32.5L27.5 42L46 23.5"
-            stroke="white"
-            stroke-width="4"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <svg
-          v-else
-          width="64"
-          height="64"
-          viewBox="0 0 64 64"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle
-            cx="32"
-            cy="32"
-            r="32"
-            fill="currentColor"
-          />
-          <path
-            d="M22 22L42 42M42 22L22 42"
-            stroke="white"
-            stroke-width="4"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </div>
-      <h1 :class="$style.title">
+      <BaseSpinner v-if="icon === 'loading'">
+        <div
+          :class="$style.loadingIcon"
+          :style="{backgroundImage: `url(${paymentTypeIconUrl})`}"
+        />
+      </BaseSpinner>
+      <BaseIcon
+        v-else
+        :class="$style.icon"
+        :name="icon"
+        :size="60"
+      />
+      <h1 class="h1 center mb-8">
         {{ title }}
       </h1>
-      <p :class="$style.description">
+      <p
+        class="h4 center c-text-secondary"
+        :class="$style.description"
+      >
         {{ description }}
       </p>
     </div>
 
-    <RouterLink
+    <!--    <RouterLink
       to="/promo"
       style="text-decoration: none"
     >
@@ -88,14 +150,18 @@ const onClose = () => {
         Open Yango card and get cashback for your rides
         <div :class="$style.promoCard" />
       </div>
-    </RouterLink>
+    </RouterLink>-->
     <BaseButton
+      v-if="isSubmitVisible"
       wide
-      size="large"
-      variant="danger"
-      @click="onClose"
+      class="gap-8"
+      @click="handleSubmit"
     >
-      {{ status === 'success' ? 'Great!' : 'Close' }}
+      <BaseIcon
+        name="reload"
+        size="22"
+      />
+      {{ submitLabel }}
     </BaseButton>
   </div>
 </template>
@@ -108,6 +174,24 @@ const onClose = () => {
   justify-content: space-between;
   height: 100%;
   text-align: center;
+
+  &._expired {
+    .icon {
+       color: var(--ypm-color-state-warning);
+    }
+  }
+
+  &._completed {
+    .icon {
+      color: var(--ypm-color-state-success);
+    }
+  }
+
+  &._failed {
+    .icon {
+      color: var(--ypm-color-state-error);
+    }
+  }
 }
 
 .content {
@@ -116,30 +200,6 @@ const onClose = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.icon {
-  margin-bottom: 24px;
-
-  &.success {
-    color: var(--c-success);
-  }
-
-  &.failed {
-    color: var(--c-danger);
-  }
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.description {
-  color: var(--c-text-soft);
-  max-width: 280px;
-  text-align: center;
 }
 
 .promo {
@@ -161,6 +221,15 @@ const onClose = () => {
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  background-image: url("/card.png");
+  background-image: url("@/assets/images/card.png");
+}
+
+.loadingIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 </style>

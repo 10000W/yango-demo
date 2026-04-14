@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
-import PaymentApp from './PaymentApp.vue'
+import Main from './Main.vue'
 import { createPaymentRouter } from './router'
 
 export function mount(selector: string, options?: { onClose?: () => void }) {
-  const app = createApp(PaymentApp)
+  const app = createApp(Main)
   const router = createPaymentRouter()
   app.use(router)
 
@@ -17,7 +17,7 @@ export function mount(selector: string, options?: { onClose?: () => void }) {
   app.mount(el)
 
   // Push initial route
-  router.push({ name: 'chain' })
+  // router.replace({ name: 'index' })
 
   return app
 }

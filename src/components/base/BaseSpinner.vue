@@ -2,19 +2,37 @@
 </script>
 
 <template>
-  <div :class="$style.spinner" />
+  <div
+    class="flex align-center justify-center"
+    :class="$style.spinner"
+  >
+    <slot />
+  </div>
 </template>
 
 <style module lang="scss">
 .spinner {
-  width: 48px;
-  height: 48px;
-  border: 2px solid var(--c-yango-purple);
-  border-bottom-color: transparent;
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border: 2px solid var(--ypm-color-border-default);
   border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 72px;
+    height: 72px;
+    border-radius: inherit;
+    border: 2px solid var(--ypm-color-brand-primary);
+    border-top: 2px solid transparent;
+    border-right: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    transform-origin: center;
+    animation: rotation 1.5s linear infinite;
+  }
 }
 
 @keyframes rotation {

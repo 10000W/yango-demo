@@ -2,11 +2,13 @@
 import { ref, onMounted, computed } from 'vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 import { useRoute } from 'vue-router'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const route = useRoute()
 const isLoading = ref(true)
 
-const isAccoladeVisible = computed(() => ['chain', 'asset', 'pay', 'edit'].includes(route.name as string))
+const isGlowVisible = computed(() => ['promo'].includes(route.name as string))
+const isAccoladeVisible = true
 
 onMounted(() => {
   setTimeout(() => {
@@ -17,12 +19,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <main :class="$style.viewport">
+  <main
+    class="yango-crypto-pay column"
+    :class="[$style.viewport, {[$style._glow]: isGlowVisible}]"
+  >
     <div
       v-if="isLoading"
       :class="$style.loader"
     >
-      <BaseSpinner />
+      <div class="column align-center gap-12">
+        <BaseSpinner>
+          <BaseIcon
+            style="color: var(--ypm-color-brand-primary)"
+            name="tac"
+            size="38"
+          />
+        </BaseSpinner>
+
+        <p class="w-500">
+          Loading...
+        </p>
+      </div>
     </div>
     <RouterView
       v-else
@@ -32,22 +49,27 @@ onMounted(() => {
         name="fade"
         mode="out-in"
       >
-        <component :is="Component" />
+        <component
+          :is="Component"
+          :key="route.path"
+        />
       </Transition>
     </RouterView>
+
     <small
       v-if="isAccoladeVisible"
-      :class="$style.accolade"
+      class="flex align-center justify-center gap-6 c-text-secondary p3 w-500 p-24"
     >
-      <div :class="$style.accoladeTac" />
+      <BaseIcon
+        :size="22"
+        name="tac"
+      />
       Powered by TAC
     </small>
   </main>
 </template>
 
 <style module lang="scss">
-@use "@/assets/styles/main" as *;
-
 .loader {
   display: flex;
   align-items: center;
@@ -56,23 +78,19 @@ onMounted(() => {
 }
 
 .viewport {
-  display: flex;
-  flex-direction: column;
   min-height: 80dvh;
   overflow: auto;
 
   & > *:first-child {
     flex-grow: 1;
+    padding: 0 16px;
   }
-}
 
-.accolade {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-  margin-top: 12px;
+  &._glow {
+    background:
+      radial-gradient(circle, #FF1A1A -40%,
+      rgba(255, 255, 255, 0) 50%) no-repeat 0 -400px;
+  }
 }
 
 .accoladeTac {
@@ -80,11 +98,17 @@ onMounted(() => {
   height: 16px;
   background-size: contain;
   background-repeat: no-repeat;
-  background-image: url("/tac.png");
+  background-image: url("@/assets/images/tac.png");
+}
+
+.page {
+
 }
 </style>
 
-<style>
+<style lang="scss">
+@use "@/assets/styles/main" as *;
+
 .fade-enter-active {
   transition: opacity .2s ease;
 }

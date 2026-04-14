@@ -1,178 +1,90 @@
 <script setup lang="ts">
 import { usePayment } from '@/composables/usePayment.ts'
-import { onMounted, ref } from 'vue'
-import BaseButton from '@/components/base/BaseButton.vue'
-import BaseAlert from '@/components/base/BaseAlert.vue'
-import BaseProgressTimer from '@/components/base/BaseProgressTimer.vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAppKit } from '@/composables/useAppKit.ts'
-import { formatUnits, BaseError } from 'viem'
-// import { compactNumber } from '@/utils/string-utils.ts'
+import PageHeader from '@/components/PageHeader.vue'
+import PayFormEVM from '@/components/entities/pay/PayFormEVM.vue'
+import BaseSpinner from '@/components/base/BaseSpinner.vue'
 
-const { createSession, pay, amount, selectedAsset } = usePayment()
-const { walletInfo, shortAddress } = useAppKit()
+const { createSession, selectedAsset, activeSession, reset } = usePayment()
 const router = useRouter()
 
-// const estimatedGas = ref(0n)
-const isPaying = ref(false)
+const isLoading = ref(false)
 const errorMessage = ref('')
-const isExpired = ref(false)
 
-const onTimerComplete = () => {
-  isExpired.value = true
-  errorMessage.value = 'Payment session has expired. Please try again.'
-}
-
-const handleError = (e: unknown, defaultMessage: string) => {
-  if (e instanceof BaseError) {
-    errorMessage.value = e.shortMessage || e.message
+watch(() => activeSession.value?.status, (status) => {
+  if (status && status !== 'pending') {
+    router.replace({ name: 'status' })
   }
-  else {
-    errorMessage.value = e instanceof Error ? e.message : defaultMessage
-  }
-}
+})
 
 onMounted(async () => {
   try {
-    isPaying.value = true
+    isLoading.value = true
     await createSession()
-    // estimatedGas.value = (await estimateGasFee()) || 0n
   }
-  catch (e) {
-    handleError(e, 'Failed to initialize payment')
+  catch {
     router.replace({
       name: 'status',
       query: {
         status: 'failed',
+        title: 'Error',
         description: errorMessage.value,
       },
     })
   }
   finally {
-    isPaying.value = false
+    isLoading.value = false
   }
 })
-
-const submit = async () => {
-  try {
-    isPaying.value = true
-    errorMessage.value = ''
-    await pay()
-    router.replace({ name: 'status', query: { status: 'success' } })
-  }
-  catch (error) {
-    console.warn(error)
-    handleError(error, 'Transaction failed')
-  }
-  finally {
-    isPaying.value = false
-  }
-}
 </script>
 
 <template>
-  <div :class="$style.PayPage">
-    <h1 :class="$style.title">
-      Sign transaction
+  <div
+    :class="$style.PayPage"
+    class="column"
+  >
+    <PageHeader
+      v-if="!isLoading"
+      title=""
+      @back="reset()"
+    />
+
+    <h1
+      v-if="!isLoading"
+      class="h1 mb-24 inline-flex gap-8 flex-wrap"
+    >
+      <span>Pay by</span> <span class="inline-flex align-center gap-8">
+        <img
+          v-if="selectedAsset?.icon"
+          :src="selectedAsset.icon"
+          :class="$style.icon"
+          alt="icon"
+        > {{ selectedAsset?.symbol }}
+      </span>
     </h1>
 
-    <div :class="$style.content">
-      <BaseAlert
-        v-if="errorMessage"
-        variant="error"
-        :class="$style.alert"
-      >
-        {{ errorMessage }}
-      </BaseAlert>
-
-      <div :class="$style.infoBox">
-        <div :class="$style.infoRow">
-          <span :class="$style.label">Wallet</span>
-          <div :class="$style.value">
-            <img
-              v-if="walletInfo?.icon"
-              :src="walletInfo.icon"
-              :class="$style.icon"
-              alt="wallet icon"
-            >
-            <span>{{ shortAddress }}</span>
-          </div>
-        </div>
-
-        <div :class="$style.infoRow">
-          <span :class="$style.label">Amount</span>
-          <div :class="$style.value">
-            <img
-              v-if="selectedAsset?.icon"
-              :src="selectedAsset.icon"
-              :class="$style.icon"
-              alt="asset icon"
-            >
-            <span>{{ amount }} {{ selectedAsset?.symbol }}</span>
-          </div>
-        </div>
-
-        <!--        <div :class="$style.infoRow">-->
-        <!--          <span :class="$style.label">Gas fee</span>-->
-        <!--          <div :class="$style.value">-->
-        <!--            <img-->
-        <!--              src="https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/eth.png"-->
-        <!--              :class="$style.icon"-->
-        <!--              alt="gas icon"-->
-        <!--            >-->
-        <!--            <span>{{ compactNumber(Math.max(+formatUnits(estimatedGas, 18), 0.0001), 4) || '...' }} ETH</span>-->
-        <!--          </div>-->
-        <!--        </div>-->
-
-        <div :class="$style.infoRow">
-          <span :class="$style.label">Expires in</span>
-          <div :class="$style.value">
-            <BaseProgressTimer
-              :duration="15 * 60"
-              :size="24"
-              color="var(--c-yango-red)"
-              @complete="onTimerComplete"
-            >
-              <template #default="{ timeFormatted }">
-                <span>{{ timeFormatted }}</span>
-              </template>
-            </BaseProgressTimer>
-          </div>
-        </div>
-      </div>
+    <div
+      v-if="isLoading"
+      class="flex column align-center justify-center flex-1"
+    >
+      <BaseSpinner name="loading">
+        <div
+          :class="$style.icon"
+          :style="{backgroundImage: `url(${selectedAsset?.icon})`}"
+        />
+      </BaseSpinner>
     </div>
 
-    <div :class="$style.btns">
-      <BaseButton
-        :class="$style.btn"
-        variant="secondary"
-        wide
-        size="large"
-        :disabled="isPaying"
-        @click="router.replace('/chain')"
-      >
-        Select another wallet
-      </BaseButton>
-
-      <BaseButton
-        :class="$style.btn"
-        variant="danger"
-        wide
-        size="large"
-        :loading="isPaying"
-        :disabled="isExpired || isPaying"
-        @click="submit"
-      >
-        {{ isExpired ? 'Expired' : `Pay ${amount} ${selectedAsset?.symbol}` }}
-      </BaseButton>
-    </div>
+    <PayFormEVM
+      v-else-if="activeSession?.chain === 'evm'"
+      class="flex-1"
+    />
   </div>
 </template>
 
 <style module lang="scss">
 .PayPage {
-  display: flex;
-  flex-direction: column;
   min-height: 100%;
 }
 
@@ -182,54 +94,11 @@ const submit = async () => {
   margin-bottom: 32px;
 }
 
-.content {
-  flex: 1;
-}
-
-.alert {
-  margin-bottom: 24px;
-}
-
-.infoBox {
-  padding: 16px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border-top: 1px solid var(--c-border);
-  border-bottom: 1px solid var(--c-border);
-}
-
-.infoRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.label {
-  font-size: 16px;
-  color: var(--c-text-soft);
-}
-
-.value {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-}
-
 .icon {
-  width: 24px;
-  height: 24px;
-}
-
-.btn {
-  margin-top: auto;
-}
-
-.btns {
-  display: flex;
-  flex-direction: column;
-  margin-top: 12px;
-  gap: 8px;
+  width: 32px;
+  height: 32px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 </style>

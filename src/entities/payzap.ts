@@ -1,5 +1,6 @@
 import type { PaymentAsset, PaymentChainType } from '@/entities/payment'
 
+export type PayZapSessionStatus = 'completed' | 'expired' | 'failed' | 'confirming' | 'pending'
 export type PayZapSession = {
   id: string
   productId: string
@@ -7,7 +8,9 @@ export type PayZapSession = {
   amount: string // float
   asset: PaymentAsset
   chain: PaymentChainType
-  status: string
+  status: PayZapSessionStatus
   expiresAt: string // iso date
-  paymentUrl: string
+  paymentUrl?: string
+  exchangePayUrl?: string
+  exchangePayQr?: string
 }
