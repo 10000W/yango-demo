@@ -48,8 +48,7 @@ const onDismiss = () => {
 <template>
   <div :class="$style.PromoPage">
     <div
-      v-if="isImagesLoaded"
-      :class="$style.cardContainer"
+      :class="[$style.cardContainer, {[$style['_ready']]: isImagesLoaded}]"
       class="flex align-center justify-center"
     >
       <div :class="$style.card" />
@@ -127,6 +126,23 @@ const onDismiss = () => {
   height: 230px;
   perspective: 1000px;
   min-height: 230px;
+
+  &._ready {
+    .card {
+      opacity: 1;
+      animation: cardEntrance 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards, card 8s ease-in-out 1.8s infinite;
+    }
+
+    .percents {
+      & > *:first-child {
+        animation: percentsEntrance 0.6s ease 1.2s forwards, percents 8s ease-in-out 1.8s infinite;
+      }
+
+      & > *:last-child {
+        animation: percentsEntrance 0.7s ease 1.4s forwards, percents 8s ease-in-out 2.2s infinite;
+      }
+    }
+  }
 }
 
 .card, .percents {
@@ -138,13 +154,13 @@ const onDismiss = () => {
 .card {
   position: relative;
   transform-style: preserve-3d;
-  background-image: url("/card.png");
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   will-change: transform, opacity;
-  animation: cardEntrance 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards, card 8s ease-in-out 1.8s infinite;
+  background-image: url("/card.png");
   overflow: hidden;
+  opacity: 0;
 }
 
 .percents {
@@ -168,7 +184,6 @@ const onDismiss = () => {
     width: 50px;
     height: 50px;
     rotate: 15deg;
-    animation: percentsEntrance 0.6s ease 1.2s forwards, percents 8s ease-in-out 1.8s infinite;
   }
 
   & > *:last-child {
@@ -177,7 +192,6 @@ const onDismiss = () => {
     width: 88px;
     height: 88px;
     rotate: -15deg;
-    animation: percentsEntrance 0.7s ease 1.4s forwards, percents 8s ease-in-out 2.2s infinite;
   }
 }
 

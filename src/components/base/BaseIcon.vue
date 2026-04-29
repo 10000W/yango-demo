@@ -32,7 +32,6 @@ watchEffect(async () => {
 
 <template>
   <span
-    v-if="svgContent"
     class="base-icon"
     :style="{ width: `${size}px`, height: `${size}px` }"
     v-bind="$attrs"
@@ -51,10 +50,5 @@ watchEffect(async () => {
 .base-icon :deep(svg) {
   width: 100%;
   height: 100%;
-}
-
-.base-icon :deep(path) {
-  fill: currentColor;
-  stroke: inherit;
 }
 </style>
