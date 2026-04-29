@@ -21,7 +21,7 @@ const { selectedChain } = usePayment()
 const { isConnected: isEvmConnected, modal: appkitModal, walletInfo } = useAppKit()
 const { isConnected: isTonConnected, modal: tonconnectModal } = useTonConnect()
 
-let appKitWalletButton: ReturnType<typeof createAppKitWalletButton | undefined>
+let appKitWalletButton: ReturnType<typeof createAppKitWalletButton>
 
 if (paymentOption.type === 'evm' && paymentOption.walletName) {
   appKitWalletButton = createAppKitWalletButton()
@@ -168,7 +168,7 @@ const handleClick = async () => {
 }
 
 .card {
-  background-image: url("@/assets/images/manifest-img.jpg");
+  background-image: url("/manifest-img.jpg");
 }
 
 .icon {

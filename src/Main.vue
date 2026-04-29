@@ -98,7 +98,7 @@ onMounted(() => {
   height: 16px;
   background-size: contain;
   background-repeat: no-repeat;
-  background-image: url("@/assets/images/tac.png");
+  background-image: url("/tac.png");
 }
 
 .page {

@@ -25,26 +25,26 @@ export default defineConfig({
     },
   },
   build: {
-    target: 'esnext',
-    cssCodeSplit: false,
-    chunkSizeWarningLimit: 2000,
-    reportCompressedSize: true,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
-      },
-      format: {
-        comments: false,
-      },
-    },
-    lib: {
-      entry: fileURLToPath(new URL('./src/payment-entry.ts', import.meta.url)),
-      name: 'PaymentApp',
-      fileName: 'payment-app',
-    },
+    // target: 'esnext',
+    // cssCodeSplit: false,
+    // chunkSizeWarningLimit: 2000,
+    // reportCompressedSize: true,
+    // minify: 'terser',
+    // terserOptions: {
+    //   compress: {
+    //     drop_console: true,
+    //     drop_debugger: true,
+    //     pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+    //   },
+    //   format: {
+    //     comments: false,
+    //   },
+    // },
+    // lib: {
+    //   entry: fileURLToPath(new URL('./src/payment-entry.ts', import.meta.url)),
+    //   name: 'PaymentApp',
+    //   fileName: 'payment-app',
+    // },
     rollupOptions: {
       output: {
         inlineDynamicImports: true,

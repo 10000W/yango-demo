@@ -221,7 +221,7 @@ const handleSubmit = () => {
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  background-image: url("@/assets/images/card.png");
+  background-image: url("/card.png");
 }
 
 .loadingIcon {
