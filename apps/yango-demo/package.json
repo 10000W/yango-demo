@@ -1,0 +1,22 @@
+{
+  "name": "yango-demo-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tac-crypto-payment/ui": "workspace:*",
+    "vue": "^3.5.31"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.5",
+    "vite": "^7.3.2",
+    "vite-plugin-mkcert": "^1.17.10",
+    "vite-plugin-node-polyfills": "^0.26.0",
+    "vite-plugin-vue-devtools": "^8.1.1"
+  }
+}

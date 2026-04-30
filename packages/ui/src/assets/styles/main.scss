@@ -1,0 +1,30 @@
+@use 'colors';
+@use 'reset';
+@use 'font';
+@use 'grid';
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+.tac-crypto-payment {
+  @include reset.styles;
+  @include font.styles;
+  @include grid.styles;
+
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+  background-color: var(--ypm-color-bg-primary);
+  color: var(--ypm-color-text-primary);
+  transition: background-color 0.3s, color 0.3s;
+
+  hr {
+    height: 1px;
+    border: none;
+    background-color: var(--ypm-color-border-default);
+    margin-block-start: 0;
+    margin-block-end: 0;
+  }
+}
+
+
