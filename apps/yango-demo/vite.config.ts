@@ -21,6 +21,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@ui': fileURLToPath(new URL('../../packages/ui/src', import.meta.url)),
+      '@tac-crypto-payment/ui': fileURLToPath(new URL('../../packages/ui/src', import.meta.url)),
     },
   },
   server: {

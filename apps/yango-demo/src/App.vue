@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, type App } from 'vue'
 import SkeletonPage from '@/components/skeleton/SkeletonPage.vue'
-import BaseBottomSheet from '@ui/components/base/BaseBottomSheet.vue'
+import BaseBottomSheet from '@tac-crypto-payment/ui/components/base/BaseBottomSheet.vue'
 import { mount } from '@tac-crypto-payment/ui'
 
 const isModalOpen = ref(false)

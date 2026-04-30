@@ -6,9 +6,10 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./dist/tac-crypto-payment-ui.mjs",
-      "require": "./dist/tac-crypto-payment-ui.cjs"
-    }
+      "import": "./src/index.ts",
+      "default": "./dist/tac-crypto-payment-ui.mjs"
+    },
+    "./*": "./src/*"
   },
   "main": "./dist/tac-crypto-payment-ui.cjs",
   "module": "./dist/tac-crypto-payment-ui.mjs",
