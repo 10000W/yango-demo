@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { inject, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useImage } from '@vueuse/core'
 import BaseButton from '@ui/components/base/BaseButton.vue'
 import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import cardImage from '@ui/assets/images/card.png'
+import cardPercent from '@ui/assets/images/percent.png'
 
 const router = useRouter()
-const onCloseCallback = inject<(() => void) | null>('onClose', null)
 
-const { isReady: isCardReady } = useImage({ src: '/card.png' })
-const { isReady: isPercentReady } = useImage({ src: '/percent.png' })
+const { isReady: isCardReady } = useImage({ src: cardImage })
+const { isReady: isPercentReady } = useImage({ src: cardPercent })
 
 const isImagesLoaded = computed(() => isCardReady.value && isPercentReady.value)
 
@@ -36,12 +37,7 @@ const onApply = () => {
 }
 
 const onDismiss = () => {
-  if (onCloseCallback) {
-    onCloseCallback()
-  }
-  else {
-    router.push({ name: 'status' })
-  }
+  router.replace('/')
 }
 </script>
 
@@ -51,10 +47,19 @@ const onDismiss = () => {
       :class="[$style.cardContainer, {[$style['_ready']]: isImagesLoaded}]"
       class="flex align-center justify-center"
     >
-      <div :class="$style.card" />
+      <div
+        :class="$style.card"
+        :style="{ backgroundImage: `url(${cardImage})` }"
+      />
       <div :class="$style.percents">
-        <div :class="[$style.percent, $style._left]" />
-        <div :class="[$style.percent, $style._right]" />
+        <div
+          :class="[$style.percent, $style._left]"
+          :style="{ backgroundImage: `url(${cardPercent})` }"
+        />
+        <div
+          :class="[$style.percent, $style._right]"
+          :style="{ backgroundImage: `url(${cardPercent})` }"
+        />
       </div>
     </div>
 
@@ -130,16 +135,23 @@ const onDismiss = () => {
   &._ready {
     .card {
       opacity: 1;
-      animation: cardEntrance 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards, card 8s ease-in-out 1.8s infinite;
+      animation:
+        cardEntrance 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        cardLoop 8s ease-in-out 1.8s infinite;
+      -webkit-animation:
+        cardEntrance 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+        cardLoop 8s ease-in-out 1.8s infinite;
     }
 
     .percents {
       & > *:first-child {
-        animation: percentsEntrance 0.6s ease 1.2s forwards, percents 8s ease-in-out 1.8s infinite;
+        animation: percentsEntrance 0.6s ease 1.2s forwards, percentsLoop 8s ease-in-out 1.8s infinite;
+        -webkit-animation: percentsEntrance 0.6s ease 1.2s forwards, percentsLoop 8s ease-in-out 1.8s infinite;
       }
 
       & > *:last-child {
-        animation: percentsEntrance 0.7s ease 1.4s forwards, percents 8s ease-in-out 2.2s infinite;
+        animation: percentsEntrance 0.7s ease 1.4s forwards, percentsLoop 8s ease-in-out 2.2s infinite;
+        -webkit-animation: percentsEntrance 0.7s ease 1.4s forwards, percentsLoop 8s ease-in-out 2.2s infinite;
       }
     }
   }
@@ -154,11 +166,14 @@ const onDismiss = () => {
 .card {
   position: relative;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   will-change: transform, opacity;
-  background-image: url("/card.png");
+  background-image: none;
   overflow: hidden;
   opacity: 0;
 }
@@ -171,7 +186,10 @@ const onDismiss = () => {
     position: absolute;
     opacity: 0;
     transform-style: preserve-3d;
-    background-image: url("/percent.png");
+    -webkit-transform-style: preserve-3d;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background-image: none;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -214,11 +232,11 @@ const onDismiss = () => {
 
 @keyframes cardEntrance {
   0% {
-    transform: translateY(100px) rotateY(-180deg) rotateX(14deg) rotateZ(354deg) scale(0.8);
+    transform: translate3d(0, 100px, 0) rotateY(-179.9deg) rotateX(14deg) rotateZ(354deg) scale(0.8);
     opacity: 0;
   }
   100% {
-    transform: translateY(0) rotateY(1deg) rotateX(14deg) rotateZ(354deg) scale(1);
+    transform: translate3d(0, 0, 0) rotateY(0deg) rotateX(14deg) rotateZ(354deg) scale(1);
     opacity: 1;
   }
 }
@@ -226,41 +244,30 @@ const onDismiss = () => {
 @keyframes percentsEntrance {
   from {
     opacity: 0;
-    transform: translateY(10px) rotateY(-7deg) rotateX(5deg) scale(0.75);
+    transform: translate3d(0, 10px, 0) rotateY(-7deg) rotateX(5deg) scale(0.75);
   }
   to {
     opacity: 1;
-    transform: translateY(0) rotateY(-7deg) rotateX(5deg) scale(1);
+    transform: translate3d(0, 0, 0) rotateY(-7deg) rotateX(5deg) scale(1);
   }
 }
 
-@keyframes card {
+@keyframes cardLoop {
   0%, 100% {
-    transform: translateY(0) rotateY(1deg) rotateX(14deg) rotateZ(354deg) scale(1);
+    transform: translate3d(0, 0, 0) rotateY(0deg) rotateX(14deg) rotateZ(354deg) scale(1);
     filter: contrast(1) saturate(1);
   }
   50% {
-    transform: translateY(-2px) rotateY(1deg) rotateX(14deg) rotateZ(356deg) scale(1.01);
+    transform: translate3d(0, -4px, 0) rotateY(0deg) rotateX(14deg) rotateZ(356deg) scale(1.01);
     filter: contrast(1.05) saturate(1.025);
   }
 }
-@keyframes percents {
+@keyframes percentsLoop {
   0%, 100% {
-    transform: translateY(0) rotateY(-7deg) rotateX(5deg) scale(1);
+    transform: translate3d(0, 0, 0) rotateY(-7deg) rotateX(5deg) scale(1);
   }
   50% {
-    transform: translateY(-4px) rotateY(-2deg) rotateX(2deg) scale(1.05);
-  }
-}
-
-@keyframes backgroundEntrance {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+    transform: translate3d(0, -4px, 0) rotateY(-2deg) rotateX(2deg) scale(1.05);
   }
 }
 </style>

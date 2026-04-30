@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { inject } from 'vue'
 import BaseButton from '@ui/components/base/BaseButton.vue'
 import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import { useRouter } from 'vue-router'
 
-const onCloseCallback = inject<(() => void) | null>('onClose', null)
+const router = useRouter()
 </script>
 
 <template>
@@ -30,9 +30,9 @@ const onCloseCallback = inject<(() => void) | null>('onClose', null)
 
     <BaseButton
       wide
-      @click="onCloseCallback"
+      @click="router.replace('/')"
     >
-      Return to the app
+      Return to the payment
     </BaseButton>
   </div>
 </template>
