@@ -83,6 +83,7 @@ const handleDisconnect = () => {
         <BaseButton
           class="flex-1"
           variant="primary"
+          @click="isModalOpen = false"
         >
           Cancel
         </BaseButton>
