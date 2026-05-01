@@ -9,11 +9,6 @@ import cardPercent from '@/assets/images/percent.png'
 
 const router = useRouter()
 
-const { isReady: isCardReady } = useImage({ src: cardImage })
-const { isReady: isPercentReady } = useImage({ src: cardPercent })
-
-const isImagesLoaded = computed(() => isCardReady.value && isPercentReady.value)
-
 const features = [
   {
     label: 'Top up by crypto',
@@ -44,21 +39,21 @@ const onDismiss = () => {
 <template>
   <div :class="$style.PromoPage">
     <div
-      :class="[$style.cardContainer, {[$style['_ready']]: isImagesLoaded}]"
+      :class="[$style.cardContainer, {[$style['_ready']]: true}]"
       class="flex align-center justify-center"
     >
       <div
         :class="$style.card"
-        :style="{ backgroundImage: `url(${cardImage})` }"
+        :style="{ backgroundImage: `url('${cardImage}')` }"
       />
       <div :class="$style.percents">
         <div
           :class="[$style.percent, $style._left]"
-          :style="{ backgroundImage: `url(${cardPercent})` }"
+          :style="{ backgroundImage: `url('${cardPercent}')` }"
         />
         <div
           :class="[$style.percent, $style._right]"
-          :style="{ backgroundImage: `url(${cardPercent})` }"
+          :style="{ backgroundImage: `url('${cardPercent}')` }"
         />
       </div>
     </div>
