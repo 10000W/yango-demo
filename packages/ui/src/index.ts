@@ -1,10 +1,13 @@
 import { createApp } from 'vue'
-import Main from './Main.vue'
-import { createPaymentRouter } from './router'
+import { createAppRouter } from './router'
+import App from './App.vue'
+
+export { default as BaseButton } from './components/base/BaseButton.vue'
+export { default as BaseBottomSheet } from './components/base/BaseBottomSheet.vue'
 
 export function mount(selector: string, options?: { onClose?: () => void }) {
-  const app = createApp(Main)
-  const router = createPaymentRouter()
+  const app = createApp(App)
+  const router = createAppRouter()
   app.use(router)
 
   if (options?.onClose) {
@@ -15,9 +18,6 @@ export function mount(selector: string, options?: { onClose?: () => void }) {
   if (!el) return null
 
   app.mount(el)
-
-  // Push initial route
-  // router.replace({ name: 'index' })
 
   return app
 }

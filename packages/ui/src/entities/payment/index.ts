@@ -1,10 +1,10 @@
-import { PaymentOption } from '@ui/entities/payment/PaymentOption'
+import { PaymentOption } from '@/entities/payment/PaymentOption'
 
-import binanceIcon from '@ui/assets/images/icons/binance.png'
-import bybitIcon from '@ui/assets/images/icons/bybit.png'
-import metamaskIcon from '@ui/assets/images/icons/metamask.png'
-import trustIcon from '@ui/assets/images/icons/trust.png'
-import yangoIcon from '@ui/assets/images/icons/yango.png'
+import binanceIcon from '@/assets/images/payment/binance.png'
+import bybitIcon from '@/assets/images/payment/bybit.png'
+import metamaskIcon from '@/assets/images/payment/metamask.png'
+import trustIcon from '@/assets/images/payment/trust.png'
+import yangoIcon from '@/assets/images/payment/yango.png'
 
 export type PaymentAsset = 'USDT' | 'USDC' | 'DAI' | 'BUSD'
 export type PaymentChainType = 'evm' | 'ton' | 'tron' | 'solana' | 'binance_pay' | 'bybit_pay' | 'yango'

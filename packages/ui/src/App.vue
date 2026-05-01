@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import BaseSpinner from '@ui/components/base/BaseSpinner.vue'
+import BaseSpinner from '@/components/base/BaseSpinner.vue'
 import { useRoute } from 'vue-router'
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const route = useRoute()
 const isLoading = ref(true)
@@ -13,7 +13,6 @@ const isAccoladeVisible = true
 onMounted(() => {
   setTimeout(() => {
     isLoading.value = false
-    // router.replace({ name: 'chain' })
   }, 1000)
 })
 </script>
@@ -100,16 +99,12 @@ onMounted(() => {
   height: 16px;
   background-size: contain;
   background-repeat: no-repeat;
-  background-image: url("/tac.png");
-}
-
-.page {
-
+  background-image: url(@/assets/images/tac.png);
 }
 </style>
 
 <style lang="scss">
-@use "@ui/assets/styles/main" as *;
+@use "@/assets/styles/main" as *;
 
 .fade-enter-active {
   transition: opacity .2s ease;

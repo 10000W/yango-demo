@@ -1,13 +1,13 @@
 import { createMemoryHistory, createRouter } from 'vue-router'
-import SelectPaymentPage from '@ui/pages/SelectPaymentPage.vue'
-import SelectAssetPage from '@ui/pages/SelectAssetPage.vue'
-import PayPage from '@ui/pages/PayPage.vue'
-import StatusPage from '@ui/pages/StatusPage.vue'
-import EditConnectionsPage from '@ui/pages/EditConnectionsPage.vue'
-import PromoPage from '@ui/pages/PromoPage.vue'
-import WhitelistPage from '@ui/pages/WhitelistPage.vue'
+import SelectPaymentPage from '@/pages/SelectPaymentPage.vue'
+import SelectAssetPage from '@/pages/SelectAssetPage.vue'
+import PayPage from '@/pages/PayPage.vue'
+import StatusPage from '@/pages/StatusPage.vue'
+import EditConnectionsPage from '@/pages/EditConnectionsPage.vue'
+import PromoPage from '@/pages/PromoPage.vue'
+import WhitelistPage from '@/pages/WhitelistPage.vue'
 
-export const createPaymentRouter = (base = '/') => createRouter({
+export const createAppRouter = (base = '/') => createRouter({
   history: createMemoryHistory(),
   routes: [
     {
@@ -47,6 +47,3 @@ export const createPaymentRouter = (base = '/') => createRouter({
     },
   ],
 })
-
-const router = createPaymentRouter()
-export default router

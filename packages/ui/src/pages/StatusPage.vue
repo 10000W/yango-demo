@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import { computed, inject } from 'vue'
-import BaseButton from '@ui/components/base/BaseButton.vue'
-import { usePayment } from '@ui/composables/usePayment'
-import { formatNumber } from '@ui/utils/string-utils'
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
-import BaseSpinner from '@ui/components/base/BaseSpinner.vue'
-import { useAppKit } from '@ui/composables/useAppKit'
-import type { PayZapSessionStatus } from '@ui/entities/payzap'
+import BaseButton from '@/components/base/BaseButton.vue'
+import { usePayment } from '@/composables/usePayment'
+import { formatNumber } from '@/utils/string-utils'
+import BaseIcon from '@/components/base/BaseIcon.vue'
+import BaseSpinner from '@/components/base/BaseSpinner.vue'
+import { useAppKit } from '@/composables/useAppKit'
+import type { PayZapSessionStatus } from '@/entities/payzap'
 
 const route = useRoute()
 const router = useRouter()
@@ -221,7 +221,7 @@ const handleSubmit = () => {
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  background-image: url("/card.png");
+  //background-image: url("/card.png");
 }
 
 .loadingIcon {

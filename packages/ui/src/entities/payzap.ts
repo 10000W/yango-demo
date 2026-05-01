@@ -1,4 +1,4 @@
-import type { PaymentAsset, PaymentChainType } from '@ui/entities/payment'
+import type { PaymentAsset, PaymentChainType } from '@/entities/payment'
 
 export type PayZapSessionStatus = 'completed' | 'expired' | 'failed' | 'confirming' | 'pending'
 export type PayZapSession = {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import AssetOption from '@ui/components/entities/assets/AssetOption.vue'
-import { type Asset, evmAssets } from '@ui/entities/asset'
-import { usePayment } from '@ui/composables/usePayment'
+import AssetOption from '@/components/assets/AssetOption.vue'
+import { type Asset, evmAssets } from '@/entities/asset'
+import { usePayment } from '@/composables/usePayment'
 import { useRouter } from 'vue-router'
-import PageHeader from '@ui/components/PageHeader.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { computed } from 'vue'
 
 const router = useRouter()

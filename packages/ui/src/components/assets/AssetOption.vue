@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Asset } from '@ui/entities/asset'
-import BaseChip from '@ui/components/base/BaseChip.vue'
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import type { Asset } from '@/entities/asset'
+import BaseChip from '@/components/base/BaseChip.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const { asset } = defineProps<{
   gasless?: boolean

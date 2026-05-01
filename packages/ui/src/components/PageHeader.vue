@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 import { useRouter } from 'vue-router'
 
 const emit = defineEmits(['back'])

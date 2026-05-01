@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useAppKit } from '@ui/composables/useAppKit'
-import WalletDisconnect from '@ui/components/entities/wallet/WalletDisconnect.vue'
+import { useAppKit } from '@/composables/useAppKit'
+import WalletDisconnect from '@/components/wallet/WalletDisconnect.vue'
 
 const {
   shortAddress,

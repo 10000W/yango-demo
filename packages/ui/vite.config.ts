@@ -22,13 +22,17 @@ export default defineConfig({
     dts({
       tsconfigPath: './tsconfig.json',
       cleanVueFileName: true,
+      include: ['src/index.ts', 'src/vite-env.d.ts'],
+      skipDiagnostics: true,
+      entryRoot: 'src',
+      compilerOptions: {
+        composite: false,
+      },
     }),
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@ui': fileURLToPath(new URL('./src', import.meta.url)),
-      '@tac-crypto-payment/ui': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   build: {

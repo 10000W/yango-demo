@@ -1,8 +1,8 @@
 <script setup lang="ts">
 
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
-import BaseBottomSheet from '@ui/components/base/BaseBottomSheet.vue'
-import BaseButton from '@ui/components/base/BaseButton.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
+import BaseBottomSheet from '@/components/base/BaseBottomSheet.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import { ref } from 'vue'
 
 // defineEmits(['disconnect'])

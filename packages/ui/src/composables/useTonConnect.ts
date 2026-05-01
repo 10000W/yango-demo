@@ -1,7 +1,7 @@
 import type { Account, CHAIN } from '@tonconnect/ui'
 import { TonConnectUI, toUserFriendlyAddress } from '@tonconnect/ui'
-import { truncate } from '@ui/utils/string-utils'
-import { TON_MANIFEST_URL } from '@ui/entities/config'
+import { truncate } from '@/utils/string-utils'
+import { TON_MANIFEST_URL } from '@/entities/config'
 import { computed, reactive, ref, watch } from 'vue'
 
 const balance = ref(0)

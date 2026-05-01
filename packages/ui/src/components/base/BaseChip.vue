@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const { square, variant = 'info' } = defineProps<{
   variant?: 'info' | 'error' | 'warning' | 'success' | 'primary'

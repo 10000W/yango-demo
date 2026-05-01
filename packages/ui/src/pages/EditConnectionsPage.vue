@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useAppKit } from '@ui/composables/useAppKit'
-import { useTonConnect } from '@ui/composables/useTonConnect'
-import PageHeader from '@ui/components/PageHeader.vue'
-import WalletDisconnectEVM from '@ui/components/entities/wallet/WalletDisconnectEVM.vue'
-import WalletDisconnectTVM from '@ui/components/entities/wallet/WalletDisconnectTVM.vue'
+import { useAppKit } from '@/composables/useAppKit'
+import { useTonConnect } from '@/composables/useTonConnect'
+import PageHeader from '@/components/PageHeader.vue'
+import WalletDisconnectEVM from '@/components/wallet/WalletDisconnectEVM.vue'
+import WalletDisconnectTVM from '@/components/wallet/WalletDisconnectTVM.vue'
 
 const { isConnected: isEvmConnected } = useAppKit()
 const { isConnected: isTonConnected } = useTonConnect()

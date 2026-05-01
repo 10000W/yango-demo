@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import BaseButton from '@ui/components/base/BaseButton.vue'
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

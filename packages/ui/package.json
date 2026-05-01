@@ -5,15 +5,15 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "import": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/tac-crypto-payment-ui.mjs",
       "default": "./dist/tac-crypto-payment-ui.mjs"
     },
     "./*": "./src/*"
   },
   "main": "./dist/tac-crypto-payment-ui.cjs",
   "module": "./dist/tac-crypto-payment-ui.mjs",
-  "types": "./dist/src/index.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "vite build",
     "type-check": "vue-tsc --build"
@@ -29,11 +29,14 @@
     "axios": "^1.15.0",
     "qrcode.vue": "^3.8.1",
     "viem": "^2.47.10",
-    "vue": "^3.5.31",
-    "vue-router": "^5.0.4",
     "wagmi": "^3.6.1"
   },
+  "peerDependencies": {
+    "vue": "^3.5.31",
+    "vue-router": "^5.0.4"
+  },
   "devDependencies": {
+    "@microsoft/api-extractor": "^7.58.7",
     "@vitejs/plugin-vue": "^6.0.5",
     "sass": "^1.99.0",
     "typescript": "~6.0.0",

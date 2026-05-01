@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { usePayment } from '@ui/composables/usePayment'
-import { formatNumber } from '@ui/utils/string-utils'
-import BaseChip from '@ui/components/base/BaseChip.vue'
+import { usePayment } from '@/composables/usePayment'
+import { formatNumber } from '@/utils/string-utils'
+import BaseChip from '@/components/base/BaseChip.vue'
 import { ref } from 'vue'
-import BaseAlert from '@ui/components/base/BaseAlert.vue'
-import BaseStack from '@ui/components/base/BaseStack.vue'
-import BaseStackItem from '@ui/components/base/BaseStackItem.vue'
-import BaseProgressTimer from '@ui/components/base/BaseProgressTimer.vue'
-import BaseButton from '@ui/components/base/BaseButton.vue'
+import BaseAlert from '@/components/base/BaseAlert.vue'
+import BaseStack from '@/components/base/BaseStack.vue'
+import BaseStackItem from '@/components/base/BaseStackItem.vue'
+import BaseProgressTimer from '@/components/base/BaseProgressTimer.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import { BaseError } from 'viem'
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const { pay, amount, selectedAsset, activeSession, txStatusMessage } = usePayment()
 

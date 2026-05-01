@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useImage } from '@vueuse/core'
-import BaseButton from '@ui/components/base/BaseButton.vue'
-import BaseIcon from '@ui/components/base/BaseIcon.vue'
-import cardImage from '@ui/assets/images/card.png'
-import cardPercent from '@ui/assets/images/percent.png'
+import BaseButton from '@/components/base/BaseButton.vue'
+import BaseIcon from '@/components/base/BaseIcon.vue'
+import cardImage from '@/assets/images/card.png'
+import cardPercent from '@/assets/images/percent.png'
 
 const router = useRouter()
 

@@ -1,13 +1,13 @@
-import { PAYZAP_API_URL, PAYZAP_PRODUCT_ID, wagmiAdapter } from '@ui/entities/config'
+import { PAYZAP_API_URL, PAYZAP_PRODUCT_ID, wagmiAdapter } from '@/entities/config'
 import axios from 'axios'
-import type { PayZapSession } from '@ui/entities/payzap'
+import type { PayZapSession } from '@/entities/payzap'
 import { computed, nextTick, type Ref, ref, watch } from 'vue'
 import { useTimeoutPoll } from '@vueuse/core'
-import type { PaymentChainType } from '@ui/entities/payment'
-import { type Asset } from '@ui/entities/asset'
+import type { PaymentChainType } from '@/entities/payment'
+import { type Asset } from '@/entities/asset'
 import { encodeFunctionData, getAddress, parseUnits } from 'viem'
 import { estimateGas, simulateContract, switchChain, waitForTransactionReceipt, writeContract } from '@wagmi/core'
-import { useAppKit } from '@ui/composables/useAppKit'
+import { useAppKit } from '@/composables/useAppKit'
 
 const { address, chainId } = useAppKit()
 

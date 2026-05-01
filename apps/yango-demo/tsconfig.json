@@ -4,17 +4,8 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@ui/*": ["../../packages/ui/src/*"],
-      "@tac-crypto-payment/ui": ["../../packages/ui/src/index.ts"],
-      "@tac-crypto-payment/ui/*": ["../../packages/ui/src/*"]
+      "src": ["./src/*"],
     }
   },
-  "include": [
-    "src/**/*",
-    "src/**/*.vue",
-    "../../env.d.ts",
-    "../../packages/ui/src/**/*",
-    "../../packages/ui/src/**/*.vue"
-  ]
+  "include": ["src/**/*"]
 }

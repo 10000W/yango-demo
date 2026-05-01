@@ -9,8 +9,8 @@ import {
 import { whenever } from '@vueuse/core'
 import { mainnet, polygon } from 'viem/chains'
 import { computed, nextTick, ref, watch } from 'vue'
-import { REOWN_PROJECT_ID, wagmiAdapter } from '@ui/entities/config'
-import { truncate } from '@ui/utils/string-utils'
+import { REOWN_PROJECT_ID, wagmiAdapter } from '@/entities/config'
+import { truncate } from '@/utils/string-utils'
 
 const isLoaded = ref(false)
 const modal = createAppKit({

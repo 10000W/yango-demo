@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { usePayment } from '@ui/composables/usePayment'
+import { usePayment } from '@/composables/usePayment'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import PageHeader from '@ui/components/PageHeader.vue'
-import PayFormEVM from '@ui/components/entities/pay/PayFormEVM.vue'
-import BaseSpinner from '@ui/components/base/BaseSpinner.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import PayFormEVM from '@/components/pay/PayFormEVM.vue'
+import BaseSpinner from '@/components/base/BaseSpinner.vue'
 
 const { createSession, selectedAsset, activeSession, reset } = usePayment()
 const router = useRouter()

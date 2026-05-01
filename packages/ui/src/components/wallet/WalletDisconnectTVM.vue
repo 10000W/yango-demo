@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useTonConnect } from '@ui/composables/useTonConnect'
-import WalletDisconnect from '@ui/components/entities/wallet/WalletDisconnect.vue'
+import { useTonConnect } from '@/composables/useTonConnect'
+import WalletDisconnect from '@/components/wallet/WalletDisconnect.vue'
 
 const {
   shortAddress,
