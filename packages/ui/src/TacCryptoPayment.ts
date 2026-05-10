@@ -2,7 +2,6 @@ import { createApp, type App } from 'vue'
 import { createAppRouter } from './router'
 import AppRoot from './App.vue'
 import type { PayZapSession } from './entities/payzap'
-import { PAYZAP_API_URL } from './entities/config'
 
 export interface TacCryptoPaymentOptions {
   productId: string
@@ -19,7 +18,7 @@ export class TacCryptoPayment {
   constructor(private options: TacCryptoPaymentOptions) {}
 
   private init() {
-    this.options.payzapUrl = this.options.payzapUrl || PAYZAP_API_URL
+    this.options.payzapUrl = this.options.payzapUrl || 'https://api.payzap.cc'
   }
 
   mount() {

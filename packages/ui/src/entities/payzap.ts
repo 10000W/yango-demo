@@ -1,4 +1,4 @@
-import type { PaymentAsset, PaymentChainType } from '@/entities/payment'
+import type { PaymentOptionChainType } from '@/entities/payment'
 
 export type PayZapSessionStatus = 'completed' | 'expired' | 'failed' | 'confirming' | 'pending'
 export type PayZapSession = {
@@ -6,8 +6,8 @@ export type PayZapSession = {
   productId: string
   merchantWallet: string
   amount: string // float
-  asset: PaymentAsset
-  chain: PaymentChainType
+  asset: 'USDT'
+  chain: PaymentOptionChainType
   status: PayZapSessionStatus
   expiresAt: string // iso date
   paymentUrl?: string

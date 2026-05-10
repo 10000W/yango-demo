@@ -53,7 +53,7 @@ const description = computed(() => {
     case 'confirming':
       return 'Please wait while your transaction is being processed.'
     case 'completed':
-      return `${formatNumber(amount)} ${activeSession.value?.asset}`
+      return `${formatNumber(amount.value)} ${activeSession.value?.asset}`
     default:
       return 'Please wait until transaction status is updated.'
   }

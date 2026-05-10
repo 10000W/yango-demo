@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { PaymentChain } from '@/entities/payment'
+import type { PaymentOption } from '@/entities/payment'
 import BaseChip from '@/components/base/BaseChip.vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const props = defineProps<{
-  paymentOption: PaymentChain
+  paymentOption: PaymentOption
   isConnected?: boolean
 }>()
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AssetOption from '@/components/assets/AssetOption.vue'
-import { type Asset, evmAssets, getAssetsByPaymentOptionChain } from '@/entities/asset'
+import { type Asset, getAssetsByPaymentOptionChain } from '@/entities/asset'
 import { usePayment } from '@/composables/usePayment'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
@@ -9,7 +9,7 @@ import { computed } from 'vue'
 const router = useRouter()
 const { selectedChain, selectAsset } = usePayment()
 
-const assets = computed(() => getAssetsByPaymentOptionChain(selectedChain.value))
+const assets = computed(() => getAssetsByPaymentOptionChain(selectedChain.value!))
 
 const onClickAsset = async (asset: Asset) => {
   await selectAsset(asset)

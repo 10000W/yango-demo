@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { paymentOptions, type P as PaymentOptionType } from '@/entities/payment'
-import PaymentOption from '@/components/payment/PaymentOption.vue'
+import { type PaymentOption, paymentOptions } from '@/entities/payment'
+import PaymentOptionComponent from '@/components/payment/PaymentOption.vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseBottomSheet from '@/components/base/BaseBottomSheet.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
@@ -25,11 +25,11 @@ const { isConnected: isTvmConnected, modal: tonconnectModal } = useTonConnect()
 
 const isConfirmOpen = ref(false)
 const confirmResolve = ref<((value: boolean) => void) | null>(null)
-const pendingOption = ref<PaymentOptionType | null>(null)
+const pendingOption = ref<PaymentOption | null>(null)
 
 const appKitWalletButton = createAppKitWalletButton()
 
-const isOptionConnected = (option: PaymentOptionType) => {
+const isOptionConnected = (option: PaymentOption) => {
   if (option.type === 'ton') {
     return isTvmConnected.value
   }
@@ -70,7 +70,7 @@ const handleConfirm = (value: boolean) => {
   }
 }
 
-const handlePaymentOptionClick = async (option: PaymentOptionType) => {
+const handlePaymentOptionClick = async (option: PaymentOption) => {
   if (isOptionConnected(option)) {
     if (option.type === 'evm') {
       selectedChain.value = chainId.value === tronMainnet.id ? 'tron' : 'evm'
@@ -152,7 +152,7 @@ const handlePaymentOptionClick = async (option: PaymentOptionType) => {
         v-for="o in paymentOptions"
         :key="o.name"
       >
-        <PaymentOption
+        <PaymentOptionComponent
           :payment-option="o"
           :is-connected="isOptionConnected(o)"
           @click="handlePaymentOptionClick(o)"

@@ -47,4 +47,4 @@ export const paymentOptions: PaymentOption[] = [
     icon: yangoIcon,
   },
 ]
-export type { PaymentOptionChainType }
+export type { PaymentOptionChainType, PaymentOption }

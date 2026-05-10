@@ -1,5 +1,5 @@
-import { mainnet, polygon, tron } from 'viem/chains'
-import { PaymentChainType } from '@/entities/payment'
+import { mainnet, polygon } from 'viem/chains'
+import { PaymentOptionChainType } from '@/entities/payment'
 import { tronMainnet } from '@reown/appkit/networks'
 
 export type BaseAsset = {
@@ -69,7 +69,7 @@ export const tronAssets: EvmAsset[] = [
   },
 ]
 
-export const getAssetsByPaymentOptionChain = (chain: PaymentChainType) => {
+export const getAssetsByPaymentOptionChain = (chain: PaymentOptionChainType) => {
   if (chain === 'evm') {
     return evmAssets
   }
