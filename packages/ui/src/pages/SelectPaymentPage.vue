@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { paymentOptions, type PaymentOption as PaymentOptionType } from '@/entities/payment'
+import { paymentOptions, type P as PaymentOptionType } from '@/entities/payment'
 import PaymentOption from '@/components/payment/PaymentOption.vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseBottomSheet from '@/components/base/BaseBottomSheet.vue'
@@ -10,10 +10,17 @@ import { useAppKit } from '@/composables/useAppKit'
 import { useTonConnect } from '@/composables/useTonConnect'
 import { usePayment } from '@/composables/usePayment'
 import { createAppKitWalletButton, type Wallet } from '@reown/appkit-wallet-button'
+import { tronMainnet } from '@reown/appkit/networks'
 
 const router = useRouter()
 const { selectedChain } = usePayment()
-const { isConnected: isEvmConnected, modal: appkitModal, walletInfo, disconnect: disconnectEvm } = useAppKit()
+const {
+  isConnected: isEvmConnected,
+  modal: appkitModal,
+  walletInfo,
+  disconnect: disconnectEvm,
+  chainId,
+} = useAppKit()
 const { isConnected: isTvmConnected, modal: tonconnectModal } = useTonConnect()
 
 const isConfirmOpen = ref(false)
@@ -27,13 +34,12 @@ const isOptionConnected = (option: PaymentOptionType) => {
     return isTvmConnected.value
   }
 
-  if (option.type === 'evm') {
+  if (option.type === 'evm' || option.type === 'tron') {
     if (!isEvmConnected.value) {
       return false
     }
 
     const connectedName = walletInfo.value?.name?.toLowerCase() || ''
-
     if (option.walletName) {
       return connectedName.includes(option.walletName.toLowerCase())
     }
@@ -66,7 +72,12 @@ const handleConfirm = (value: boolean) => {
 
 const handlePaymentOptionClick = async (option: PaymentOptionType) => {
   if (isOptionConnected(option)) {
-    selectedChain.value = option.type
+    if (option.type === 'evm') {
+      selectedChain.value = chainId.value === tronMainnet.id ? 'tron' : 'evm'
+    }
+    else {
+      selectedChain.value = option.type
+    }
     router.push({ name: 'asset' })
     return
   }
@@ -80,6 +91,7 @@ const handlePaymentOptionClick = async (option: PaymentOptionType) => {
     case 'ton':
       tonconnectModal.open()
       return
+    case 'tron':
     case 'evm':
       if (isEvmConnected.value && !isOptionConnected(option)) {
         pendingOption.value = option
@@ -96,8 +108,7 @@ const handlePaymentOptionClick = async (option: PaymentOptionType) => {
         }
 
         await appKitWalletButton.connect(option.walletName as Wallet)
-
-        selectedChain.value = 'evm'
+        selectedChain.value = chainId.value === tronMainnet.id ? 'tron' : 'evm'
         router.push({ name: 'asset' })
       }
       catch {
@@ -154,7 +165,7 @@ const handlePaymentOptionClick = async (option: PaymentOptionType) => {
       to=".tac-crypto-payment"
       @close="handleConfirm(false)"
     >
-      <div class="column align-center p-24">
+      <div class="column align-center p-24 pt-0">
         <div class="h2 mb-8 center">
           Switch wallet?
         </div>

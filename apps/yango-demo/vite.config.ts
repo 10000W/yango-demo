@@ -17,9 +17,18 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '@tac-crypto-payment/ui': fileURLToPath(new URL('../../packages/ui/src/index.ts', import.meta.url)),
+      '@': fileURLToPath(new URL('../../packages/ui/src', import.meta.url)),
+    },
+  },
   server: {
     https: {},
     port: 3000,
     host: '0.0.0.0',
+    fs: {
+      allow: ['../..'],
+    },
   },
 })

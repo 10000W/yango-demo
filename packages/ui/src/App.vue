@@ -3,17 +3,18 @@ import { ref, onMounted, computed } from 'vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 import { useRoute } from 'vue-router'
 import BaseIcon from '@/components/base/BaseIcon.vue'
+import { usePayment } from '@/composables/usePayment'
 
 const route = useRoute()
+const { init } = usePayment()
 const isLoading = ref(true)
 
 const isGlowVisible = computed(() => ['promo'].includes(route.name as string))
 const isAccoladeVisible = true
 
 onMounted(() => {
-  setTimeout(() => {
-    isLoading.value = false
-  }, 1000)
+  init()
+  isLoading.value = false
 })
 </script>
 
@@ -73,14 +74,14 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
 }
 
 .viewport {
   display: flex;
   flex-direction: column;
-  min-height: 80dvh;
+  flex: 1;
   overflow: auto;
+  padding-top: 52px;
 
   & > *:first-child {
     flex-grow: 1;
@@ -89,8 +90,7 @@ onMounted(() => {
 
   &._glow {
     background:
-      radial-gradient(circle, #FF1A1A -40%,
-      rgba(255, 255, 255, 0) 50%) no-repeat 0 -400px;
+      radial-gradient(circle, #FF1A1A -20%, rgba(255, 255, 255, 0) 60%) no-repeat 0 -450px
   }
 }
 

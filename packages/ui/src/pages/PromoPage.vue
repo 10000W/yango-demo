@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useImage } from '@vueuse/core'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import cardImage from '@/assets/images/card.png'
@@ -126,6 +124,7 @@ const onDismiss = () => {
   height: 230px;
   perspective: 1000px;
   min-height: 230px;
+  margin-top: -40px;
 
   &._ready {
     .card {

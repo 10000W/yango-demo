@@ -1,21 +1,29 @@
-import { PAYZAP_API_URL, PAYZAP_PRODUCT_ID, wagmiAdapter } from '@/entities/config'
+import { wagmiAdapter } from '@/entities/config'
 import axios from 'axios'
 import type { PayZapSession } from '@/entities/payzap'
-import { computed, nextTick, type Ref, ref, watch } from 'vue'
+import { computed, nextTick, type Ref, ref, watch, inject } from 'vue'
+import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
 import { useTimeoutPoll } from '@vueuse/core'
-import type { PaymentChainType } from '@/entities/payment'
+import type { PaymentOptionChainType } from '@/entities/payment'
 import { type Asset } from '@/entities/asset'
-import { encodeFunctionData, getAddress, parseUnits } from 'viem'
-import { estimateGas, simulateContract, switchChain, waitForTransactionReceipt, writeContract } from '@wagmi/core'
+import { parseUnits } from 'viem'
+import { switchChain } from '@wagmi/core'
 import { useAppKit } from '@/composables/useAppKit'
+import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
+import { TronPaymentChain } from '@/entities/payment/TronPaymentChain'
+import { useAppKitProvider } from '@reown/appkit/vue'
+import { TronConnector } from '@reown/appkit-adapter-tron'
 
-const { address, chainId } = useAppKit()
+const amount = ref('0.01')
+const productId = ref()
+const payzapUrl = ref()
+const currentOptions: Ref<TacCryptoPaymentOptions | undefined> = ref()
 
-const amount = '0.1'
 const activeSession: Ref<PayZapSession | undefined> = ref()
-const selectedChain: Ref<PaymentChainType | undefined> = ref()
+const selectedChain: Ref<PaymentOptionChainType | undefined> = ref()
 const selectedAsset: Ref<Asset | undefined> = ref()
 const txStatusMessage = ref('')
+const test = ref(false)
 
 const paymentQrCode = computed(() => {
   if (!activeSession.value) {
@@ -40,102 +48,71 @@ const paymentQrCode = computed(() => {
 })
 
 const init = () => {
-  // TODO: Pass price, customer data, etc...
+  const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
+  currentOptions.value = options
+  productId.value = options.productId
+  payzapUrl.value = options.payzapUrl
+  amount.value = options.amount.toString()
 }
 
 const updateSession = async () => {
+  if (test.value) {
+    return
+  }
   if (!activeSession.value) {
     return
   }
 
-  const { data } = await axios.get<{ data: PayZapSession }>(`${PAYZAP_API_URL}/v1/payments/session/${activeSession.value.id}`)
+  const { data } = await axios.get<{ data: PayZapSession }>(`${payzapUrl.value}/v1/payments/session/${activeSession.value.id}`)
   activeSession.value = data.data
 }
 const poll = useTimeoutPoll(updateSession, 3000, { immediate: false })
 
-const estimateGasFee = async () => {
-  const asset = selectedAsset.value
-
-  if (!activeSession.value || !address.value || selectedChain.value !== 'evm') {
-    return
-  }
-
-  if (!asset || !('address' in asset)) {
-    return
-  }
-
-  switch (selectedChain.value) {
-    case 'evm':
-      return await estimateGas(wagmiAdapter.wagmiConfig, {
-        to: getAddress(asset.address),
-        // account: address.value as `0x${string}`,
-        data: encodeFunctionData({
-          abi: [{
-            name: 'transfer',
-            type: 'function',
-            inputs: [
-              { name: 'to', type: 'address' },
-              { name: 'amount', type: 'uint256' },
-            ],
-            outputs: [],
-          }],
-          functionName: 'transfer',
-          args: [
-            activeSession.value.merchantWallet as `0x${string}`,
-            parseUnits(activeSession.value.amount, asset.decimals),
-          ],
-        }),
-      })
-  }
-}
 const createSession = async (isTest = false) => {
-  if (!selectedChain.value || !selectedAsset.value || !amount) {
-    console.log()
+  if (!selectedChain.value || !selectedAsset.value || !amount.value) {
     throw new Error('Some parameters are not specified')
   }
 
   if (isTest) {
-    await new Promise(resolve => setTimeout(resolve, 5000))
+    // test.value = isTest
+    await new Promise(resolve => setTimeout(resolve, 100))
     const data = {
-      id: 'f31482c5-e83e-48bd-9a78-56fa4b5e1919',
-      productId: '734987a6-3a30-4fe1-bf84-88e3e7960e2f',
-      merchantId: '121a930d-ee5d-40f4-9bd8-04e62aca5bb0',
-      status: 'pending' as const,
-      chain: 'evm' as const,
-      asset: 'USDT' as const,
-      amount: '0.100000',
-      merchantWallet: '0xab57be8dbcd2e8b37662ffeb081b80d27204d7fd',
-      buyerWallet: null,
+      id: '0a7e66b6-6037-4269-9453-3d8f1c41df37',
+      merchantId: '62bc763c-9256-480e-8d79-04342050cbac',
+      status: 'pending',
+      amount: '0.010000',
+      asset: 'USDT',
+      chain: 'tron',
+      merchantWallet: 'THkQU6wfLHrADsiiKtbr84XDsXnM7Yw3yn',
       txHash: null,
       txExplorerUrl: null,
-      customerRef: null,
-      metadata: {},
-      expiresAt: '2026-04-27T15:00:09.899Z',
-      confirmedAt: null,
-      createdAt: '2026-04-27T14:45:09.902Z',
-      updatedAt: '2026-04-27T14:45:09.902Z',
+      expiresAt: '2026-05-09T20:34:16.343Z',
       successUrl: null,
+      exchangePayUrl: null,
+      exchangePayQr: null,
       gasless: false,
       gasFeeUsd: null,
       payerAmount: null,
-      permitSignature: null,
-      permitDeadline: null,
-      permitNonce: null,
-      settlementTxHash: null,
-      settlementStatus: null,
+      permitData: null,
+      gasMode: null,
       gasSponsored: false,
-      gasSponsorTxHash: null,
+      metadata: {},
+      tronEnergyDelegated: false,
+      tronEnergyAmount: 0,
+      failureReason: null,
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     activeSession.value = data
     nextTick(() => {
       poll.resume()
-      // estimateGasFee()
     })
     return data
   }
   const { data } = await axios.post<{ success: boolean, data: PayZapSession }>
-  (`${PAYZAP_API_URL}/v1/payments/session`, {
-    productId: PAYZAP_PRODUCT_ID,
+  (`${payzapUrl.value}/v1/payments/session`, {
+    productId: productId.value,
+    amount: amount.value,
     chain: selectedChain.value,
     asset: selectedAsset.value.symbol,
     // customerRef string Your internal customer/order ID
@@ -147,79 +124,12 @@ const createSession = async (isTest = false) => {
     activeSession.value = data.data
     nextTick(() => {
       poll.resume()
-      // estimateGasFee()
     })
     return data.data
   }
 
   throw new Error('Error while creating session')
 }
-const selectAsset = async (asset: Asset) => {
-  switch (selectedChain.value) {
-    case 'evm':
-      if ('chain' in asset && asset.chain.id !== chainId.value) {
-        try {
-          await switchChain(wagmiAdapter.wagmiConfig, { chainId: asset.chain.id })
-        }
-        catch (e) {
-          console.error('Failed to switch chain:', e)
-          return
-        }
-      }
-      selectedAsset.value = asset
-      return
-  }
-}
-const pay = async () => {
-  if (!activeSession.value) {
-    throw new Error('Session not found')
-  }
-
-  if (!address.value) {
-    throw new Error('Wallet not connected')
-  }
-
-  try {
-    switch (selectedChain.value) {
-      case 'evm': {
-        const asset = selectedAsset.value
-        if (!asset || !('address' in asset)) {
-          throw new Error('Invalid asset for EVM')
-        }
-        const sim = await simulateContract(wagmiAdapter.wagmiConfig, {
-          address: getAddress(asset.address),
-          abi: [{
-            name: 'transfer',
-            type: 'function',
-            inputs: [
-              { name: 'to', type: 'address' },
-              { name: 'amount', type: 'uint256' },
-            ],
-            outputs: [],
-          }],
-          functionName: 'transfer',
-          account: address.value as `0x${string}`,
-          args: [
-            activeSession.value.merchantWallet as `0x${string}`,
-            parseUnits(activeSession.value.amount, asset.decimals),
-          ],
-        })
-        txStatusMessage.value = 'Waiting for signature'
-        const hash = await writeContract(wagmiAdapter.wagmiConfig, sim.request)
-        txStatusMessage.value = 'Confirming transaction'
-        await waitForTransactionReceipt(wagmiAdapter.wagmiConfig, {
-          hash,
-        })
-        txStatusMessage.value = 'Confirming payment'
-      }
-    }
-  }
-  catch (e) {
-    txStatusMessage.value = ''
-    throw e
-  }
-}
-
 const reset = () => {
   poll.pause()
   activeSession.value = undefined
@@ -233,23 +143,94 @@ watch(() => activeSession.value?.status, (val) => {
     case 'expired':
     case 'completed':
       poll.pause()
+      if (val === 'completed' && activeSession.value) {
+        currentOptions.value?.onSuccess?.(activeSession.value)
+      }
   }
 })
 
 export const usePayment = () => {
+  const { address, chainId } = useAppKit()
+
+  const selectAsset = async (asset: Asset) => {
+    if (selectedChain.value === 'evm') {
+      if ('chain' in asset && asset.chain.id !== chainId.value) {
+        try {
+          await switchChain(wagmiAdapter.wagmiConfig, { chainId: +asset.chain.id })
+        }
+        catch (e) {
+          console.error('Failed to switch chain:', e)
+          return
+        }
+      }
+    }
+    selectedAsset.value = asset
+  }
+  const pay = async () => {
+    if (!activeSession.value) {
+      throw new Error('Session not found')
+    }
+
+    if (!address.value) {
+      throw new Error('Wallet not connected')
+    }
+
+    try {
+      const asset = selectedAsset.value
+      if (!asset || !('address' in asset)) {
+        throw new Error(`Invalid asset for ${selectedChain.value}`)
+      }
+
+      let paymentInstance: EvmPaymentChain | TronPaymentChain
+      switch (selectedChain.value) {
+        case 'evm':
+          paymentInstance = new EvmPaymentChain()
+          break
+        case 'tron': {
+          const connector = useAppKitProvider<TronConnector>('tron').walletProvider
+          if (!connector) {
+            throw new Error('Tron connector not found')
+          }
+          paymentInstance = new TronPaymentChain(connector)
+          break
+        }
+        default:
+          throw 'Payment option is not supported'
+      }
+
+      await paymentInstance.pay({
+        asset,
+        amount: parseUnits(activeSession.value.amount, asset.decimals),
+        userAddress: address.value,
+        merchantAddress: activeSession.value.merchantWallet,
+      }, {
+        onUpdateStatus: (status: string) => {
+          txStatusMessage.value = status
+        },
+      })
+
+      txStatusMessage.value = ''
+    }
+    catch (e) {
+      txStatusMessage.value = ''
+      throw e
+    }
+  }
+
   return {
     init,
     createSession,
     updateSession,
     pay,
     reset,
+    selectAsset,
     amount,
     activeSession,
-    selectAsset,
     selectedChain,
     selectedAsset,
     txStatusMessage,
-    estimateGasFee,
     paymentQrCode,
+    address,
+    chainId,
   }
 }

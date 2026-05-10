@@ -13,6 +13,10 @@ import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const { pay, amount, selectedAsset, activeSession, txStatusMessage } = usePayment()
 
+const emit = defineEmits<{
+  error: [message: string]
+}>()
+
 const gasless = ref(false)
 const isPaying = ref(false)
 const isExpired = ref(false)
@@ -20,11 +24,14 @@ const errorMessage = ref('')
 
 const onTimerComplete = () => {
   isExpired.value = true
-  errorMessage.value = 'Payment session has expired. Please try again.'
+  emit('error', 'Payment session has expired. Please try again.')
 }
 
 const handleError = (e: unknown, defaultMessage: string) => {
   if (e instanceof BaseError) {
+    console.log(JSON.parse(JSON.stringify(e, (key, value) =>
+      typeof value === 'bigint' ? value.toString() : value,
+    )))
     errorMessage.value = e.shortMessage || e.message
   }
   else {
@@ -119,13 +126,25 @@ const submit = async () => {
           </template>
         </BaseProgressTimer>
       </BaseStackItem>
-
       <BaseStackItem
         v-if="selectedAsset"
         key="rate"
         label="Rate:"
       >
         {{ formatNumber(1, 2) }} {{ selectedAsset.symbol }} = 482.44 Bs.
+      </BaseStackItem>
+      <BaseStackItem
+        v-if="errorMessage"
+        key="error"
+        label=""
+      >
+        <div
+          class="left flex gap-8 c-text-error"
+          style="white-space: pre-line;"
+        >
+          <BaseIcon name="important" />
+          {{ errorMessage }}
+        </div>
       </BaseStackItem>
     </BaseStack>
 

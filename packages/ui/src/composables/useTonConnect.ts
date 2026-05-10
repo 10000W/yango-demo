@@ -15,24 +15,36 @@ const shortAddress = computed(() => friendlyAddress.value ? truncate(friendlyAdd
 const shorterAddress = computed(() => friendlyAddress.value ? truncate(friendlyAddress.value, 3) : '')
 const isConnected = computed(() => Boolean(address.value))
 
-const tonConnectUI = new TonConnectUI({
-  manifestUrl: TON_MANIFEST_URL,
-})
-const modal = tonConnectUI.modal
-Object.assign(account, tonConnectUI.account)
-tonConnectUI.uiOptions = {
-  language: 'en',
-}
-
-watch(address, (value) => {
-  if (value) {
-    console.log(`[TVM]: Connected wallet: ${value}`)
-    return
-  }
-  console.log('[TVM]: Disconnected wallet')
-})
+let tonConnectUI: TonConnectUI | undefined
 
 export const useTonConnect = () => {
+  if (!tonConnectUI) {
+    tonConnectUI = new TonConnectUI({
+      manifestUrl: TON_MANIFEST_URL,
+    })
+    tonConnectUI.uiOptions = {
+      language: 'en',
+    }
+    Object.assign(account, tonConnectUI.account)
+    tonConnectUI.onStatusChange((wallet) => {
+      if (wallet) {
+        console.log(`[TVM]: Connected wallet: ${wallet.account.address}`)
+        Object.assign(account, wallet.account)
+      }
+      else {
+        console.log('[TVM]: Disconnected wallet')
+        Object.assign(account, {
+          address: '',
+          chain: '' as CHAIN,
+          walletStateInit: '',
+          publicKey: '',
+        })
+      }
+    })
+  }
+
+  const modal = tonConnectUI.modal
+
   const disconnect = async () => {
     console.log('is disconnected')
     Object.assign(account, {
@@ -42,7 +54,7 @@ export const useTonConnect = () => {
       publicKey: '',
     })
 
-    await tonConnectUI.disconnect()
+    await tonConnectUI!.disconnect()
   }
 
   return {

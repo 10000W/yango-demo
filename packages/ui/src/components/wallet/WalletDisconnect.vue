@@ -30,8 +30,15 @@ const handleDisconnect = () => {
     :class="$style.WalletDisconnect"
     class="gap-16 between align-center"
   >
+    <BaseIcon
+      v-if="icon === 'evm'"
+      name="other-wallets"
+      size="54"
+      :class="$style.icon"
+    />
+
     <div
-      v-if="icon"
+      v-else-if="icon"
       :style="{ backgroundImage: `url(${icon})`}"
       :class="$style.icon"
     />
@@ -62,7 +69,15 @@ const handleDisconnect = () => {
       :class="$style.confirmModal"
       class="column align-center p-16"
     >
+      <BaseIcon
+        v-if="icon === 'evm'"
+        class="mb-16"
+        :class="$style.confirmIcon"
+        name="other-wallets"
+        size="67"
+      />
       <div
+        v-else-if="icon"
         class="mb-16"
         :class="$style.confirmIcon"
         :style="{ backgroundImage: `url(${icon})`}"

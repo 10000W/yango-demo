@@ -3,77 +3,54 @@ import {
   useAppKitNetwork,
   useDisconnect,
   useAppKitAccount,
-  useAppKitState,
   useWalletInfo,
+  AppKit,
 } from '@reown/appkit/vue'
-import { whenever } from '@vueuse/core'
-import { mainnet, polygon } from 'viem/chains'
-import { computed, nextTick, ref, watch } from 'vue'
-import { REOWN_PROJECT_ID, wagmiAdapter } from '@/entities/config'
+import { computed, nextTick, ref } from 'vue'
+import { REOWN_PROJECT_ID, tronAdapter, wagmiAdapter } from '@/entities/config'
 import { truncate } from '@/utils/string-utils'
+import { tronMainnet, mainnet, polygon } from '@reown/appkit/networks'
 
 const isLoaded = ref(false)
-const modal = createAppKit({
-  adapters: [wagmiAdapter],
-  defaultNetwork: mainnet,
-  networks: [mainnet, polygon],
-  projectId: REOWN_PROJECT_ID,
-  metadata: {
-    name: 'Yango Payment DEMO',
-    description: 'Yango Payment DEMO',
-    url: 'https://yango-demo.vercel.app',
-    icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
-  },
-  features: {
-    email: false,
-    socials: false,
-    analytics: false,
-  },
-})
-
-const accountData = useAppKitAccount()
-const networkData = useAppKitNetwork()
-const stateData = useAppKitState()
-const walletInfoData = useWalletInfo()
-const walletInfo = computed(() => walletInfoData.walletInfo)
-const isConnected = computed(() => accountData.value.isConnected)
-const address = computed(() => accountData.value.address || '')
-const shortAddress = computed(() => truncate(address.value))
-const isWrongNetwork = computed(() => isLoaded.value && isConnected.value && !wagmiAdapter.networks.map(n => n.id).includes(networkData.value.chainId as number))
-const chainId = computed(() => networkData.value.chainId)
-const status = computed(() => accountData.value.status)
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-const isReady = computed(() => isLoaded.value && !stateData.isLoading)
-
-nextTick(() => {
-  setTimeout(() => {
-    isLoaded.value = true
-  }, 1000)
-})
-
-whenever(isReady, () => {
-  if (address.value) {
-    console.log(`[EVM]: Connection restored with wallet ${address.value}`)
-    return
-  }
-  console.log(`[EVM]: Connection restored without wallet`)
-})
-
-watch(address, (value) => {
-  if (value) {
-    console.log(`[EVM]: Connected wallet: ${value}`)
-    return
-  }
-  console.log('[EVM]: Disconnected wallet')
-})
+let modal: AppKit | undefined
 
 export const useAppKit = () => {
-  const { disconnect: _disconnect } = useDisconnect()
-
-  const disconnect = async () => {
-    await _disconnect()
+  if (!modal) {
+    modal = createAppKit({
+      adapters: [wagmiAdapter, tronAdapter],
+      defaultNetwork: mainnet,
+      networks: [mainnet, polygon, tronMainnet],
+      projectId: REOWN_PROJECT_ID,
+      metadata: {
+        name: 'Yango Payment DEMO',
+        description: 'Yango Payment DEMO',
+        url: 'https://yango-demo.vercel.app',
+        icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
+      },
+      features: {
+        email: false,
+        socials: false,
+        analytics: false,
+      },
+    })
+    nextTick(() => {
+      setTimeout(() => {
+        isLoaded.value = true
+      }, 1000)
+    })
   }
+  const { disconnect: _disconnect } = useDisconnect()
+  const accountData = useAppKitAccount()
+  const networkData = useAppKitNetwork()
+  const walletInfoData = useWalletInfo()
+
+  const walletInfo = computed(() => walletInfoData.walletInfo)
+  const isConnected = computed(() => accountData.value.isConnected)
+  const address = computed(() => accountData.value.address || '')
+  const shortAddress = computed(() => truncate(address.value))
+  const isWrongNetwork = computed(() => isLoaded.value && isConnected.value && !wagmiAdapter.networks.map(n => n.id).includes(networkData.value.chainId as number))
+  const chainId = computed(() => networkData.value.chainId)
+  const status = computed(() => accountData.value.status)
 
   return {
     modal,
@@ -84,7 +61,9 @@ export const useAppKit = () => {
     isWrongNetwork,
     chainId,
     status,
-    disconnect,
+    disconnect: () => {
+      return _disconnect()
+    },
     walletInfo,
   }
 }

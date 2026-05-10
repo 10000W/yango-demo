@@ -1,4 +1,6 @@
-import { mainnet, polygon } from 'viem/chains'
+import { mainnet, polygon, tron } from 'viem/chains'
+import { PaymentChainType } from '@/entities/payment'
+import { tronMainnet } from '@reown/appkit/networks'
 
 export type BaseAsset = {
   name: string
@@ -11,7 +13,7 @@ export type EvmAsset = BaseAsset & {
   address: string
   gasless: boolean
   chain: {
-    id: number
+    id: number | string
     name: string
     shortName: string
     color: string
@@ -50,3 +52,29 @@ export const evmAssets: EvmAsset[] = [
     },
   },
 ]
+export const tronAssets: EvmAsset[] = [
+  {
+    name: 'Tether',
+    symbol: 'USDT',
+    decimals: 6,
+    icon: 'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png',
+    address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
+    gasless: true,
+    chain: {
+      id: tronMainnet.id,
+      name: tronMainnet.name,
+      shortName: tronMainnet.nativeCurrency.symbol,
+      color: '#FF060A',
+    },
+  },
+]
+
+export const getAssetsByPaymentOptionChain = (chain: PaymentChainType) => {
+  if (chain === 'evm') {
+    return evmAssets
+  }
+  if (chain === 'tron') {
+    return tronAssets
+  }
+  return []
+}

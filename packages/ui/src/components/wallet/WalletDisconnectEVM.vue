@@ -15,8 +15,8 @@ const handleDisconnectEvm = async () => {
 
 <template>
   <WalletDisconnect
-    :icon="walletInfo?.icon"
-    :name="walletInfo?.name || ''"
+    :icon="walletInfo?.icon || 'evm'"
+    :name="walletInfo?.name || 'Other Wallet'"
     :wallet-address="shortAddress"
     :disconnect="handleDisconnectEvm"
   />

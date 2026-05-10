@@ -4,7 +4,9 @@
     "composite": true,
     "baseUrl": ".",
     "paths": {
-      "src": ["./src/*"],
+      "@tac-crypto-payment/ui": ["../../packages/ui/src/index.ts"],
+      "@/*": ["../../packages/ui/src/*"],
+      "src": ["./src/*"]
     }
   },
   "include": ["src/**/*"]

@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 
 const { to = 'body', modelValue } = defineProps<{
   to?: string
+  full?: boolean
   modelValue: boolean
 }>()
 
@@ -81,10 +82,11 @@ watch(() => modelValue, (v) => {
       >
         <div
           ref="sheetRef"
-          :class="[$style.sheet, isDragging && $style.isDragging]"
+          :class="[$style.sheet, isDragging && $style.isDragging, full && $style.full]"
           :style="{ transform: `translateY(${dragY}px)` }"
         >
           <div
+            v-if="!full"
             :class="$style.dragZone"
             @touchstart="onTouchStart"
             @touchmove="onTouchMove"
@@ -136,6 +138,13 @@ watch(() => modelValue, (v) => {
   transition: none !important;
 }
 
+.full {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-height: 100dvh;
+}
+
 .handle {
   width: 40px;
   height: 4px;
@@ -176,6 +185,8 @@ watch(() => modelValue, (v) => {
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
   flex: 1;
   overflow-y: auto;
 }

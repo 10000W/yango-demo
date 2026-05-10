@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, type App } from 'vue'
 import SkeletonPage from './components/skeleton/SkeletonPage.vue'
-import { BaseBottomSheet, mount } from '@tac-crypto-payment/ui'
+import { BaseBottomSheet, TacCryptoPayment } from '@tac-crypto-payment/ui'
 const isModalOpen = ref(false)
 const paymentApp = ref<App | null>(null)
 
@@ -13,11 +13,18 @@ const mountPaymentApp = async () => {
     paymentApp.value.unmount()
     paymentApp.value = null
   }
-  paymentApp.value = mount('#payment-container', {
+
+  const payment = new TacCryptoPayment({
+    productId: 'e9c80daa-5ed5-4705-9052-3ee1cb16cd7e',
+    amount: '0.01',
+    payzapUrl: 'https://staging-api.payzap.cc',
+    elementSelector: '#payment-container',
     onClose: () => {
       isModalOpen.value = false
     },
   })
+
+  paymentApp.value = payment.mount()
 }
 
 watch(isModalOpen, (isOpen) => {
@@ -36,8 +43,14 @@ watch(isModalOpen, (isOpen) => {
   <div class="host-app">
     <SkeletonPage @pay="mountPaymentApp" />
 
-    <BaseBottomSheet v-model="isModalOpen">
-      <div id="payment-container" />
+    <BaseBottomSheet
+      v-model="isModalOpen"
+      full
+    >
+      <div
+        id="payment-container"
+        style="flex: 1; display: flex; flex-direction: column"
+      />
     </BaseBottomSheet>
   </div>
 </template>
@@ -53,10 +66,6 @@ watch(isModalOpen, (isOpen) => {
   transition: background-color 0.3s, color 0.3s;
   width: 100%;
   height: 100dvh;
-}
-
-#payment-container {
-  min-height: 400px;
 }
 </style>
 

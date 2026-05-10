@@ -14,13 +14,13 @@ defineProps<{
       :class="$style.inner"
       class="flex between"
     >
-      <span>
+      <span v-if="label || $slots.label">
         <slot name="label">
           {{ label }}
         </slot>
       </span>
 
-      <span class="right">
+      <span :class="{'right': (label || $slots.label)}">
         <slot>
           {{ value }}
         </slot>

@@ -5,12 +5,13 @@ import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import PayFormEVM from '@/components/pay/PayFormEVM.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
+import { useAppKitProvider } from '@reown/appkit/vue'
+import { TronConnector } from '@reown/appkit-adapter-tron'
 
 const { createSession, selectedAsset, activeSession, reset } = usePayment()
 const router = useRouter()
 
 const isLoading = ref(false)
-const errorMessage = ref('')
 
 watch(() => activeSession.value?.status, (status) => {
   if (status && status !== 'pending') {
@@ -18,20 +19,25 @@ watch(() => activeSession.value?.status, (status) => {
   }
 })
 
+const handleError = (message: string) => {
+  router.replace({
+    name: 'status',
+    query: {
+      status: 'failed',
+      title: 'Error',
+      description: message,
+    },
+  })
+}
+
 onMounted(async () => {
   try {
     isLoading.value = true
+
     await createSession()
   }
-  catch {
-    router.replace({
-      name: 'status',
-      query: {
-        status: 'failed',
-        title: 'Error',
-        description: errorMessage.value,
-      },
-    })
+  catch (e) {
+    handleError((e as Error)?.message || 'Unable to create a session. Please try again later.')
   }
   finally {
     isLoading.value = false
@@ -77,15 +83,16 @@ onMounted(async () => {
     </div>
 
     <PayFormEVM
-      v-else-if="activeSession?.chain === 'evm'"
+      v-else-if="activeSession?.chain === 'evm' || activeSession?.chain === 'tron'"
       class="flex-1"
+      @error="handleError"
     />
   </div>
 </template>
 
 <style module lang="scss">
 .PayPage {
-  min-height: 100%;
+  //
 }
 
 .title {
