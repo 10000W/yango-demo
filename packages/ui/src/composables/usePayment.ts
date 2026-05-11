@@ -69,7 +69,7 @@ const updateSession = async () => {
 const poll = useTimeoutPoll(updateSession, 3000, { immediate: false })
 
 const createSession = async (isTest = false) => {
-  if (!selectedChain.value || !selectedAsset.value || !amount.value) {
+  if (!selectedChain.value || !selectedAsset.value) {
     throw new Error('Some parameters are not specified')
   }
 
@@ -112,7 +112,7 @@ const createSession = async (isTest = false) => {
   const { data } = await axios.post<{ success: boolean, data: PayZapSession }>
   (`${payzapUrl.value}/v1/payments/session`, {
     productId: productId.value,
-    amount: amount.value,
+    // amount: amount.value,
     chain: selectedChain.value,
     asset: selectedAsset.value.symbol,
     // customerRef string Your internal customer/order ID
