@@ -19,13 +19,14 @@ export const tronAdapter = new TronAdapter({
   networks: [tronMainnet],
   walletAdapters: [
     new TronLinkAdapter({
+      openUrlWhenWalletNotFound: false,
       checkTimeout: 3000,
     }),
-    new MetaMaskAdapter(),
-    new TrustAdapter(),
-    new WalletConnectAdapter({
-      network: 'Mainnet',
-      options: {},
-    }),
+    // new MetaMaskAdapter(),
+    // new TrustAdapter(),
+    // new WalletConnectAdapter({
+    //   network: 'Mainnet',
+    //   options: {},
+    // }),
   ],
 })
