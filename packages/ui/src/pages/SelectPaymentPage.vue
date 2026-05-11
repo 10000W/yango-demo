@@ -103,7 +103,7 @@ const handlePaymentOptionClick = async (option: PaymentOption) => {
       }
 
       try {
-        if (!appKitWalletButton || !appKitWalletButton.isReady()) {
+        if (!appKitWalletButton || !appKitWalletButton.isReady() || !option.walletName) {
           throw 'Wallet name is not provided, fallback to appkit modal'
         }
 
