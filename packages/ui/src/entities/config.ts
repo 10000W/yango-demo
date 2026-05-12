@@ -2,9 +2,9 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { tronMainnet, mainnet, polygon } from '@reown/appkit/networks'
 import { TronAdapter } from '@reown/appkit-adapter-tron'
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink'
-// import { MetaMaskAdapter } from '@tronweb3/tronwallet-adapter-metamask-tron'
-// import { TrustAdapter } from '@tronweb3/tronwallet-adapter-trust'
-// import { WalletConnectAdapter } from '@tronweb3/tronwallet-adapter-walletconnect'
+import { MetaMaskAdapter } from '@tronweb3/tronwallet-adapter-metamask-tron'
+import { TrustAdapter } from '@tronweb3/tronwallet-adapter-trust'
+import { WalletConnectAdapter } from '@tronweb3/tronwallet-adapter-walletconnect'
 
 // export const REOWN_PROJECT_ID = 'b56e18d47c72ab683b10814fe9495694' // localhost
 export const REOWN_PROJECT_ID = '6e72dd19b1f21690fbf30d082bf9d929'
@@ -22,11 +22,11 @@ export const tronAdapter = new TronAdapter({
       openUrlWhenWalletNotFound: false,
       checkTimeout: 3000,
     }),
-    // new MetaMaskAdapter(),
-    // new TrustAdapter(),
-    // new WalletConnectAdapter({
-    //   network: 'Mainnet',
-    //   options: {},
-    // }),
+    new MetaMaskAdapter(),
+    new TrustAdapter(),
+    new WalletConnectAdapter({
+      network: 'Mainnet',
+      options: {},
+    }),
   ],
 })

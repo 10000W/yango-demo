@@ -106,8 +106,11 @@ const submit = async () => {
         key="status"
         label="Status:"
       >
-        <div class="flex align-center gap-8">
-          <BaseIcon name="loading" />
+        <div>
+          <BaseIcon
+            name="loading"
+            style="vertical-align: bottom;"
+          />
           {{ txStatusMessage }}
         </div>
       </BaseStackItem>

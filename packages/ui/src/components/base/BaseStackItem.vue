@@ -12,7 +12,7 @@ defineProps<{
   >
     <div
       :class="$style.inner"
-      class="flex between"
+      class="flex gap-4 between"
     >
       <span v-if="label || $slots.label">
         <slot name="label">
