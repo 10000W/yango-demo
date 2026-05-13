@@ -61,8 +61,8 @@ export const useAppKit = () => {
     isWrongNetwork,
     chainId,
     status,
-    disconnect: () => {
-      return _disconnect()
+    disconnect: (args?: any) => {
+      return _disconnect(args)
     },
     walletInfo,
   }

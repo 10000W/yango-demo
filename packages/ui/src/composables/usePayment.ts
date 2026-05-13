@@ -1,18 +1,17 @@
-import { wagmiAdapter } from '@/entities/config'
 import axios from 'axios'
 import type { PayZapSession } from '@/entities/payzap'
 import { computed, nextTick, type Ref, ref, watch, inject } from 'vue'
 import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
 import { useTimeoutPoll } from '@vueuse/core'
-import type { PaymentOptionChainType } from '@/entities/payment'
+import { type PaymentOption, paymentOptions } from '@/entities/payment'
 import { type Asset } from '@/entities/asset'
 import { parseUnits } from 'viem'
-import { switchChain } from '@wagmi/core'
 import { useAppKit } from '@/composables/useAppKit'
 import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
 import { TronPaymentChain } from '@/entities/payment/TronPaymentChain'
 import { useAppKitProvider } from '@reown/appkit/vue'
 import { TronConnector } from '@reown/appkit-adapter-tron'
+import { PaymentOptionChainType } from '@/entities/payment/PaymentOption'
 
 const amount = ref('0.01')
 const productId = ref()
@@ -20,6 +19,7 @@ const payzapUrl = ref()
 const currentOptions: Ref<TacCryptoPaymentOptions | undefined> = ref()
 
 const activeSession: Ref<PayZapSession | undefined> = ref()
+const selectedPaymentOption: Ref<PaymentOption | undefined> = ref()
 const selectedChain: Ref<PaymentOptionChainType | undefined> = ref()
 const selectedAsset: Ref<Asset | undefined> = ref()
 const txStatusMessage = ref('')
@@ -74,7 +74,7 @@ const createSession = async (isTest = false) => {
   }
 
   if (isTest) {
-    // test.value = isTest
+    test.value = isTest
     await new Promise(resolve => setTimeout(resolve, 100))
     const data = {
       id: '0a7e66b6-6037-4269-9453-3d8f1c41df37',
@@ -83,7 +83,7 @@ const createSession = async (isTest = false) => {
       amount: '0.010000',
       asset: 'USDT',
       chain: 'tron',
-      merchantWallet: 'THkQU6wfLHrADsiiKtbr84XDsXnM7Yw3yn',
+      merchantWallet: selectedChain.value === 'evm' ? '0xD212a7F2dAFe1B55a92729C7Af7a5d227FCb4240' : 'THkQU6wfLHrADsiiKtbr84XDsXnM7Yw3yn',
       txHash: null,
       txExplorerUrl: null,
       expiresAt: '2026-05-09T20:34:16.343Z',
@@ -135,6 +135,7 @@ const reset = () => {
   activeSession.value = undefined
   selectedChain.value = undefined
   selectedAsset.value = undefined
+  selectedPaymentOption.value = undefined
 }
 
 watch(() => activeSession.value?.status, (val) => {
@@ -150,21 +151,36 @@ watch(() => activeSession.value?.status, (val) => {
 })
 
 export const usePayment = () => {
-  const { address, chainId } = useAppKit()
+  const { address, chainId, isConnected, walletInfo } = useAppKit()
 
-  const selectAsset = async (asset: Asset) => {
-    if (selectedChain.value === 'evm') {
-      if ('chain' in asset && asset.chain.id !== chainId.value) {
-        try {
-          await switchChain(wagmiAdapter.wagmiConfig, { chainId: +asset.chain.id })
-        }
-        catch (e) {
-          console.error('Failed to switch chain:', e)
-          return
-        }
-      }
+  const isOptionConnected = (option: PaymentOption) => {
+    if (!isConnected.value) {
+      return false
     }
+
+    if (option.type !== 'blockchain') {
+      return false
+    }
+
+    const connectedName = walletInfo.value?.name?.toLowerCase() || ''
+    if (option.walletName) {
+      return connectedName.includes(option.walletName.toLowerCase())
+    }
+
+    const otherEvmOptions = paymentOptions.filter(o => o.type === 'blockchain' && o.walletName)
+    const matchesAnySpecific = otherEvmOptions.some(o =>
+      connectedName.includes(o.walletName!.toLowerCase()),
+    )
+
+    return !matchesAnySpecific
+  }
+  const selectAsset = async (asset: Asset) => {
     selectedAsset.value = asset
+    if ('namespace' in asset) {
+      selectedChain.value = asset.namespace === 'eip155'
+        ? 'evm'
+        : asset.namespace as PaymentOptionChainType
+    }
   }
   const pay = async () => {
     if (!activeSession.value) {
@@ -224,8 +240,10 @@ export const usePayment = () => {
     pay,
     reset,
     selectAsset,
+    isOptionConnected,
     amount,
     activeSession,
+    selectedPaymentOption,
     selectedChain,
     selectedAsset,
     txStatusMessage,

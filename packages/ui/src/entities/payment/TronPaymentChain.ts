@@ -6,6 +6,9 @@ import {
 import { EvmAsset } from '@/entities/asset'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { Types } from 'tronweb'
+import { parseUnits } from 'viem'
+
+const MAX_UINT256 = 2n ** 256n - 1n
 
 const trc20Abi = [
   {

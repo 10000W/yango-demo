@@ -1,6 +1,5 @@
-import { mainnet, polygon } from 'viem/chains'
-import { PaymentOptionChainType } from '@/entities/payment'
-import { tronMainnet } from '@reown/appkit/networks'
+import { mainnet, polygon, tronMainnet } from '@reown/appkit/networks'
+import { type PaymentOption, type PaymentOptionChainNamespace } from '@/entities/payment'
 
 export type BaseAsset = {
   name: string
@@ -10,6 +9,7 @@ export type BaseAsset = {
 }
 
 export type EvmAsset = BaseAsset & {
+  namespace: PaymentOptionChainNamespace
   address: string
   gasless: boolean
   chain: {
@@ -26,6 +26,7 @@ export const evmAssets: EvmAsset[] = [
   {
     name: 'Tether',
     symbol: 'USDT',
+    namespace: 'eip155',
     decimals: 6,
     icon: 'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png',
     address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
@@ -40,6 +41,7 @@ export const evmAssets: EvmAsset[] = [
   {
     name: 'Tether',
     symbol: 'USDT',
+    namespace: 'eip155',
     decimals: 6,
     icon: 'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png',
     address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
@@ -56,6 +58,7 @@ export const tronAssets: EvmAsset[] = [
   {
     name: 'Tether',
     symbol: 'USDT',
+    namespace: 'tron',
     decimals: 6,
     icon: 'https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/128/color/usdt.png',
     address: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
@@ -69,12 +72,18 @@ export const tronAssets: EvmAsset[] = [
   },
 ]
 
-export const getAssetsByPaymentOptionChain = (chain: PaymentOptionChainType) => {
-  if (chain === 'evm') {
-    return evmAssets
+export const getAssetsByPaymentOption = (option: PaymentOption) => {
+  if (option.type !== 'blockchain') {
+    return []
   }
-  if (chain === 'tron') {
-    return tronAssets
+
+  const assets: EvmAsset[] = []
+  if (option.namespaces.includes('eip155')) {
+    assets.push(...evmAssets)
   }
-  return []
+  if (option.namespaces.includes('tron')) {
+    assets.push(...tronAssets)
+  }
+
+  return assets
 }

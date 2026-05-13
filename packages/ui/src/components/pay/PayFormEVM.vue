@@ -2,7 +2,7 @@
 import { usePayment } from '@/composables/usePayment'
 import { formatNumber } from '@/utils/string-utils'
 import BaseChip from '@/components/base/BaseChip.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import BaseAlert from '@/components/base/BaseAlert.vue'
 import BaseStack from '@/components/base/BaseStack.vue'
 import BaseStackItem from '@/components/base/BaseStackItem.vue'
@@ -10,8 +10,22 @@ import BaseProgressTimer from '@/components/base/BaseProgressTimer.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import { BaseError } from 'viem'
 import BaseIcon from '@/components/base/BaseIcon.vue'
+import { useAppKit } from '@/composables/useAppKit'
+import { mainnet, polygon, tronMainnet } from '@reown/appkit/networks'
+import { createAppKitWalletButton, type Wallet } from '@reown/appkit-wallet-button'
 
-const { pay, amount, selectedAsset, activeSession, txStatusMessage } = usePayment()
+const networks = [mainnet, polygon, tronMainnet]
+
+const {
+  pay,
+  amount,
+  selectedAsset,
+  activeSession,
+  txStatusMessage,
+  selectedPaymentOption,
+  isOptionConnected: _isOptionConnected,
+} = usePayment()
+const { isConnected, chainId, modal: appkitModal } = useAppKit()
 
 const emit = defineEmits<{
   error: [message: string]
@@ -38,6 +52,55 @@ const handleError = (e: unknown, defaultMessage: string) => {
     errorMessage.value = e instanceof Error ? e.message : defaultMessage
   }
 }
+const isOptionConnected = computed(() => {
+  if (!selectedPaymentOption.value) {
+    return false
+  }
+
+  const option = selectedPaymentOption.value
+  if (option.type !== 'blockchain') {
+    return true
+  }
+
+  return _isOptionConnected(option)
+})
+const isCorrectChain = computed(() => {
+  if (!selectedAsset.value || !('chain' in selectedAsset.value) || !isConnected.value) {
+    return true
+  }
+  return chainId.value === selectedAsset.value.chain.id
+})
+const namespace = computed(() => {
+  return selectedAsset.value && 'namespace' in selectedAsset.value ? selectedAsset.value.namespace : undefined
+})
+
+const connect = async () => {
+  const option = selectedPaymentOption.value
+  if (option?.walletName) {
+    const walletButton = createAppKitWalletButton({
+      namespace: namespace.value,
+    })
+    await walletButton.connect(option.walletName as Wallet)
+  }
+  else {
+    await appkitModal.open({
+      view: 'Connect',
+      namespace: namespace.value,
+    })
+  }
+}
+const switchNetwork = async () => {
+  const asset = selectedAsset.value
+  if (asset && 'chain' in asset) {
+    const network = networks.find(n => n.id === asset.chain.id)
+    console.log(network)
+    if (network) {
+      await appkitModal.switchNetwork(network, {
+        throwOnFailure: true,
+      })
+    }
+  }
+}
 const submit = async () => {
   try {
     isPaying.value = true
@@ -51,7 +114,6 @@ const submit = async () => {
     handleError(error, 'Transaction failed')
   }
 }
-
 </script>
 
 <template>
@@ -151,8 +213,37 @@ const submit = async () => {
       </BaseStackItem>
     </BaseStack>
 
+    <div
+      v-if="!isConnected || !isOptionConnected"
+      class="column gap-12"
+    >
+      <BaseButton
+        type="button"
+        wide
+        class="gap-8"
+        @click="connect"
+      >
+        <template v-if="selectedPaymentOption">
+          Connect {{ selectedPaymentOption.walletName ? selectedPaymentOption.name : 'Wallet' }}
+        </template>
+        <template v-else>
+          Connect Wallet
+        </template>
+      </BaseButton>
+    </div>
+
     <BaseButton
-      v-if="selectedAsset"
+      v-else-if="!isCorrectChain"
+      type="button"
+      wide
+      class="gap-8"
+      @click="switchNetwork"
+    >
+      Switch Network
+    </BaseButton>
+
+    <BaseButton
+      v-else-if="selectedAsset"
       type="submit"
       wide
       :loading="isPaying"

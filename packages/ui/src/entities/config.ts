@@ -12,21 +12,33 @@ export const TON_MANIFEST_URL = 'https://raw.githubusercontent.com/ton-community
 
 export const wagmiAdapter = new WagmiAdapter({
   networks: [mainnet, polygon],
-
   projectId: REOWN_PROJECT_ID,
 })
 export const tronAdapter = new TronAdapter({
   networks: [tronMainnet],
   walletAdapters: [
     new TronLinkAdapter({
+      openAppWithDeeplink: true,
+      openTronLinkAppOnMobile: false,
       openUrlWhenWalletNotFound: false,
       checkTimeout: 3000,
+      dappIcon: 'https://yango-demo.vercel.app/manifest-img.jpg',
+      dappName: 'Yango Payment DEMO',
     }),
     new MetaMaskAdapter(),
     new TrustAdapter(),
     new WalletConnectAdapter({
       network: 'Mainnet',
-      options: {},
+      allWallets: 'SHOW',
+      options: {
+        projectId: REOWN_PROJECT_ID,
+        metadata: {
+          name: 'Yango Payment DEMO',
+          description: 'Yango Payment DEMO',
+          url: 'https://yango-demo.vercel.app',
+          icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
+        },
+      },
     }),
   ],
 })
