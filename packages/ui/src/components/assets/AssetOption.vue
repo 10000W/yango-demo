@@ -6,7 +6,7 @@ import BaseIcon from '@/components/base/BaseIcon.vue'
 
 const { asset } = defineProps<{
   gasless?: boolean
-  asset: Asset
+  asset: Asset & { gasless?: boolean }
 }>()
 
 const iconStyle = computed(() => {
@@ -43,7 +43,7 @@ const chainBgColor = computed(() => {
           class="br-sm px-6 py-0"
           :class="$style.chainChip"
         >
-          {{ asset.chain.shortName }}
+          {{ asset.chain.name }}
         </BaseChip>
       </div>
       <p class="c-text-secondary">
@@ -51,11 +51,11 @@ const chainBgColor = computed(() => {
       </p>
     </div>
     <BaseChip
-      v-if="'gasless' in asset && asset.gasless"
+      v-if="asset.gasless"
       :class="$style.gasless"
       variant="success"
     >
-      0% Network fee
+      Gasless ⚡
     </BaseChip>
     <BaseIcon
       name="chevron-right"

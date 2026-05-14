@@ -1,6 +1,6 @@
 import { TronWeb } from 'tronweb'
 import {
-  defaultPaymentChainPayOptions,
+  defaultPaymentChainPayOptions, PaymentChain,
   PaymentChainPayContext, PaymentChainPayOptions,
 } from '@/entities/payment/PaymentChain'
 import { EvmAsset } from '@/entities/asset'
@@ -49,11 +49,12 @@ const trc20Abi = [
   },
 ]
 
-export class TronPaymentChain {
+export class TronPaymentChain extends PaymentChain<EvmAsset> {
   connector: TronConnector
   private readonly _tronWeb: TronWeb
 
   constructor(connector: TronConnector) {
+    super()
     this.connector = connector
     this._tronWeb = new TronWeb({
       fullHost: 'https://api.trongrid.io',
@@ -136,6 +137,11 @@ export class TronPaymentChain {
     await this.transfer(context, options)
   }
 
+  async payGasless(context: PaymentChainPayContext<EvmAsset>, options: PaymentChainPayOptions) {
+    // Tron gasless is not implemented yet
+    await this.pay(context, options)
+  }
+
   private async _sendTransaction(
     txWrapper: Types.TransactionWrapper,
     context: PaymentChainPayContext<EvmAsset>,
@@ -148,6 +154,7 @@ export class TronPaymentChain {
       throw new Error('Failed to extract transaction data')
     }
 
+    console.log(this.connector)
     const isWalletConnect = this.connector.type === 'WALLET_CONNECT' || this.connector.id === 'walletConnect'
 
     // FIXME: wait for appkit-adapter-tron update

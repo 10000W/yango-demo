@@ -1,16 +1,11 @@
 import axios from 'axios'
-import type { PayZapSession } from '@/entities/payzap'
+import type { PayZapProduct, PayZapSession } from '@/entities/payzap'
 import { computed, nextTick, type Ref, ref, watch, inject } from 'vue'
 import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
 import { useTimeoutPoll } from '@vueuse/core'
 import { type PaymentOption, paymentOptions } from '@/entities/payment'
-import { type Asset } from '@/entities/asset'
-import { parseUnits } from 'viem'
+import { type Asset, EvmAsset } from '@/entities/asset'
 import { useAppKit } from '@/composables/useAppKit'
-import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
-import { TronPaymentChain } from '@/entities/payment/TronPaymentChain'
-import { useAppKitProvider } from '@reown/appkit/vue'
-import { TronConnector } from '@reown/appkit-adapter-tron'
 import { PaymentOptionChainType } from '@/entities/payment/PaymentOption'
 
 const amount = ref('0.01')
@@ -18,6 +13,7 @@ const productId = ref()
 const payzapUrl = ref()
 const currentOptions: Ref<TacCryptoPaymentOptions | undefined> = ref()
 
+const product: Ref<PayZapProduct | undefined> = ref()
 const activeSession: Ref<PayZapSession | undefined> = ref()
 const selectedPaymentOption: Ref<PaymentOption | undefined> = ref()
 const selectedChain: Ref<PaymentOptionChainType | undefined> = ref()
@@ -47,27 +43,16 @@ const paymentQrCode = computed(() => {
   return activeSession.value.paymentUrl
 })
 
-const init = () => {
-  const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
-  currentOptions.value = options
-  productId.value = options.productId
-  payzapUrl.value = options.payzapUrl
-  amount.value = options.amount.toString()
-}
-
-const updateSession = async () => {
-  if (test.value) {
-    return
+const updateProduct = async () => {
+  const { data } = await axios.get<{ success: boolean, data: PayZapProduct }>
+  (`${payzapUrl.value}/v1/public/product/${productId.value}`)
+  if (data.success) {
+    product.value = data.data
   }
-  if (!activeSession.value) {
-    return
+  else {
+    throw new Error('Failed to fetch product details')
   }
-
-  const { data } = await axios.get<{ data: PayZapSession }>(`${payzapUrl.value}/v1/payments/session/${activeSession.value.id}`)
-  activeSession.value = data.data
 }
-const poll = useTimeoutPoll(updateSession, 3000, { immediate: false })
-
 const createSession = async (isTest = false) => {
   if (!selectedChain.value || !selectedAsset.value) {
     throw new Error('Some parameters are not specified')
@@ -112,9 +97,12 @@ const createSession = async (isTest = false) => {
   const { data } = await axios.post<{ success: boolean, data: PayZapSession }>
   (`${payzapUrl.value}/v1/payments/session`, {
     productId: productId.value,
-    // amount: amount.value,
+    gasless: true,
     chain: selectedChain.value,
     asset: selectedAsset.value.symbol,
+    metadata: {
+      chainId: (selectedAsset.value as EvmAsset)?.chain?.id,
+    },
     // customerRef string Your internal customer/order ID
     // successUrl string Override product success URL for this session
     // metadata object Arbitrary JSON metadata
@@ -129,6 +117,28 @@ const createSession = async (isTest = false) => {
   }
 
   throw new Error('Error while creating session')
+}
+const updateSession = async () => {
+  if (test.value) {
+    return
+  }
+  if (!activeSession.value) {
+    return
+  }
+
+  const { data } = await axios.get<{ data: PayZapSession }>(`${payzapUrl.value}/v1/payments/session/${activeSession.value.id}`)
+  activeSession.value = data.data
+}
+const poll = useTimeoutPoll(updateSession, 3000, { immediate: false })
+
+const init = async () => {
+  const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
+  productId.value = options.productId
+  payzapUrl.value = options.payzapUrl
+  amount.value = options.amount.toString()
+
+  await updateProduct()
+  currentOptions.value = options
 }
 const reset = () => {
   poll.pause()
@@ -151,7 +161,7 @@ watch(() => activeSession.value?.status, (val) => {
 })
 
 export const usePayment = () => {
-  const { address, chainId, isConnected, walletInfo } = useAppKit()
+  const { address, chainId, isConnected, walletInfo, isLoaded } = useAppKit()
 
   const isOptionConnected = (option: PaymentOption) => {
     if (!isConnected.value) {
@@ -182,65 +192,16 @@ export const usePayment = () => {
         : asset.namespace as PaymentOptionChainType
     }
   }
-  const pay = async () => {
-    if (!activeSession.value) {
-      throw new Error('Session not found')
-    }
-
-    if (!address.value) {
-      throw new Error('Wallet not connected')
-    }
-
-    try {
-      const asset = selectedAsset.value
-      if (!asset || !('address' in asset)) {
-        throw new Error(`Invalid asset for ${selectedChain.value}`)
-      }
-
-      let paymentInstance: EvmPaymentChain | TronPaymentChain
-      switch (selectedChain.value) {
-        case 'evm':
-          paymentInstance = new EvmPaymentChain()
-          break
-        case 'tron': {
-          const connector = useAppKitProvider<TronConnector>('tron').walletProvider
-          if (!connector) {
-            throw new Error('Tron connector not found')
-          }
-          paymentInstance = new TronPaymentChain(connector)
-          break
-        }
-        default:
-          throw 'Payment option is not supported'
-      }
-
-      await paymentInstance.pay({
-        asset,
-        amount: parseUnits(activeSession.value.amount, asset.decimals),
-        userAddress: address.value,
-        merchantAddress: activeSession.value.merchantWallet,
-      }, {
-        onUpdateStatus: (status: string) => {
-          txStatusMessage.value = status
-        },
-      })
-
-      txStatusMessage.value = ''
-    }
-    catch (e) {
-      txStatusMessage.value = ''
-      throw e
-    }
-  }
 
   return {
     init,
     createSession,
     updateSession,
-    pay,
     reset,
     selectAsset,
     isOptionConnected,
+    updateProduct,
+    product,
     amount,
     activeSession,
     selectedPaymentOption,
@@ -250,5 +211,6 @@ export const usePayment = () => {
     paymentQrCode,
     address,
     chainId,
+    isLoaded,
   }
 }

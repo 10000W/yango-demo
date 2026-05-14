@@ -189,6 +189,7 @@ watch(() => modelValue, (v) => {
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  background: inherit;
 }
 </style>
 

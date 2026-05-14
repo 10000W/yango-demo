@@ -5,8 +5,6 @@ import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import PayFormEVM from '@/components/pay/PayFormEVM.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
-import { useAppKitProvider } from '@reown/appkit/vue'
-import { TronConnector } from '@reown/appkit-adapter-tron'
 
 const { createSession, selectedAsset, activeSession, reset } = usePayment()
 const router = useRouter()

@@ -4,16 +4,40 @@ import { type Asset, getAssetsByPaymentOption } from '@/entities/asset'
 import { usePayment } from '@/composables/usePayment'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
-import { computed } from 'vue'
+import { computed, ComputedRef } from 'vue'
+import { appKitNetworksMap } from '@/entities/appkit'
+import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
+import { tronMainnet } from '@reown/appkit/networks'
 
 const router = useRouter()
-const { selectedPaymentOption, selectAsset } = usePayment()
+const { product, selectedPaymentOption, selectAsset } = usePayment()
 
-const assets = computed(() => {
+const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
   if (!selectedPaymentOption.value) {
     return []
   }
-  return getAssetsByPaymentOption(selectedPaymentOption.value)
+  const paymentOptionAssets = getAssetsByPaymentOption(selectedPaymentOption.value)
+
+  switch (selectedPaymentOption.value.type) {
+    case 'blockchain':
+      if (!product.value) {
+        return paymentOptionAssets
+      }
+      const productAvailableChains = product.value.availableChains
+      const chainIds: (number | string)[] = product.value.evmNetworks
+        .map(name => appKitNetworksMap[name].id)
+      if (productAvailableChains.includes('tron')) {
+        chainIds.push(tronMainnet.id)
+      }
+      return paymentOptionAssets
+        .filter(asset => chainIds.includes(asset.chain.id))
+        .map(asset => ({
+          ...asset,
+          gasless: asset.chain.id !== tronMainnet.id ? EvmPaymentChain.getSponsorshipMechanism(asset) : false,
+        }))
+    default:
+      return paymentOptionAssets
+  }
 })
 
 const onClickAsset = async (asset: Asset) => {

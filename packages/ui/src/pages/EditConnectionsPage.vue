@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { useAppKit } from '@/composables/useAppKit'
-import { useTonConnect } from '@/composables/useTonConnect'
 import PageHeader from '@/components/PageHeader.vue'
 import WalletDisconnectEVM from '@/components/wallet/WalletDisconnectEVM.vue'
-import WalletDisconnectTVM from '@/components/wallet/WalletDisconnectTVM.vue'
 
 const { isConnected: isEvmConnected } = useAppKit()
-const { isConnected: isTonConnected } = useTonConnect()
 </script>
 
 <template>
@@ -18,15 +15,13 @@ const { isConnected: isTonConnected } = useTonConnect()
       class="column"
     >
       <div
-        v-if="!isEvmConnected && !isTonConnected"
+        v-if="!isEvmConnected"
         :class="$style.emptyState"
       >
         <p>No wallets connected</p>
       </div>
 
       <WalletDisconnectEVM v-if="isEvmConnected" />
-
-      <WalletDisconnectTVM v-if="isTonConnected" />
     </div>
   </div>
 </template>
