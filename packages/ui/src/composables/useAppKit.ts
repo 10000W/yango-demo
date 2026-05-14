@@ -7,11 +7,18 @@ import {
   AppKit,
 } from '@reown/appkit/vue'
 import { computed, nextTick, ref } from 'vue'
-import { REOWN_PROJECT_ID, tronAdapter, wagmiAdapter } from '@/entities/config'
+import { REOWN_PROJECT_ID, wagmiAdapter } from '@/entities/config'
 import { truncate } from '@/utils/string-utils'
 import { PayZapProduct } from '@/entities/payzap'
 import type { ChainAdapter } from '@reown/appkit'
-import { type AppKitNetwork, tronMainnet } from '@reown/appkit/networks'
+import {
+  type AppKitNetwork,
+  arbitrum, base, baseSepolia,
+  bsc,
+  mainnet,
+  polygon,
+  tronMainnet,
+} from '@reown/appkit/networks'
 import { appKitNetworksMap } from '@/entities/appkit'
 
 const isLoaded = ref(false)
@@ -42,7 +49,7 @@ const init = (product: PayZapProduct) => {
 
   modal = createAppKit({
     adapters,
-    networks: networks as [AppKitNetwork, ...AppKitNetwork[]],
+    networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia],
     projectId: REOWN_PROJECT_ID,
     metadata: {
       name: 'Yango Payment DEMO',

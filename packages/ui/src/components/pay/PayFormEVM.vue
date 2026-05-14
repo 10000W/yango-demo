@@ -182,6 +182,7 @@ if (selectedPaymentOption.value?.walletName && namespace.value === 'eip155') {
     isConnecting.value = false
   }
 }
+txStatusMessage.value = ''
 </script>
 
 <template>
