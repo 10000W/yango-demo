@@ -13,7 +13,7 @@ import BaseIcon from '@/components/base/BaseIcon.vue'
 import { useAppKit } from '@/composables/useAppKit'
 import { createAppKitWalletButton, type Wallet } from '@reown/appkit-wallet-button'
 import { appKitNetworksMap } from '@/entities/appkit'
-import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/vue'
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/vue'
 import { AxiosError } from 'axios'
 import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
 import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
@@ -21,6 +21,7 @@ import { tronMainnet } from '@reown/appkit/networks'
 import { TronPaymentChain } from '@/entities/payment/TronPaymentChain'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { EvmAsset } from '@/entities/asset'
+import { getSponsorshipMechanism } from '@/entities/payment'
 
 let walletButton: ReturnType<typeof createAppKitWalletButton> | undefined
 
@@ -37,22 +38,61 @@ const {
   product,
 } = usePayment()
 
-const { isConnected, address, chainId, modal } = useAppKit()
+const {
+  isConnected,
+  address,
+  chainId,
+  modal,
+  disconnect,
+} = useAppKit()
+
+const evmAccount = useAppKitAccount({ namespace: 'eip155' })
+const tronAccount = useAppKitAccount({ namespace: 'tron' })
+
 const payzapUrl = inject<TacCryptoPaymentOptions>('tacPaymentOptions')?.payzapUrl
   || 'https://api.payzap.cc'
 
-const paymentChainInstance = (selectedAsset.value as EvmAsset)?.chain?.id === tronMainnet.id
-  ? new TronPaymentChain(useAppKitProvider<TronConnector>('tron').walletProvider!)
-  : new EvmPaymentChain({ payzapUrl })
-console.log(useAppKitProvider<TronConnector>('tron'))
+const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
 
 const isConnecting = ref(false)
 const isPaying = ref(false)
 const isExpired = ref(false)
 const errorMessage = ref('')
 
+const paymentChainInstance = computed(() => {
+  if ((selectedAsset.value as EvmAsset)?.chain?.id === tronMainnet.id) {
+    return new TronPaymentChain(tronProvider!, { payzapUrl })
+  }
+  return new EvmPaymentChain({ payzapUrl })
+})
+const timerDuration = computed(() => {
+  return 15 * 60
+})
+const isNamespaceSupported = computed(() => {
+  if (!isConnected.value) {
+    return true
+  }
+  if (namespace.value === 'eip155') {
+    return evmAccount.value.isConnected
+  }
+  if (namespace.value === 'tron') {
+    return tronAccount.value.isConnected
+  }
+  return true
+})
+const namespaceErrorMessage = computed(() => {
+  if (!isConnected.value) {
+    return ''
+  }
+
+  if (!isNamespaceSupported.value) {
+    return `Account for ${namespace.value === 'eip155' ? 'EVM' : 'TRON'} not found in your wallet`
+  }
+
+  return ''
+})
 const isCorrectChain = computed(() => {
-  if (!selectedAsset.value || !('chain' in selectedAsset.value) || !isConnected.value) {
+  if (!selectedAsset.value || !('chain' in selectedAsset.value) || !isConnected.value || !isNamespaceSupported.value) {
     return true
   }
   return chainId.value === selectedAsset.value.chain.id
@@ -68,10 +108,7 @@ const gasless = computed(() => {
     return false
   }
 
-  if (paymentChainInstance instanceof TronPaymentChain) {
-    return false
-  }
-  return !!EvmPaymentChain.getSponsorshipMechanism(selectedAsset.value)
+  return getSponsorshipMechanism(selectedAsset.value)
 })
 
 const onTimerComplete = () => {
@@ -94,7 +131,7 @@ const pay = async () => {
 
   const payContext = {
     asset,
-    gasless: activeSession.value.gasless,
+    gasless: activeSession.value.chain === 'tron' ? true : activeSession.value.gasless,
     sessionId: activeSession.value.id,
     amount: parseUnits(activeSession.value.amount, asset.decimals),
     userAddress: address.value,
@@ -106,7 +143,7 @@ const pay = async () => {
     },
   }
 
-  await paymentChainInstance.pay(payContext, payOptions)
+  await paymentChainInstance.value.pay(payContext, payOptions)
 
   txStatusMessage.value = 'Confirming payment'
 }
@@ -124,7 +161,6 @@ const handleError = (e: unknown, defaultMessage: string) => {
 }
 const connect = async () => {
   if (walletButton) {
-    console.log(walletButton, namespace.value)
     try {
       isConnecting.value = true
       await walletButton.connect(selectedPaymentOption.value?.walletName as Wallet)
@@ -137,7 +173,7 @@ const connect = async () => {
   else if (modal) {
     await modal.open({
       view: 'Connect',
-      namespace: namespace.value,
+      namespace: namespace.value === 'eip155' ? 'eip155' : undefined,
     })
   }
 }
@@ -171,7 +207,6 @@ const submit = async () => {
 
 if (selectedPaymentOption.value?.walletName && namespace.value === 'eip155') {
   isConnecting.value = true
-  console.log(walletButton, namespace.value)
   walletButton = createAppKitWalletButton({
     namespace: namespace.value,
   })
@@ -181,6 +216,10 @@ if (selectedPaymentOption.value?.walletName && namespace.value === 'eip155') {
   if (walletButton.isReady()) {
     isConnecting.value = false
   }
+}
+else {
+  walletButton = undefined
+  isConnecting.value = false
 }
 txStatusMessage.value = ''
 </script>
@@ -200,7 +239,7 @@ txStatusMessage.value = ''
         </p>
 
         <p class="h3">
-          {{ formatNumber(amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary"> ≈ 689 Bs.</span>
+          {{ formatNumber(activeSession?.amount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary"> ≈ {{ formatNumber((Number(activeSession?.amount || amount) * 482.44), 2) }} Bs.</span>
         </p>
       </div>
       <hr>
@@ -246,7 +285,7 @@ txStatusMessage.value = ''
         label="Expires in:"
       >
         <BaseProgressTimer
-          :duration="15 * 60"
+          :duration="timerDuration"
           :size="16"
           color="var(--ypm-color-brand-primary)"
           @complete="onTimerComplete"
@@ -261,7 +300,7 @@ txStatusMessage.value = ''
         key="rate"
         label="Rate:"
       >
-        {{ formatNumber(1, 2) }} {{ selectedAsset.symbol }} = 482.44 Bs.
+        1 {{ selectedAsset.symbol }} ≈ 482.44 Bs.
       </BaseStackItem>
       <BaseStackItem
         v-if="gasless"
@@ -273,7 +312,7 @@ txStatusMessage.value = ''
         </BaseChip>
       </BaseStackItem>
       <BaseStackItem
-        v-if="errorMessage"
+        v-if="errorMessage || namespaceErrorMessage"
         key="error"
         label=""
       >
@@ -282,7 +321,7 @@ txStatusMessage.value = ''
           style="white-space: pre-line;"
         >
           <BaseIcon name="important" />
-          {{ errorMessage }}
+          {{ errorMessage || namespaceErrorMessage }}
         </div>
       </BaseStackItem>
     </BaseStack>
@@ -301,6 +340,15 @@ txStatusMessage.value = ''
       <template v-else>
         Connect Wallet
       </template>
+    </BaseButton>
+
+    <BaseButton
+      v-else-if="namespaceErrorMessage"
+      type="button"
+      wide
+      @click="disconnect()"
+    >
+      Reconnect Wallet
     </BaseButton>
 
     <BaseButton

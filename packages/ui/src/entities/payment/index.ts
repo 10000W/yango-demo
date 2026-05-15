@@ -9,6 +9,10 @@ import {
   PaymentOptionChainType,
   PaymentOptionType,
 } from '@/entities/payment/PaymentOption'
+import { Asset } from '@/entities/asset'
+import { tronMainnet } from '@reown/appkit/networks'
+import { TronPaymentChain } from '@/entities/payment/TronPaymentChain'
+import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
 
 export const paymentOptions: PaymentOption[] = [
   {
@@ -58,3 +62,16 @@ export const paymentOptions: PaymentOption[] = [
   },
 ]
 export type { PaymentOptionType, PaymentOption, PaymentOptionChainNamespace, PaymentOptionChainType }
+
+export const getSponsorshipMechanism = (asset: Asset) => {
+  if (!asset || !('chain' in asset)) {
+    return null
+  }
+
+  switch (asset.chain.id) {
+    case tronMainnet.id:
+      return TronPaymentChain.getSponsorshipMechanism(asset)
+    default:
+      return EvmPaymentChain.getSponsorshipMechanism(asset)
+  }
+}

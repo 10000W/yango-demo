@@ -17,34 +17,34 @@ import { WalletConnectAdapter } from '@tronweb3/tronwallet-adapter-walletconnect
 export const REOWN_PROJECT_ID = '6e72dd19b1f21690fbf30d082bf9d929'
 
 export const wagmiAdapter = new WagmiAdapter({
-  networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia],
+  networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia, tronMainnet],
   projectId: REOWN_PROJECT_ID,
 })
 export const tronAdapter = new TronAdapter({
   networks: [tronMainnet],
   walletAdapters: [
-    // new TronLinkAdapter({
-    //   openAppWithDeeplink: true,
-    //   openTronLinkAppOnMobile: false,
-    //   openUrlWhenWalletNotFound: false,
-    //   checkTimeout: 3000,
-    //   dappIcon: 'https://yango-demo.vercel.app/manifest-img.jpg',
-    //   dappName: 'Yango Payment DEMO',
-    // }),
+    new TronLinkAdapter({
+      openAppWithDeeplink: true,
+      openTronLinkAppOnMobile: false,
+      openUrlWhenWalletNotFound: false,
+      checkTimeout: 3000,
+      dappIcon: 'https://yango-demo.vercel.app/manifest-img.jpg',
+      dappName: 'Yango Payment DEMO',
+    }),
     new MetaMaskAdapter(),
     new TrustAdapter(),
-    // new WalletConnectAdapter({
-    //   network: 'Mainnet',
-    //   allWallets: 'SHOW',
-    //   options: {
-    //     projectId: REOWN_PROJECT_ID,
-    //     metadata: {
-    //       name: 'Yango Payment DEMO',
-    //       description: 'Yango Payment DEMO',
-    //       url: 'https://yango-demo.vercel.app',
-    //       icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
-    //     },
-    //   },
-    // }),
+    new WalletConnectAdapter({
+      network: 'Mainnet',
+      allWallets: 'HIDE',
+      options: {
+        projectId: REOWN_PROJECT_ID,
+        metadata: {
+          name: 'Yango Payment DEMO',
+          description: 'Yango Payment DEMO',
+          url: 'https://yango-demo.vercel.app',
+          icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
+        },
+      },
+    }),
   ],
 })

@@ -75,7 +75,7 @@ const createSession = async (isTest = false) => {
       successUrl: null,
       exchangePayUrl: null,
       exchangePayQr: null,
-      gasless: false,
+      gasless: true,
       gasFeeUsd: null,
       payerAmount: null,
       permitData: null,
@@ -97,12 +97,12 @@ const createSession = async (isTest = false) => {
   const { data } = await axios.post<{ success: boolean, data: PayZapSession }>
   (`${payzapUrl.value}/v1/payments/session`, {
     productId: productId.value,
-    gasless: true,
+    gasless: selectedChain.value === 'evm' ? true : undefined,
     chain: selectedChain.value,
     asset: selectedAsset.value.symbol,
-    metadata: {
-      chainId: (selectedAsset.value as EvmAsset)?.chain?.id,
-    },
+    metadata: selectedChain.value === 'evm'
+      ? { chainId: (selectedAsset.value as EvmAsset)?.chain?.id }
+      : undefined,
     // customerRef string Your internal customer/order ID
     // successUrl string Override product success URL for this session
     // metadata object Arbitrary JSON metadata

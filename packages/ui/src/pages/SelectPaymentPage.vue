@@ -65,6 +65,7 @@ const handleConfirm = (value: boolean) => {
       <h1 class="h1 mb-8 flex-1">
         Select payment method
       </h1>
+
       <RouterLink
         v-if="isAnyConnected"
         :class="$style.editLink"

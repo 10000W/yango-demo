@@ -52,6 +52,11 @@ export const createAppRouter = (base = '/') => createRouter({
       component: WhitelistPage,
     },
     {
+      name: 'test',
+      path: '/test',
+      component: () => import('@/pages/TestConnectPage.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       component: ErrorPage,
       props: {

@@ -23,7 +23,7 @@ const { variant = 'primary', loading = false } = defineProps<{
   </button>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .base-button {
   --b-height: 56px;
   --b-font-size: 16px;

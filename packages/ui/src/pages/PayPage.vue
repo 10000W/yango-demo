@@ -3,7 +3,7 @@ import { usePayment } from '@/composables/usePayment'
 import { onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
-import PayFormEVM from '@/components/pay/PayFormEVM.vue'
+import PayFormBlockchain from '@/components/pay/PayFormBlockchain.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 
 const { createSession, selectedAsset, activeSession, reset } = usePayment()
@@ -80,7 +80,7 @@ onMounted(async () => {
       </BaseSpinner>
     </div>
 
-    <PayFormEVM
+    <PayFormBlockchain
       v-else-if="activeSession?.chain === 'evm' || activeSession?.chain === 'tron'"
       class="flex-1"
       @error="handleError"

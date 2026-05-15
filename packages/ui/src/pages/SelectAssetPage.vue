@@ -6,8 +6,8 @@ import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import { computed, ComputedRef } from 'vue'
 import { appKitNetworksMap } from '@/entities/appkit'
-import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
 import { tronMainnet } from '@reown/appkit/networks'
+import { getSponsorshipMechanism } from '@/entities/payment'
 
 const router = useRouter()
 const { product, selectedPaymentOption, selectAsset } = usePayment()
@@ -33,7 +33,7 @@ const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
         .filter(asset => chainIds.includes(asset.chain.id))
         .map(asset => ({
           ...asset,
-          gasless: asset.chain.id !== tronMainnet.id ? EvmPaymentChain.getSponsorshipMechanism(asset) : false,
+          gasless: !!getSponsorshipMechanism(asset),
         }))
     default:
       return paymentOptionAssets

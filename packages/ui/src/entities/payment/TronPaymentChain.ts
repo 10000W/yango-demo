@@ -1,4 +1,5 @@
 import { TronWeb } from 'tronweb'
+import axios, { AxiosError } from 'axios'
 import {
   defaultPaymentChainPayOptions, PaymentChain,
   PaymentChainPayContext, PaymentChainPayOptions,
@@ -6,7 +7,6 @@ import {
 import { EvmAsset } from '@/entities/asset'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { Types } from 'tronweb'
-import { parseUnits } from 'viem'
 
 const MAX_UINT256 = 2n ** 256n - 1n
 
@@ -49,13 +49,20 @@ const trc20Abi = [
   },
 ]
 
+type DelegateEnergyResponse = {
+  success: boolean
+}
+
 export class TronPaymentChain extends PaymentChain<EvmAsset> {
   connector: TronConnector
+  isEnergyAlreadyDelegated = false
+  payzapUrl: string
   private readonly _tronWeb: TronWeb
 
-  constructor(connector: TronConnector) {
+  constructor(connector: TronConnector, config: { payzapUrl: string }) {
     super()
     this.connector = connector
+    this.payzapUrl = config.payzapUrl
     this._tronWeb = new TronWeb({
       fullHost: 'https://api.trongrid.io',
     })
@@ -63,6 +70,10 @@ export class TronPaymentChain extends PaymentChain<EvmAsset> {
 
   get tronWeb(): TronWeb {
     return this._tronWeb
+  }
+
+  static getSponsorshipMechanism(asset: EvmAsset) {
+    return (asset.symbol === 'USDT' || asset.symbol === 'USDC') ? 'delegate' : null
   }
 
   async approve(context: PaymentChainPayContext<EvmAsset>, options?: PaymentChainPayOptions) {
@@ -133,13 +144,37 @@ export class TronPaymentChain extends PaymentChain<EvmAsset> {
   }
 
   async pay(context: PaymentChainPayContext<EvmAsset>, options: PaymentChainPayOptions) {
+    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+
+    if (context.gasless && !this.isEnergyAlreadyDelegated) {
+      onUpdateStatus('Requesting gas sponsorship')
+      await this.delegateEnergy(context)
+    }
+
     await this.approve(context, options)
     await this.transfer(context, options)
   }
 
-  async payGasless(context: PaymentChainPayContext<EvmAsset>, options: PaymentChainPayOptions) {
-    // Tron gasless is not implemented yet
-    await this.pay(context, options)
+  private async delegateEnergy(context: PaymentChainPayContext<EvmAsset>) {
+    try {
+      const { data } = await axios.post<DelegateEnergyResponse>
+      (`${this.payzapUrl}/v1/public/session/${context.sessionId}/delegate-energy`, {
+        buyerAddress: context.userAddress,
+      })
+
+      if (!data.success) {
+        throw new Error('Failed to delegate energy')
+      }
+
+      this.isEnergyAlreadyDelegated = true
+    }
+    catch (e) {
+      if (e instanceof AxiosError && e.status === 429) {
+        // Rate limit exceeded, just allow going further
+        return
+      }
+      throw e
+    }
   }
 
   private async _sendTransaction(

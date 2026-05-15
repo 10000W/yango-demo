@@ -141,9 +141,9 @@ export const getAssetsByPaymentOption = (option: PaymentOption) => {
   if (option.namespaces.includes('eip155')) {
     assets.push(...evmAssets)
   }
-  // if (option.namespaces.includes('tron')) {
-  //   assets.push(...tronAssets)
-  // }
+  if (option.namespaces.includes('tron')) {
+    assets.push(...tronAssets)
+  }
 
   return assets
 }
