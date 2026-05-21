@@ -70,7 +70,7 @@ watch(() => modelValue, (v) => {
     <Transition name="fade">
       <div
         v-if="modelValue"
-        :class="$style.overlay"
+        class="overlay"
         @click="close"
       />
     </Transition>
@@ -78,23 +78,23 @@ watch(() => modelValue, (v) => {
       <div
         v-if="modelValue"
         ref="containerRef"
-        :class="$style.container"
+        class="container"
       >
         <div
           ref="sheetRef"
-          :class="[$style.sheet, isDragging && $style.isDragging, full && $style.full]"
+          :class="['sheet', isDragging && 'isDragging', full && 'full']"
           :style="{ transform: `translateY(${dragY}px)` }"
         >
           <div
             v-if="!full"
-            :class="$style.dragZone"
+            class="dragZone"
             @touchstart="onTouchStart"
             @touchmove="onTouchMove"
             @touchend="onTouchEnd"
           >
-            <div :class="$style.handle" />
+            <div class="handle" />
           </div>
-          <div :class="$style.content">
+          <div class="content">
             <slot />
           </div>
         </div>
@@ -103,7 +103,7 @@ watch(() => modelValue, (v) => {
   </Teleport>
 </template>
 
-<style module lang="scss">
+<style lang="scss" scoped>
 .overlay {
   position: fixed;
   inset: 0;
@@ -119,6 +119,11 @@ watch(() => modelValue, (v) => {
   justify-content: flex-end;
   z-index: 1001;
   pointer-events: none;
+
+  @media (min-width: 640px) {
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .sheet {
@@ -132,6 +137,12 @@ watch(() => modelValue, (v) => {
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
+
+  @media (min-width: 640px) {
+    border-radius: 24px;
+    width: 500px;
+    max-height: 80dvh;
+  }
 }
 
 .isDragging {
@@ -139,10 +150,15 @@ watch(() => modelValue, (v) => {
 }
 
 .full {
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  max-height: 100dvh;
+  height: 80dvh;
+
+  @media (max-width: 639px) {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
 }
 
 .handle {
@@ -152,6 +168,10 @@ watch(() => modelValue, (v) => {
   border-radius: 2px;
   margin: 12px auto;
   flex-shrink: 0;
+
+  @media (min-width: 640px) {
+    display: none;
+  }
 }
 
 .dragZone {
@@ -189,11 +209,13 @@ watch(() => modelValue, (v) => {
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  background: inherit;
-}
-</style>
+  scrollbar-width: none;
 
-<style scoped>
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s;
 }

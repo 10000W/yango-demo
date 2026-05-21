@@ -13,10 +13,6 @@
     "noEmit": true,
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
-    "paths": {
-      "@tac-crypto-payment/sdk": ["../sdk/index.ts"],
-      "@/*": ["./src/*"]
-    }
   },
-  "include": ["src/**/*", "src/**/*.vue", "../sdk/index.ts", "../sdk/src/**/*"]
+  "include": ["src/**/*"]
 }

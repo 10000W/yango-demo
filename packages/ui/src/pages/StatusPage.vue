@@ -8,7 +8,7 @@ import { formatNumber } from '@/utils/string-utils'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 import { useAppKit } from '@/composables/useAppKit'
-import type { PayZapSessionStatus } from '@/entities/payzap'
+import { SessionStatus } from '@tac-crypto-payment/sdk'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,7 +19,7 @@ const onCloseCallback = options?.onClose
 
 const status = computed(() => {
   if (route.query.status) {
-    return route.query.status as PayZapSessionStatus
+    return route.query.status as SessionStatus
   }
 
   return activeSession.value?.status

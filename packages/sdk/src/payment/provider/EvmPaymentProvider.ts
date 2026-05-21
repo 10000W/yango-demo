@@ -1,19 +1,16 @@
-import {
-  defaultPaymentChainPayOptions, PaymentChain,
-  PaymentChainPayContext, PaymentChainPayOptions,
-} from '@/entities/payment/PaymentChain'
-import { EvmAsset } from '@/entities/asset'
-import { getAddress, parseAbi } from 'viem'
+import { EvmAsset } from '../../asset'
+import { getAddress, parseAbi, parseUnits, WalletClient } from 'viem'
 import {
   readContract,
   signTypedData,
   simulateContract,
   waitForTransactionReceipt,
   writeContract,
-} from '@wagmi/core'
-import { wagmiAdapter } from '@/entities/config'
+} from 'viem/actions'
+
 import { arbitrum, base, bsc, mainnet, polygon } from '@reown/appkit/networks'
 import axios, { AxiosError } from 'axios'
+import { defaultPaymentProviderOptions, PaymentProvider, PaymentProviderContext, PaymentProviderOptions } from './PaymentProvider'
 
 type PermitResponse = {
   success: true
@@ -58,20 +55,19 @@ const assetAbi = parseAbi([
   'function transfer(address, uint256) returns ()',
 ])
 
-export class EvmPaymentChain extends PaymentChain<EvmAsset> {
+export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
+  client: WalletClient
   isGasAlreadySponsored = false
-  payzapUrl: string
-  wagmiConfig = wagmiAdapter.wagmiConfig
 
-  constructor(config: { payzapUrl: string }) {
-    super()
-    this.payzapUrl = config.payzapUrl
+  constructor(context: PaymentProviderContext<EvmAsset>, options: PaymentProviderOptions, client: WalletClient) {
+    super(context, options)
+    this.client = client
   }
 
-  private async permitGas(context: PaymentChainPayContext<EvmAsset>, signature: string) {
+  private async permitGas(signature: string) {
     const { data } = await axios.post<PermitResponse>
-    (`${this.payzapUrl}/v1/public/session/${context.sessionId}/permit`, {
-      owner: context.userAddress,
+    (`${this.context.payzapUrl}/v1/public/session/${this.context.sessionId}/permit`, {
+      owner: this.context.userAddress,
       signature,
     })
 
@@ -82,10 +78,10 @@ export class EvmPaymentChain extends PaymentChain<EvmAsset> {
     this.isGasAlreadySponsored = true
   }
 
-  private async permitDataForGas(context: PaymentChainPayContext<EvmAsset>): Promise<PermitDataResponse['data']> {
+  private async permitDataForGas(): Promise<PermitDataResponse['data']> {
     const { data } = await axios.post<PermitDataResponse>
-    (`${this.payzapUrl}/v1/public/session/${context.sessionId}/permit-data`, {
-      buyer: context.userAddress,
+    (`${this.context.payzapUrl}/v1/public/session/${this.context.sessionId}/permit-data`, {
+      buyer: this.context.userAddress,
     })
 
     if (!data.success) {
@@ -95,11 +91,11 @@ export class EvmPaymentChain extends PaymentChain<EvmAsset> {
     return data.data
   }
 
-  private async sponsorGas(context: PaymentChainPayContext<EvmAsset>) {
+  private async sponsorGas() {
     try {
       const { data } = await axios.post<SponsorGasResponse>
-      (`${this.payzapUrl}/v1/public/session/${context.sessionId}/sponsor-gas`, {
-        buyerAddress: context.userAddress,
+      (`${this.context.payzapUrl}/v1/public/session/${this.context.sessionId}/sponsor-gas`, {
+        buyerAddress: this.context.userAddress,
       })
 
       if (!data.success) {
@@ -138,17 +134,18 @@ export class EvmPaymentChain extends PaymentChain<EvmAsset> {
     return null
   }
 
-  async approve(context: PaymentChainPayContext<EvmAsset>, options?: PaymentChainPayOptions) {
-    const { asset, amount, merchantAddress, userAddress } = context
-    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+  async approve() {
+    const { asset, amount, merchantAddress, userAddress } = this.context
+    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
+    const parsedAmount = parseUnits(amount, asset.decimals)
 
-    if (!this.wagmiConfig) {
-      throw new Error('Wallet provider is not defined')
+    if (!this.client) {
+      throw new Error('Wallet client is not defined')
     }
 
     onUpdateStatus('Preparing approval')
 
-    const allowance = await readContract(this.wagmiConfig, {
+    const allowance = await readContract(this.client, {
       address: getAddress(asset.address),
       abi: assetAbi,
       functionName: 'allowance',
@@ -156,85 +153,93 @@ export class EvmPaymentChain extends PaymentChain<EvmAsset> {
     })
 
     onUpdateStatus('Waiting for approval signature')
-    if (allowance && allowance < amount) {
-      const resetHash = await writeContract(this.wagmiConfig, {
+    if (allowance && allowance < parsedAmount) {
+      const resetHash = await writeContract(this.client, {
+        account: null,
+        chain: null,
         address: getAddress(asset.address),
         abi: assetAbi,
         functionName: 'approve',
         args: [merchantAddress as `0x${string}`, 0n],
       })
-      await waitForTransactionReceipt(this.wagmiConfig, { hash: resetHash })
-      const approveHash = await writeContract(this.wagmiConfig, {
+      await waitForTransactionReceipt(this.client, { hash: resetHash })
+      const approveHash = await writeContract(this.client, {
+        account: null,
+        chain: null,
         address: getAddress(asset.address),
         abi: assetAbi,
         functionName: 'approve',
-        args: [merchantAddress as `0x${string}`, amount],
+        args: [merchantAddress as `0x${string}`, parsedAmount],
       })
       onUpdateStatus('Confirming approval')
-      await waitForTransactionReceipt(this.wagmiConfig, { hash: approveHash })
+      await waitForTransactionReceipt(this.client, { hash: approveHash })
     }
     else if (allowance <= 0n) {
-      const approveHash = await writeContract(this.wagmiConfig, {
+      const approveHash = await writeContract(this.client, {
+        account: null,
+        chain: null,
         address: getAddress(asset.address),
         abi: assetAbi,
         functionName: 'approve',
-        args: [merchantAddress as `0x${string}`, amount],
+        args: [merchantAddress as `0x${string}`, parsedAmount],
       })
       onUpdateStatus('Confirming approval')
-      await waitForTransactionReceipt(this.wagmiConfig, { hash: approveHash })
+      await waitForTransactionReceipt(this.client, { hash: approveHash })
     }
   }
 
-  async transfer(context: PaymentChainPayContext<EvmAsset>, options: PaymentChainPayOptions) {
-    const { asset, amount, merchantAddress, userAddress } = context
-    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+  async transfer() {
+    const { asset, amount, merchantAddress, userAddress } = this.context
+    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
+    const parsedAmount = parseUnits(amount, asset.decimals)
 
     onUpdateStatus('Waiting for signature')
-    const sim = await simulateContract(this.wagmiConfig, {
+    const sim = await simulateContract(this.client, {
       address: asset.address as `0x${string}`,
       abi: assetAbi,
       functionName: 'transfer',
       account: userAddress as `0x${string}`,
-      args: [merchantAddress as `0x${string}`, amount],
+      args: [merchantAddress as `0x${string}`, parsedAmount],
     })
-    const hash = await writeContract(this.wagmiConfig, sim.request)
+    const hash = await writeContract(this.client, sim.request)
     onUpdateStatus('Confirming transaction')
-    await waitForTransactionReceipt(wagmiAdapter.wagmiConfig, {
+    await waitForTransactionReceipt(this.client, {
       hash,
     })
   }
 
-  async pay(context: PaymentChainPayContext<EvmAsset>, options: PaymentChainPayOptions) {
-    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+  async pay() {
+    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
     const mechanism
-      = !context.gasless || this.isGasAlreadySponsored
+      = !this.context.gasless || this.isGasAlreadySponsored
         ? null
-        : EvmPaymentChain.getSponsorshipMechanism(context.asset)
+        : EvmPaymentProvider.getSponsorshipMechanism(this.context.asset)
 
     let permitData: PermitDataResponse['data'] | undefined
     if (mechanism === 'permit') {
       onUpdateStatus('Preparing gas sponsorship')
-      permitData = await this.permitDataForGas(context)
+      permitData = await this.permitDataForGas()
     }
     else if (mechanism === 'sponsor') {
       onUpdateStatus('Requesting gas sponsorship')
-      await this.sponsorGas(context)
+      await this.sponsorGas()
     }
 
-    await this.approve(context, options)
+    await this.approve()
 
     if (mechanism === 'permit' && permitData) {
       onUpdateStatus('Signing gas permit')
-      const signature = await signTypedData(this.wagmiConfig!, {
+      const signature = await signTypedData(this.client!, {
+        account: this.client.account?.address!,
         domain: permitData.domain,
         types: permitData.types,
         primaryType: permitData.primaryType,
         message: permitData.message,
       })
       onUpdateStatus('Submitting gas permit')
-      await this.permitGas(context, signature)
+      await this.permitGas(signature)
     }
 
-    await this.transfer(context, options)
+    await this.transfer()
   }
 }

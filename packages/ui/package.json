@@ -36,7 +36,8 @@
     "qrcode.vue": "^3.8.1",
     "tronweb": "^6.0.0",
     "viem": "^2.47.10",
-    "wagmi": "^3.6.1"
+    "wagmi": "^3.6.1",
+    "@tac-crypto-payment/sdk": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.5.31",

@@ -1,7 +1,7 @@
 import { createApp, type App } from 'vue'
 import { createAppRouter } from './router'
 import AppRoot from './App.vue'
-import type { PayZapSession } from './entities/payzap'
+import { Session } from '@tac-crypto-payment/sdk'
 
 export interface TacCryptoPaymentOptions {
   productId: string
@@ -9,7 +9,7 @@ export interface TacCryptoPaymentOptions {
   amount: number | string
   elementSelector: string
   onClose?: () => void
-  onSuccess?: (session: PayZapSession) => void
+  onSuccess?: (session: Session) => void
 }
 
 export class TacCryptoPayment {

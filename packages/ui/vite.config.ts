@@ -23,7 +23,6 @@ export default defineConfig({
       tsconfigPath: './tsconfig.json',
       cleanVueFileName: true,
       include: ['src/index.ts', 'src/vite-env.d.ts'],
-      skipDiagnostics: true,
       entryRoot: 'src',
       compilerOptions: {
         composite: false,
@@ -32,6 +31,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '@tac-crypto-payment/sdk': fileURLToPath(new URL('../sdk/index.ts', import.meta.url)),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },

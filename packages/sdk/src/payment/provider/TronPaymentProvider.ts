@@ -1,14 +1,10 @@
 import { TronWeb } from 'tronweb'
 import axios, { AxiosError } from 'axios'
-import {
-  defaultPaymentChainPayOptions, PaymentChain,
-  PaymentChainPayContext, PaymentChainPayOptions,
-} from '@/entities/payment/PaymentChain'
-import { EvmAsset } from '@/entities/asset'
+import { EvmAsset } from '../../asset'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { Types } from 'tronweb'
-
-const MAX_UINT256 = 2n ** 256n - 1n
+import { defaultPaymentProviderOptions, PaymentProvider, PaymentProviderContext, PaymentProviderOptions } from './PaymentProvider'
+import { parseUnits } from 'viem'
 
 const trc20Abi = [
   {
@@ -53,16 +49,14 @@ type DelegateEnergyResponse = {
   success: boolean
 }
 
-export class TronPaymentChain extends PaymentChain<EvmAsset> {
+export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
   connector: TronConnector
   isEnergyAlreadyDelegated = false
-  payzapUrl: string
   private readonly _tronWeb: TronWeb
 
-  constructor(connector: TronConnector, config: { payzapUrl: string }) {
-    super()
+  constructor(context: PaymentProviderContext<EvmAsset>, options: PaymentProviderOptions, connector: TronConnector) {
+    super(context, options)
     this.connector = connector
-    this.payzapUrl = config.payzapUrl
     this._tronWeb = new TronWeb({
       fullHost: 'https://api.trongrid.io',
     })
@@ -76,11 +70,15 @@ export class TronPaymentChain extends PaymentChain<EvmAsset> {
     return (asset.symbol === 'USDT' || asset.symbol === 'USDC') ? 'delegate' : null
   }
 
-  async approve(context: PaymentChainPayContext<EvmAsset>, options?: PaymentChainPayOptions) {
-    const { asset, amount, merchantAddress, userAddress } = context
-    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+  async approve() {
+    const { asset, amount, merchantAddress, userAddress } = this.context
+    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
+    const parsedAmount = parseUnits(amount, asset.decimals)
 
     onUpdateStatus('Preparing approval')
+    if (!userAddress) {
+      throw new Error('User address is not defined')
+    }
     this.tronWeb.setAddress(userAddress)
     const contract = this.tronWeb.contract(trc20Abi, asset.address)
 
@@ -89,7 +87,7 @@ export class TronPaymentChain extends PaymentChain<EvmAsset> {
 
     const allowanceValue = BigInt(allowance.toString())
 
-    if (allowanceValue >= amount) {
+    if (allowanceValue >= parsedAmount) {
       return
     }
 
@@ -109,18 +107,21 @@ export class TronPaymentChain extends PaymentChain<EvmAsset> {
       userAddress,
     )
     await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const approveHash = await this._sendTransaction(tx, context, options)
+    const approveHash = await this._sendTransaction(tx)
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     onUpdateStatus('Confirming approval')
     await this.waitForTransaction(approveHash)
   }
 
-  async transfer(context: PaymentChainPayContext<EvmAsset>, options: PaymentChainPayOptions) {
-    const { asset, amount, merchantAddress, userAddress } = context
-    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+  async transfer() {
+    const { asset, amount, merchantAddress, userAddress } = this.context
+    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
+    const parsedAmount = parseUnits(amount, asset.decimals)
 
+    if (!userAddress) {
+      throw new Error('User address is not defined')
+    }
     this.tronWeb.setAddress(userAddress)
     onUpdateStatus('Waiting for signature')
     const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
@@ -131,35 +132,35 @@ export class TronPaymentChain extends PaymentChain<EvmAsset> {
       },
       [
         { type: 'address', value: merchantAddress },
-        { type: 'uint256', value: amount.toString() },
+        { type: 'uint256', value: parsedAmount.toString() },
       ],
       userAddress,
     )
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    const hash = await this._sendTransaction(tx, context, options)
+    const hash = await this._sendTransaction(tx)
 
     onUpdateStatus('Confirming transaction')
     await this.waitForTransaction(hash)
   }
 
-  async pay(context: PaymentChainPayContext<EvmAsset>, options: PaymentChainPayOptions) {
-    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+  async pay() {
+    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
 
-    if (context.gasless && !this.isEnergyAlreadyDelegated) {
+    if (this.context.gasless && !this.isEnergyAlreadyDelegated) {
       onUpdateStatus('Requesting gas sponsorship')
-      await this.delegateEnergy(context)
+      await this.delegateEnergy()
     }
 
-    await this.approve(context, options)
-    await this.transfer(context, options)
+    await this.approve()
+    await this.transfer()
   }
 
-  private async delegateEnergy(context: PaymentChainPayContext<EvmAsset>) {
+  private async delegateEnergy() {
     try {
       const { data } = await axios.post<DelegateEnergyResponse>
-      (`${this.payzapUrl}/v1/public/session/${context.sessionId}/delegate-energy`, {
-        buyerAddress: context.userAddress,
+      (`${this.context.payzapUrl}/v1/public/session/${this.context.sessionId}/delegate-energy`, {
+        buyerAddress: this.context.userAddress,
       })
 
       if (!data.success) {
@@ -177,24 +178,18 @@ export class TronPaymentChain extends PaymentChain<EvmAsset> {
     }
   }
 
-  private async _sendTransaction(
-    txWrapper: Types.TransactionWrapper,
-    context: PaymentChainPayContext<EvmAsset>,
-    options?: PaymentChainPayOptions,
-  ) {
-    const { userAddress } = context
-    const { onUpdateStatus = defaultPaymentChainPayOptions.onUpdateStatus } = options || {}
+  private async _sendTransaction(txWrapper: Types.TransactionWrapper) {
+    const { userAddress } = this.context
+    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
 
     if (!txWrapper.transaction?.raw_data?.contract?.[0]?.parameter?.value?.data) {
       throw new Error('Failed to extract transaction data')
     }
 
-    console.log(this.connector)
     const isWalletConnect = this.connector.type === 'WALLET_CONNECT' || this.connector.id === 'walletConnect'
 
     // FIXME: wait for appkit-adapter-tron update
     // internalRequest does not exist in TronWalletConnectConnector
-    console.log(this.connector)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (isWalletConnect && !(this.connector as any).internalRequest) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

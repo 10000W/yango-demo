@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Asset } from '@/entities/asset'
 import BaseChip from '@/components/base/BaseChip.vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
+import { Asset } from '@tac-crypto-payment/sdk'
 
 const { asset } = defineProps<{
   gasless?: boolean

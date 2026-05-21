@@ -1,14 +1,17 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    },
-    {
-      "path": "./packages/ui"
-    },
-    {
-      "path": "./apps/yango-demo"
-    }
-  ]
+    "files": [],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        },
+        {
+            "path": "./packages/sdk"
+        },
+        {
+            "path": "./packages/ui"
+        },
+        {
+            "path": "./apps/yango-demo"
+        }
+    ]
 }

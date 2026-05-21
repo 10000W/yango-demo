@@ -2,26 +2,33 @@
 import { usePayment } from '@/composables/usePayment'
 import { formatNumber } from '@/utils/string-utils'
 import BaseChip from '@/components/base/BaseChip.vue'
-import { computed, inject, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import BaseAlert from '@/components/base/BaseAlert.vue'
 import BaseStack from '@/components/base/BaseStack.vue'
 import BaseStackItem from '@/components/base/BaseStackItem.vue'
 import BaseProgressTimer from '@/components/base/BaseProgressTimer.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
-import { BaseError, parseUnits } from 'viem'
+import { BaseError } from 'viem'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import { useAppKit } from '@/composables/useAppKit'
 import { createAppKitWalletButton, type Wallet } from '@reown/appkit-wallet-button'
 import { appKitNetworksMap } from '@/entities/appkit'
-import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/vue'
+import {
+  useAppKitAccount,
+  useAppKitNetwork,
+  useAppKitProvider,
+} from '@reown/appkit/vue'
 import { AxiosError } from 'axios'
-import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
-import { EvmPaymentChain } from '@/entities/payment/EvmPaymentChain'
 import { tronMainnet } from '@reown/appkit/networks'
-import { TronPaymentChain } from '@/entities/payment/TronPaymentChain'
 import { TronConnector } from '@reown/appkit-adapter-tron'
-import { EvmAsset } from '@/entities/asset'
-import { getSponsorshipMechanism } from '@/entities/payment'
+import {
+  EvmAsset,
+  EvmPaymentProvider,
+  getSponsorshipMechanism,
+  TronPaymentProvider,
+} from '@tac-crypto-payment/sdk'
+import { getWalletClient } from '@wagmi/core'
+import { wagmiAdapter } from '@/entities/config'
 
 let walletButton: ReturnType<typeof createAppKitWalletButton> | undefined
 
@@ -36,6 +43,7 @@ const {
   txStatusMessage,
   selectedPaymentOption,
   product,
+  sdkInstance,
 } = usePayment()
 
 const {
@@ -43,15 +51,12 @@ const {
   address,
   chainId,
   modal,
+  isInitialized,
   disconnect,
 } = useAppKit()
 
 const evmAccount = useAppKitAccount({ namespace: 'eip155' })
 const tronAccount = useAppKitAccount({ namespace: 'tron' })
-
-const payzapUrl = inject<TacCryptoPaymentOptions>('tacPaymentOptions')?.payzapUrl
-  || 'https://api.payzap.cc'
-
 const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
 
 const isConnecting = ref(false)
@@ -59,12 +64,13 @@ const isPaying = ref(false)
 const isExpired = ref(false)
 const errorMessage = ref('')
 
-const paymentChainInstance = computed(() => {
-  if ((selectedAsset.value as EvmAsset)?.chain?.id === tronMainnet.id) {
-    return new TronPaymentChain(tronProvider!, { payzapUrl })
-  }
-  return new EvmPaymentChain({ payzapUrl })
-})
+const paymentProviderOptions = {
+  onUpdateStatus: (status: string) => {
+    txStatusMessage.value = status
+  },
+}
+let paymentProvider: EvmPaymentProvider | TronPaymentProvider | undefined
+
 const timerDuration = computed(() => {
   return 15 * 60
 })
@@ -111,6 +117,50 @@ const gasless = computed(() => {
   return getSponsorshipMechanism(selectedAsset.value)
 })
 
+const load = async () => {
+  txStatusMessage.value = ''
+
+  if (selectedPaymentOption.value?.walletName && namespace.value === 'eip155') {
+    isConnecting.value = true
+    walletButton = createAppKitWalletButton({
+      namespace: namespace.value,
+    })
+    walletButton.subscribeIsReady(({ isReady }) => {
+      isConnecting.value = !isReady
+    })
+    if (walletButton.isReady()) {
+      isConnecting.value = false
+    }
+  }
+  else {
+    walletButton = undefined
+    isConnecting.value = false
+  }
+
+  if (!sdkInstance.value) {
+    throw 'TacPaymentSDK instance is not ready'
+  }
+}
+const createPaymentProvider = async () => {
+  if (!sdkInstance.value) {
+    throw 'TacPaymentSdk instance is not defined'
+  }
+
+  if ((selectedAsset.value as EvmAsset)?.chain?.id === tronMainnet.id) {
+    return sdkInstance.value.createPayment({
+      method: 'tron',
+      asset: selectedAsset.value! as EvmAsset,
+      userAddress: tronAccount.value.address!,
+      connector: tronProvider!,
+    }, paymentProviderOptions)
+  }
+  return sdkInstance.value.createPayment({
+    method: 'evm',
+    asset: selectedAsset.value! as EvmAsset,
+    userAddress: evmAccount.value.address!,
+    client: await getWalletClient(wagmiAdapter.wagmiConfig),
+  }, paymentProviderOptions)
+}
 const onTimerComplete = () => {
   isExpired.value = true
   emit('error', 'Payment session has expired. Please try again.')
@@ -129,21 +179,10 @@ const pay = async () => {
     throw new Error('Invalid asset for EVM')
   }
 
-  const payContext = {
-    asset,
-    gasless: activeSession.value.chain === 'tron' ? true : activeSession.value.gasless,
-    sessionId: activeSession.value.id,
-    amount: parseUnits(activeSession.value.amount, asset.decimals),
-    userAddress: address.value,
-    merchantAddress: activeSession.value.merchantWallet,
+  if (!paymentProvider) {
+    paymentProvider = await createPaymentProvider()
   }
-  const payOptions = {
-    onUpdateStatus: (status: string) => {
-      txStatusMessage.value = status
-    },
-  }
-
-  await paymentChainInstance.value.pay(payContext, payOptions)
+  await paymentProvider.pay()
 
   txStatusMessage.value = 'Confirming payment'
 }
@@ -205,23 +244,11 @@ const submit = async () => {
   }
 }
 
-if (selectedPaymentOption.value?.walletName && namespace.value === 'eip155') {
-  isConnecting.value = true
-  walletButton = createAppKitWalletButton({
-    namespace: namespace.value,
-  })
-  walletButton.subscribeIsReady(({ isReady }) => {
-    isConnecting.value = !isReady
-  })
-  if (walletButton.isReady()) {
-    isConnecting.value = false
-  }
-}
-else {
-  walletButton = undefined
-  isConnecting.value = false
-}
-txStatusMessage.value = ''
+load()
+
+watch(address, () => {
+  paymentProvider = undefined
+}, { immediate: true })
 </script>
 
 <template>
@@ -229,6 +256,7 @@ txStatusMessage.value = ''
     class="column gap-16"
     @submit.prevent="submit"
   >
+    {{ address }}
     <div class="column flex-1 gap-16">
       <div
         v-if="selectedAsset"
@@ -330,8 +358,8 @@ txStatusMessage.value = ''
       v-if="!isConnected"
       type="button"
       wide
-      :disabled="isConnecting"
-      :loading="isConnecting"
+      :disabled="isConnecting || !isInitialized"
+      :loading="isConnecting || !isInitialized"
       @click="connect"
     >
       <template v-if="selectedPaymentOption">
@@ -367,7 +395,7 @@ txStatusMessage.value = ''
       wide
       :loading="isPaying"
       class="gap-8"
-      :disabled="isExpired || isPaying"
+      :disabled="isExpired || isPaying || !isInitialized"
     >
       Pay now
       <span style="color: #F2EBFF26">·</span>

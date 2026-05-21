@@ -9,7 +9,6 @@ import {
 import { computed, nextTick, ref } from 'vue'
 import { REOWN_PROJECT_ID, tronAdapter, wagmiAdapter } from '@/entities/config'
 import { truncate } from '@/utils/string-utils'
-import { PayZapProduct } from '@/entities/payzap'
 import type { ChainAdapter } from '@reown/appkit'
 import {
   type AppKitNetwork,
@@ -20,11 +19,14 @@ import {
   tronMainnet,
 } from '@reown/appkit/networks'
 import { appKitNetworksMap } from '@/entities/appkit'
+import { Product } from '@tac-crypto-payment/sdk'
 
 const isLoaded = ref(false)
+const isInitialized = ref(false)
+
 let modal: AppKit | undefined
 
-const init = (product: PayZapProduct) => {
+const init = (product: Product) => {
   if (modal) {
     return modal
   }
@@ -68,6 +70,9 @@ const init = (product: PayZapProduct) => {
     },
   })
 
+  modal.subscribeState((state) => {
+    isInitialized.value = state.initialized
+  })
   nextTick(() => {
     setTimeout(() => {
       isLoaded.value = true
@@ -95,6 +100,7 @@ export const useAppKit = () => {
     address,
     shortAddress,
     isLoaded,
+    isInitialized,
     chainId,
     status,
     init,

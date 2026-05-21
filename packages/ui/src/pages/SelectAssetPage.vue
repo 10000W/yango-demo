@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import AssetOption from '@/components/assets/AssetOption.vue'
-import { type Asset, getAssetsByPaymentOption } from '@/entities/asset'
+import { getAssetsByPaymentOption } from '@/entities/asset'
 import { usePayment } from '@/composables/usePayment'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import { computed, ComputedRef } from 'vue'
 import { appKitNetworksMap } from '@/entities/appkit'
 import { tronMainnet } from '@reown/appkit/networks'
-import { getSponsorshipMechanism } from '@/entities/payment'
+import { Asset, getSponsorshipMechanism } from '@tac-crypto-payment/sdk'
 
 const router = useRouter()
 const { product, selectedPaymentOption, selectAsset } = usePayment()

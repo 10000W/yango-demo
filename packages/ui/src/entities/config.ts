@@ -5,7 +5,6 @@ import { mainnet,
   arbitrum,
   base,
   baseSepolia,
-  solana,
   tronMainnet } from '@reown/appkit/networks'
 import { TronAdapter } from '@reown/appkit-adapter-tron'
 import { TronLinkAdapter } from '@tronweb3/tronwallet-adapter-tronlink'
