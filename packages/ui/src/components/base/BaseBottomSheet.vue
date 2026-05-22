@@ -210,6 +210,7 @@ watch(() => modelValue, (v) => {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: none;
+  background: var(--ypm-color-bg-primary);
 
   &::-webkit-scrollbar {
     display: none;

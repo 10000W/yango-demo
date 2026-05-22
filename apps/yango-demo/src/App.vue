@@ -49,7 +49,7 @@ watch(isModalOpen, (isOpen) => {
     >
       <div
         id="payment-container"
-        style="flex: 1; display: flex; flex-direction: column"
+        class="payment-container"
       />
     </BaseBottomSheet>
   </div>
@@ -66,6 +66,12 @@ watch(isModalOpen, (isOpen) => {
   transition: background-color 0.3s, color 0.3s;
   width: 100%;
   height: 100dvh;
+}
+
+.payment-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 </style>
 
