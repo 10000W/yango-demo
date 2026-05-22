@@ -155,7 +155,7 @@ export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
     onUpdateStatus('Waiting for approval signature')
     if (allowance && allowance < parsedAmount) {
       const resetHash = await writeContract(this.client, {
-        account: null,
+        account: this.client.account?.address!,
         chain: null,
         address: getAddress(asset.address),
         abi: assetAbi,
@@ -164,7 +164,7 @@ export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
       })
       await waitForTransactionReceipt(this.client, { hash: resetHash })
       const approveHash = await writeContract(this.client, {
-        account: null,
+        account: this.client.account?.address!,
         chain: null,
         address: getAddress(asset.address),
         abi: assetAbi,
@@ -176,7 +176,7 @@ export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
     }
     else if (allowance <= 0n) {
       const approveHash = await writeContract(this.client, {
-        account: null,
+        account: this.client.account?.address!,
         chain: null,
         address: getAddress(asset.address),
         abi: assetAbi,

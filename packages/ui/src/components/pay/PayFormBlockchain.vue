@@ -256,7 +256,6 @@ watch(address, () => {
     class="column gap-16"
     @submit.prevent="submit"
   >
-    {{ address }}
     <div class="column flex-1 gap-16">
       <div
         v-if="selectedAsset"
