@@ -219,11 +219,15 @@ const connect = async () => {
 const switchNetwork = async () => {
   const asset = selectedAsset.value
   if (!modal || !asset || !('chain' in asset)) {
+    handleError(new Error(), 'Unable to switch network, connector is not ready')
+
     return
   }
 
   const network = Object.values(appKitNetworksMap).find(n => n.id === asset.chain.id)
   if (!network) {
+    handleError(new Error(), `Unable to find network ${asset.chain.name} in current wallet.`)
+
     return
   }
 

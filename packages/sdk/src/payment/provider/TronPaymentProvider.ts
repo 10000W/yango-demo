@@ -102,7 +102,7 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
       },
       [
         { type: 'address', value: merchantAddress },
-        { type: 'uint256', value: amount.toString() },
+        { type: 'uint256', value: parsedAmount.toString() },
       ],
       userAddress,
     )
