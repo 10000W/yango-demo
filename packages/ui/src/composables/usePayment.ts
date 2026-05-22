@@ -76,8 +76,12 @@ watch(() => activeSession.value?.status, (val) => {
     case 'completed':
       poll.pause()
       if (val === 'completed' && activeSession.value) {
+        // FIXME: options is undefined
         const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
-        options.onSuccess?.(activeSession.value)
+
+        if (options?.onSuccess) {
+          options.onSuccess(activeSession.value)
+        }
       }
   }
 })

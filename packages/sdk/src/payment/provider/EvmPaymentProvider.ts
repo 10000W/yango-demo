@@ -123,7 +123,7 @@ export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
     }
 
     if (symbol === 'USDT'
-      && ([base.id, arbitrum.id, polygon.id, bsc.id] as number[]).includes(chainId)) {
+      && ([arbitrum.id, polygon.id, bsc.id] as number[]).includes(chainId)) {
       return 'sponsor'
     }
 
@@ -225,7 +225,9 @@ export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
       await this.sponsorGas()
     }
 
-    await this.approve()
+    if (mechanism !== 'permit') {
+      await this.approve()
+    }
 
     if (mechanism === 'permit' && permitData) {
       onUpdateStatus('Signing gas permit')
@@ -238,6 +240,7 @@ export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
       })
       onUpdateStatus('Submitting gas permit')
       await this.permitGas(signature)
+      return
     }
 
     await this.transfer()
