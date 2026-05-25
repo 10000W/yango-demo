@@ -182,23 +182,35 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
     const { userAddress } = this.context
     const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
 
-    if (!txWrapper.transaction) {
+    if (!txWrapper.transaction?.raw_data?.contract?.[0]?.parameter?.value?.data) {
       throw new Error('Failed to extract transaction data')
+    }
+
+    const isWalletConnect = this.connector.type === 'WALLET_CONNECT' || this.connector.id === 'walletConnect'
+
+    // FIXME: wait for appkit-adapter-tron update
+    // internalRequest does not exist in TronWalletConnectConnector
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (isWalletConnect && !(this.connector as any).internalRequest) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.connector as any).internalRequest = (args: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (this.connector as any).provider.request(args, (this.connector as any).chains?.[0]?.caipNetworkId)
+      }
     }
 
     onUpdateStatus('Waiting for signature')
 
-    // We avoid using connector.sendTransaction() because it currently (as of @reown/appkit-adapter-tron 1.8.20)
-    // attempts to use a non-standard 'tron_createTransaction' JSON-RPC method and doesn't support contract data.
-    // Instead, we sign the transaction manually via connector.request and broadcast it using tronWeb.
-
-    const isWalletConnect = this.connector.id === 'walletConnect'
     const method = isWalletConnect ? 'tron_signTransaction' : 'tron_sendTransaction'
-    const params = isWalletConnect
-      ? { address: userAddress, transaction: txWrapper.transaction }
-      : { transaction: txWrapper.transaction }
 
-    const response = await this.connector.request({ method, params })
+    const response = await this.connector.request({
+      method,
+      params: { address: userAddress, transaction: txWrapper.transaction },
+    })
+
+    if (typeof response === 'string') {
+      return response
+    }
 
     onUpdateStatus('Broadcasting transaction')
     const result = await this.tronWeb.trx.sendRawTransaction(response as Types.SignedTransaction)
