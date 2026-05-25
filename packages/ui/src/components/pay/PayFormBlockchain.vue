@@ -148,7 +148,6 @@ const createPaymentProvider = async () => {
   if ((selectedAsset.value as EvmAsset)?.chain?.id === tronMainnet.id) {
     const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
 
-    console.log(tronProvider)
     return sdkInstance.value.createPayment({
       method: 'tron',
       asset: selectedAsset.value! as EvmAsset,
@@ -211,6 +210,7 @@ const pay = async () => {
   txStatusMessage.value = 'Confirming payment'
 }
 const handleError = (e: unknown, defaultMessage: string) => {
+  console.warn(e)
   if (e instanceof AxiosError) {
     errorMessage.value = e.response?.data?.error?.message || defaultMessage
   }

@@ -23,8 +23,8 @@
     "axios": "^1.15.0"
   },
   "peerDependencies": {
-    "@reown/appkit": "^1.8.19",
-    "@reown/appkit-adapter-tron": "^1.8.19",
+    "@reown/appkit": "^1.8.20",
+    "@reown/appkit-adapter-tron": "^1.8.20",
     "@wagmi/core": "^3.4.9",
     "tronweb": "^6.3.0",
     "viem": "^2.48.11",

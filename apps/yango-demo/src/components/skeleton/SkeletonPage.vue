@@ -3,6 +3,7 @@ import { BaseButton } from '@tac-crypto-payment/ui'
 
 defineEmits<{
   pay: []
+  test: []
 }>()
 </script>
 
@@ -26,6 +27,14 @@ defineEmits<{
           @click="$emit('pay')"
         >
           Pay with Crypto
+        </BaseButton>
+
+        <BaseButton
+          style="align-self: flex-start"
+          variant="danger"
+          @click="$emit('test')"
+        >
+          Test connections
         </BaseButton>
 
         <div :class="$style.rect" />

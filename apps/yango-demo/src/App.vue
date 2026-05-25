@@ -5,7 +5,7 @@ import { BaseBottomSheet, TacCryptoPayment } from '@tac-crypto-payment/ui'
 const isModalOpen = ref(false)
 const paymentApp = ref<App | null>(null)
 
-const mountPaymentApp = async () => {
+const mountPaymentApp = async (test = false) => {
   isModalOpen.value = true
 
   await nextTick()
@@ -25,6 +25,12 @@ const mountPaymentApp = async () => {
   })
 
   paymentApp.value = payment.mount()
+  if (test) {
+    const router = paymentApp.value?.config?.globalProperties?.$router
+    if (router) {
+      router.push({ name: 'test' })
+    }
+  }
 }
 
 watch(isModalOpen, (isOpen) => {
@@ -41,7 +47,10 @@ watch(isModalOpen, (isOpen) => {
 
 <template>
   <div class="host-app">
-    <SkeletonPage @pay="mountPaymentApp" />
+    <SkeletonPage
+      @pay="mountPaymentApp"
+      @test="mountPaymentApp(true)"
+    />
 
     <BaseBottomSheet
       v-model="isModalOpen"

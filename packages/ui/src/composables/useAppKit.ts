@@ -7,7 +7,7 @@ import {
   AppKit,
 } from '@reown/appkit/vue'
 import { computed, nextTick, ref } from 'vue'
-import { REOWN_PROJECT_ID, tronAdapter, wagmiAdapter } from '@/entities/config'
+import { APP_METADATA, REOWN_PROJECT_ID, tronAdapter, wagmiAdapter } from '@/entities/config'
 import { truncate } from '@/utils/string-utils'
 import type { ChainAdapter } from '@reown/appkit'
 import {
@@ -53,12 +53,7 @@ const init = (product: Product) => {
     adapters,
     networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia, tronMainnet],
     projectId: REOWN_PROJECT_ID,
-    metadata: {
-      name: 'Yango Payment DEMO',
-      description: 'Yango Payment DEMO',
-      url: 'https://yango-demo.vercel.app',
-      icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
-    },
+    metadata: APP_METADATA,
     experimental_preferUniversalLinks: true,
     features: {
       swaps: false,

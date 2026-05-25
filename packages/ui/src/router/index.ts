@@ -7,6 +7,7 @@ import EditConnectionsPage from '@/pages/EditConnectionsPage.vue'
 import PromoPage from '@/pages/PromoPage.vue'
 import WhitelistPage from '@/pages/WhitelistPage.vue'
 import ErrorPage from '@/pages/ErrorPage.vue'
+import TestConnectPage from '@/pages/TestConnectPage.vue'
 
 export const createAppRouter = (base = '/') => createRouter({
   history: createMemoryHistory(),
@@ -50,6 +51,11 @@ export const createAppRouter = (base = '/') => createRouter({
       name: 'whitelist',
       path: '/whitelist',
       component: WhitelistPage,
+    },
+    {
+      name: 'test',
+      path: '/test',
+      component: TestConnectPage,
     },
     {
       path: '/:pathMatch(.*)*',
