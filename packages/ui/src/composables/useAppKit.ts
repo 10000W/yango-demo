@@ -59,6 +59,7 @@ const init = (product: Product) => {
       url: 'https://yango-demo.vercel.app',
       icons: ['https://yango-demo.vercel.app/manifest-img.jpg'],
     },
+    experimental_preferUniversalLinks: true,
     features: {
       swaps: false,
       onramp: false,

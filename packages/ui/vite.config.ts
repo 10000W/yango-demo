@@ -37,19 +37,10 @@ export default defineConfig({
   },
   build: {
     lib: {
-      formats: ['es', 'cjs'],
+      formats: ['es'],
       entry: fileURLToPath(new URL('./src/index', import.meta.url)),
       name: 'TacCryptoPaymentUI',
-      fileName: (format) => {
-        switch (format) {
-          case 'es':
-            return 'tac-crypto-payment-ui.mjs'
-          case 'cjs':
-            return 'tac-crypto-payment-ui.cjs'
-          default:
-            throw new Error('Unknown format')
-        }
-      },
+      fileName: () => 'tac-crypto-payment-ui.js',
     },
     target: 'esnext',
     outDir: 'dist',

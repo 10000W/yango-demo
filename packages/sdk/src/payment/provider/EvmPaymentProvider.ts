@@ -225,9 +225,9 @@ export class EvmPaymentProvider extends PaymentProvider<EvmAsset> {
       await this.sponsorGas()
     }
 
-    if (mechanism !== 'permit') {
-      await this.approve()
-    }
+    // if (mechanism !== 'permit') {
+    //   await this.approve()
+    // }
 
     if (mechanism === 'permit' && permitData) {
       onUpdateStatus('Signing gas permit')

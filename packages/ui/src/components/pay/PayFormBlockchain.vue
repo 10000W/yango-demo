@@ -57,7 +57,6 @@ const {
 
 const evmAccount = useAppKitAccount({ namespace: 'eip155' })
 const tronAccount = useAppKitAccount({ namespace: 'tron' })
-const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
 
 const isConnecting = ref(false)
 const isPaying = ref(false)
@@ -147,6 +146,9 @@ const createPaymentProvider = async () => {
   }
 
   if ((selectedAsset.value as EvmAsset)?.chain?.id === tronMainnet.id) {
+    const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
+
+    console.log(tronProvider)
     return sdkInstance.value.createPayment({
       method: 'tron',
       asset: selectedAsset.value! as EvmAsset,
@@ -165,6 +167,24 @@ const onTimerComplete = () => {
   isExpired.value = true
   emit('error', 'Payment session has expired. Please try again.')
 }
+const switchNetwork = async () => {
+  const asset = selectedAsset.value
+  if (!modal || !asset || !('chain' in asset)) {
+    throw new Error('Unable to switch network, connector is not ready')
+  }
+
+  const network = Object.values(appKitNetworksMap).find(n => n.id === asset.chain.id)
+  if (!network) {
+    throw new Error(`Unable to find network ${asset.chain.name} in current wallet.`)
+  }
+
+  const appKitNetwork = useAppKitNetwork()
+  await appKitNetwork.value.switchNetwork(network)
+
+  if (!isCorrectChain.value) {
+    throw new Error(`Unable to switch network to ${asset.chain.name}.`)
+  }
+}
 const pay = async () => {
   if (!activeSession.value) {
     throw new Error('Session not found')
@@ -177,6 +197,10 @@ const pay = async () => {
   const asset = selectedAsset.value
   if (!asset || !('address' in asset)) {
     throw new Error('Invalid asset for EVM')
+  }
+
+  if (!isCorrectChain.value) {
+    await switchNetwork()
   }
 
   if (!paymentProvider) {
@@ -203,11 +227,11 @@ const connect = async () => {
     try {
       isConnecting.value = true
       await walletButton.connect(selectedPaymentOption.value?.walletName as Wallet)
+      isConnecting.value = false
     }
     catch {
       isConnecting.value = false
     }
-    return
   }
   else if (modal) {
     await modal.open({
@@ -215,24 +239,6 @@ const connect = async () => {
       namespace: namespace.value === 'eip155' ? 'eip155' : undefined,
     })
   }
-}
-const switchNetwork = async () => {
-  const asset = selectedAsset.value
-  if (!modal || !asset || !('chain' in asset)) {
-    handleError(new Error(), 'Unable to switch network, connector is not ready')
-
-    return
-  }
-
-  const network = Object.values(appKitNetworksMap).find(n => n.id === asset.chain.id)
-  if (!network) {
-    handleError(new Error(), `Unable to find network ${asset.chain.name} in current wallet.`)
-
-    return
-  }
-
-  const appKitNetwork = useAppKitNetwork()
-  await appKitNetwork.value.switchNetwork(network)
 }
 const submit = async () => {
   try {
@@ -270,7 +276,8 @@ watch(address, () => {
         </p>
 
         <p class="h3">
-          {{ formatNumber(activeSession?.amount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary"> ≈ {{ formatNumber((Number(activeSession?.amount || amount) * 482.44), 2) }} Bs.</span>
+          {{ formatNumber(activeSession?.amount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary">
+            ≈ {{ formatNumber((Number(activeSession?.amount || amount)), 2) }} $</span>
         </p>
       </div>
       <hr>
@@ -331,7 +338,7 @@ watch(address, () => {
         key="rate"
         label="Rate:"
       >
-        1 {{ selectedAsset.symbol }} ≈ 482.44 Bs.
+        1 {{ selectedAsset.symbol }} ≈ 1.00 $
       </BaseStackItem>
       <BaseStackItem
         v-if="gasless"
@@ -359,6 +366,7 @@ watch(address, () => {
 
     <BaseButton
       v-if="!isConnected"
+      key="connect"
       type="button"
       wide
       :disabled="isConnecting || !isInitialized"
@@ -375,6 +383,7 @@ watch(address, () => {
 
     <BaseButton
       v-else-if="namespaceErrorMessage"
+      key="reconnect"
       type="button"
       wide
       @click="disconnect()"
@@ -383,17 +392,8 @@ watch(address, () => {
     </BaseButton>
 
     <BaseButton
-      v-else-if="!isCorrectChain"
-      type="button"
-      wide
-      class="gap-8"
-      @click="switchNetwork"
-    >
-      Switch Network
-    </BaseButton>
-
-    <BaseButton
       v-else-if="selectedAsset"
+      key="pay"
       type="submit"
       wide
       :loading="isPaying"

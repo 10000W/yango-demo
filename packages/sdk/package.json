@@ -6,25 +6,26 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/tac-crypto-payment-sdk.mjs",
-      "require": "./dist/tac-crypto-payment-sdk.cjs",
+      "import": "./dist/tac-crypto-payment-sdk.js",
       "development": "./index.ts",
-      "default": "./dist/tac-crypto-payment-sdk.mjs"
+      "default": "./dist/tac-crypto-payment-sdk.js"
     },
     "./*": "./src/*"
   },
-  "main": "./dist/tac-crypto-payment-sdk.cjs",
-  "module": "./dist/tac-crypto-payment-sdk.mjs",
+  "main": "./dist/tac-crypto-payment-sdk.js",
+  "module": "./dist/tac-crypto-payment-sdk.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "vite build",
     "type-check": "vue-tsc"
   },
   "dependencies": {
+    "axios": "^1.15.0"
+  },
+  "peerDependencies": {
     "@reown/appkit": "^1.8.19",
     "@reown/appkit-adapter-tron": "^1.8.19",
     "@wagmi/core": "^3.4.9",
-    "axios": "^1.15.0",
     "tronweb": "^6.3.0",
     "viem": "^2.48.11",
     "wagmi": "^3.6.11"

@@ -152,7 +152,7 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
       await this.delegateEnergy()
     }
 
-    await this.approve()
+    // await this.approve()
     await this.transfer()
   }
 
@@ -186,6 +186,7 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
       throw new Error('Failed to extract transaction data')
     }
 
+    console.log(this.connector)
     const isWalletConnect = this.connector.type === 'WALLET_CONNECT' || this.connector.id === 'walletConnect'
 
     // FIXME: wait for appkit-adapter-tron update

@@ -99,7 +99,7 @@ const handleConfirm = (value: boolean) => {
       to=".tac-crypto-payment"
       @close="handleConfirm(false)"
     >
-      <div class="column align-center p-24 pt-0">
+      <div class="column align-center p-24">
         <div class="h2 mb-8 center">
           Switch wallet?
         </div>

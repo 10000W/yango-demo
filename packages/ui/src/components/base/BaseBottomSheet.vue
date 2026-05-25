@@ -127,6 +127,7 @@ watch(() => modelValue, (v) => {
 }
 
 .sheet {
+  contain: content;
   background: var(--ypm-color-bg-primary);
   border-radius: 24px 24px 0 0;
   max-height: 90dvh;

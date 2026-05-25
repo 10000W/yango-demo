@@ -15,27 +15,16 @@ export default defineConfig({
       tsconfigPath: './tsconfig.json',
       include: ['src/**/*.ts', 'index.ts'],
       insertTypesEntry: true,
-      rollupTypes: true,
     }),
   ],
   build: {
     lib: {
       entry: fileURLToPath(new URL('./index.ts', import.meta.url)),
-      name: 'TacCryptoPaymentSDK',
-      formats: ['es', 'cjs'],
-      fileName: (format) => {
-        switch (format) {
-          case 'es':
-            return 'tac-crypto-payment-sdk.mjs'
-          case 'cjs':
-            return 'tac-crypto-payment-sdk.cjs'
-          default:
-            throw new Error('Unknown format')
-        }
-      },
+      formats: ['es'],
+      fileName: () => 'index.js',
     },
     rollupOptions: {
-      external,
+      external: id => external.some(dep => id === dep || id.startsWith(`${dep}/`)),
     },
     sourcemap: true,
     emptyOutDir: true,

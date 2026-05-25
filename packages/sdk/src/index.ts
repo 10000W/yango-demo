@@ -6,7 +6,6 @@ import {
   PaymentProviderOptions,
   EvmPaymentProvider,
   TronPaymentProvider,
-  PaymentProvider,
 } from './payment'
 import { Asset, EvmAsset } from './asset'
 import { TronConnector } from '@reown/appkit-adapter-tron'
@@ -145,7 +144,7 @@ export class TacPaymentSdk {
    *
    * You can chain this method with `.pay()`
    */
-  createPayment(config: CreatePaymentConfig, options: PaymentProviderOptions) {
+  async createPayment(config: CreatePaymentConfig, options: PaymentProviderOptions) {
     if (!this.session) {
       throw new Error('Session is not initialized. Call `createSession` method first.')
     }
