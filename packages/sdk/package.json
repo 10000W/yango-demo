@@ -10,6 +10,7 @@
       "development": "./index.ts",
       "default": "./dist/tac-crypto-payment-sdk.js"
     },
+    "./adapters/payzap": "./src/adapters/payzap/index.ts",
     "./*": "./src/*"
   },
   "main": "./dist/tac-crypto-payment-sdk.js",

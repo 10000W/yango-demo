@@ -2,7 +2,7 @@
 import { usePayment } from '@/composables/usePayment'
 import { formatNumber } from '@/utils/string-utils'
 import BaseChip from '@/components/base/BaseChip.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import BaseAlert from '@/components/base/BaseAlert.vue'
 import BaseStack from '@/components/base/BaseStack.vue'
 import BaseStackItem from '@/components/base/BaseStackItem.vue'
@@ -13,22 +13,14 @@ import BaseIcon from '@/components/base/BaseIcon.vue'
 import { useAppKit } from '@/composables/useAppKit'
 import { createAppKitWalletButton, type Wallet } from '@reown/appkit-wallet-button'
 import { appKitNetworksMap } from '@/entities/appkit'
-import {
-  useAppKitAccount,
-  useAppKitNetwork,
-  useAppKitProvider,
-} from '@reown/appkit/vue'
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/vue'
 import { AxiosError } from 'axios'
-import { tronMainnet } from '@reown/appkit/networks'
+import { EvmExecutor, ExecutorEvent, PayZapService, TronExecutor } from '@tac-crypto-payment/sdk'
 import { TronConnector } from '@reown/appkit-adapter-tron'
-import {
-  EvmAsset,
-  EvmPaymentProvider,
-  getSponsorshipMechanism,
-  TronPaymentProvider,
-} from '@tac-crypto-payment/sdk'
-import { getWalletClient } from '@wagmi/core'
+import { tronMainnet } from '@reown/appkit/networks'
+import { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 import { wagmiAdapter } from '@/entities/config'
+import { getWalletClient } from '@wagmi/core'
 
 let walletButton: ReturnType<typeof createAppKitWalletButton> | undefined
 
@@ -39,7 +31,7 @@ const emit = defineEmits<{
 const {
   amount,
   selectedAsset,
-  activeSession,
+  paymentSession,
   txStatusMessage,
   selectedPaymentOption,
   product,
@@ -58,20 +50,38 @@ const {
 const evmAccount = useAppKitAccount({ namespace: 'eip155' })
 const tronAccount = useAppKitAccount({ namespace: 'tron' })
 
+const now = Date.now()
+
 const isConnecting = ref(false)
 const isPaying = ref(false)
 const isExpired = ref(false)
 const errorMessage = ref('')
 
-const paymentProviderOptions = {
-  onUpdateStatus: (status: string) => {
-    txStatusMessage.value = status
-  },
+const onUpdateStatus = (event: ExecutorEvent) => {
+  const statusMessages: Record<string, string> = {
+    'approval:preparing': 'Preparing token approval...',
+    'approval:signing': 'Waiting for a signature...',
+    'approval:confirming': 'Confirming token approval...',
+    'transfer:preparing': 'Preparing transfer...',
+    'transfer:confirming': 'Confirming transfer...',
+    'payment:preparing': 'Preparing payment...',
+    'payment:sponsoring': 'Requesting gasless transaction...',
+    'payment:signing': 'Waiting for a signature...',
+    'payment:confirming': 'Confirming payment...',
+    'cancelled': 'Transaction cancelled',
+    'failed': 'Transaction failed',
+  }
+
+  txStatusMessage.value = statusMessages[event.type] || event.type
 }
-let paymentProvider: EvmPaymentProvider | TronPaymentProvider | undefined
 
 const timerDuration = computed(() => {
-  return 15 * 60
+  if (!paymentSession.value?.session.expiresAt) {
+    return 15 * 60
+  }
+
+  const expiresAt = new Date(paymentSession.value.session.expiresAt).getTime()
+  return Math.max(0, Math.floor((expiresAt - now) / 1000))
 })
 const isNamespaceSupported = computed(() => {
   if (!isConnected.value) {
@@ -113,7 +123,9 @@ const gasless = computed(() => {
     return false
   }
 
-  return getSponsorshipMechanism(selectedAsset.value)
+  return sdkInstance?.service instanceof PayZapService
+    ? sdkInstance.service.getSponsorshipMechanism(selectedAsset.value)
+    : false
 })
 
 const load = async () => {
@@ -136,32 +148,20 @@ const load = async () => {
     isConnecting.value = false
   }
 
-  if (!sdkInstance.value) {
+  if (!sdkInstance) {
     throw 'TacPaymentSDK instance is not ready'
   }
 }
-const createPaymentProvider = async () => {
-  if (!sdkInstance.value) {
-    throw 'TacPaymentSdk instance is not defined'
-  }
-
-  if ((selectedAsset.value as EvmAsset)?.chain?.id === tronMainnet.id) {
+const createPaymentExecutor = async () => {
+  if ((selectedAsset.value as TronAsset)?.chain?.id === +tronMainnet.id) {
     const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
 
-    return sdkInstance.value.createPayment({
-      method: 'tron',
-      asset: selectedAsset.value! as EvmAsset,
-      userAddress: tronAccount.value.address!,
-      connector: tronProvider!,
-    }, paymentProviderOptions)
+    return new TronExecutor(tronProvider!)
   }
-  return sdkInstance.value.createPayment({
-    method: 'evm',
-    asset: selectedAsset.value! as EvmAsset,
-    userAddress: evmAccount.value.address!,
-    client: await getWalletClient(wagmiAdapter.wagmiConfig),
-  }, paymentProviderOptions)
+
+  return new EvmExecutor(await getWalletClient(wagmiAdapter.wagmiConfig))
 }
+
 const onTimerComplete = () => {
   isExpired.value = true
   emit('error', 'Payment session has expired. Please try again.')
@@ -185,7 +185,7 @@ const switchNetwork = async () => {
   }
 }
 const pay = async () => {
-  if (!activeSession.value) {
+  if (!paymentSession.value) {
     throw new Error('Session not found')
   }
 
@@ -202,12 +202,23 @@ const pay = async () => {
     await switchNetwork()
   }
 
-  if (!paymentProvider) {
-    paymentProvider = await createPaymentProvider()
-  }
-  await paymentProvider.pay()
+  // if (!paymentProvider) {
+  //   paymentProvider = await createPaymentProvider()
+  // }
 
-  txStatusMessage.value = 'Confirming payment'
+  if (!paymentSession.value) {
+    throw new Error('Payment session not found')
+  }
+  const executor = await createPaymentExecutor()
+  await paymentSession.value.pay({
+    fromAddress: (executor instanceof EvmExecutor)
+      ? evmAccount.value.address!
+      : (executor instanceof TronExecutor)
+          ? tronAccount.value.address!
+          : '0x0',
+    amount: paymentSession.value.session.amount,
+    executor,
+  }, onUpdateStatus)
 }
 const handleError = (e: unknown, defaultMessage: string) => {
   console.warn(e)
@@ -256,9 +267,9 @@ const submit = async () => {
 
 load()
 
-watch(address, () => {
-  paymentProvider = undefined
-}, { immediate: true })
+// watch(address, () => {
+//   paymentProvider = undefined
+// }, { immediate: true })
 </script>
 
 <template>
@@ -276,13 +287,13 @@ watch(address, () => {
         </p>
 
         <p class="h3">
-          {{ formatNumber(activeSession?.amount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary">
-            ≈ {{ formatNumber((Number(activeSession?.amount || amount)), 2) }} $</span>
+          {{ formatNumber(paymentSession?.session.amount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary">
+            ≈ {{ formatNumber((Number(paymentSession?.session.amount || amount)), 2) }} $</span>
         </p>
       </div>
       <hr>
       <div
-        v-if="activeSession"
+        v-if="paymentSession?.session"
         class="column gap-8"
       >
         <p class="h6">
@@ -293,7 +304,7 @@ watch(address, () => {
           :class="$style.wallet"
           class="h3"
         >
-          {{ activeSession.merchantWallet }}
+          {{ paymentSession?.session.merchantWallet }}
         </code>
       </div>
     </div>

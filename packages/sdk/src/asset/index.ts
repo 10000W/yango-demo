@@ -1,8 +1,6 @@
-import { tronMainnet } from '@reown/appkit/networks'
-import { TronPaymentProvider } from '../payment'
-import { EvmPaymentProvider } from '../payment'
+// import { tronMainnet } from '@reown/appkit/networks'
 import { assets as evmAssets } from './evm'
-import { assets as tronAssets } from './tron'
+import { assets as tronAssets, TronAsset } from './tron'
 
 export type AssetNamespace = 'ton' | 'tron' | 'eip155'
 export type BaseAsset = {
@@ -16,26 +14,13 @@ export type EvmAsset = BaseAsset & {
   namespace: AssetNamespace
   address: string
   chain: {
-    id: number | string
+    id: number
     name: string
     shortName: string
     color: string
   }
   decimals: number
 }
-export type Asset = BaseAsset | EvmAsset
-
-export const getSponsorshipMechanism = (asset: Asset) => {
-  if (!asset || !('chain' in asset)) {
-    return null
-  }
-
-  switch (asset.chain.id) {
-    case tronMainnet.id:
-      return TronPaymentProvider.getSponsorshipMechanism(asset)
-    default:
-      return EvmPaymentProvider.getSponsorshipMechanism(asset)
-  }
-}
+export type Asset = BaseAsset | EvmAsset | TronAsset
 
 export { evmAssets, tronAssets }

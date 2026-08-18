@@ -1,50 +1,62 @@
-import { computed, nextTick, type Ref, ref, watch, inject, Reactive, reactive } from 'vue'
+import { inject, nextTick, ref, type Ref, watch } from 'vue'
 import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
 import { useTimeoutPoll } from '@vueuse/core'
 import { type PaymentOption, paymentOptions } from '@/entities/payment'
 import { useAppKit } from '@/composables/useAppKit'
-import { type Asset, type SessionChain, type Product, TacPaymentSdk } from '@tac-crypto-payment/sdk'
+import { type Asset, TacPaymentSdk } from '@tac-crypto-payment/sdk'
+import { PayZapChain, PayZapPayment, PayZapProduct } from '@tac-crypto-payment/sdk'
 
-const sdkInstance: Ref<TacPaymentSdk | undefined> = ref()
+let sdkInstance: TacPaymentSdk
 
 const amount: Ref<number | string | undefined> = ref()
 const selectedPaymentOption: Ref<PaymentOption | undefined> = ref()
-const selectedChain: Ref<SessionChain | undefined> = ref()
+const selectedChain: Ref<PayZapChain | undefined> = ref()
 const selectedAsset: Ref<Asset | undefined> = ref()
 const txStatusMessage = ref('')
-
-const activeSession = computed(() => sdkInstance.value?.session)
-const product = computed(() => sdkInstance.value?.product)
+const paymentMethods: Ref<unknown[]> = ref([])
+const product: Ref<PayZapProduct | undefined> = ref()
+const paymentSession: Ref<PayZapPayment | undefined> = ref()
 
 const createSession = async () => {
-  if (!selectedChain.value || !selectedAsset.value) {
+  console.log('create session', selectedChain.value, selectedAsset.value, product.value)
+  if (!selectedChain.value || !selectedAsset.value || !product.value?.id) {
     throw new Error('Some parameters are not specified')
   }
 
-  if (!sdkInstance.value) {
+  if (!sdkInstance) {
     throw new Error('TacPaymentSdk instance is not initialized')
   }
 
   try {
-    await sdkInstance.value.createSession({
+    paymentSession.value = await sdkInstance.createPayment()({
+      productId: product.value?.id,
       gasless: true,
       chain: selectedChain.value,
       asset: selectedAsset.value,
+      // idempotencyKey?: string;
+      // abortController?: AbortController;
+      // tronConnector?: TronConnector;
+      // evmClient?: WalletClient;
     })
     nextTick(() => {
       poll.resume()
     })
   }
-  catch {
+  catch (e) {
+    console.warn(e)
     throw new Error('Error while creating session')
   }
 }
 const updateSession = async () => {
-  if (!activeSession.value || !sdkInstance.value) {
+  console.log('update...', paymentSession.value, sdkInstance)
+  if (!paymentSession.value || !sdkInstance) {
     return
   }
 
-  await sdkInstance.value.updateSession()
+  await paymentSession.value.refresh().catch((e) => {
+    // TODO: Show a warning or something when update fails
+    console.warn(e)
+  })
 }
 const poll = useTimeoutPoll(updateSession, 3000, { immediate: false })
 
@@ -52,35 +64,35 @@ const init = async () => {
   const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
 
   amount.value = options.amount || undefined
-  const instance = await TacPaymentSdk.create({
-    productId: options.productId,
-    payzapUrl: options.payzapUrl,
+  sdkInstance = new TacPaymentSdk({
+    service: 'payzap',
+    serviceParams: {
+      payzapUrl: options.payzapUrl,
+    },
   })
-
-  sdkInstance.value = instance
+  product.value = await sdkInstance.getProduct(options.productId) as PayZapProduct
 }
 const reset = () => {
-  if (sdkInstance.value) {
-    sdkInstance.value.reset()
-  }
   poll.pause()
+  // product.value = undefined
   selectedChain.value = undefined
   selectedAsset.value = undefined
+  paymentSession.value = undefined
   selectedPaymentOption.value = undefined
 }
 
-watch(() => activeSession.value?.status, (val) => {
+watch(() => paymentSession.value?.state, (val) => {
   switch (val) {
     case 'failed':
     case 'expired':
     case 'completed':
       poll.pause()
-      if (val === 'completed' && activeSession.value) {
+      if (val === 'completed' && paymentSession.value) {
         // FIXME: options is undefined
         const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
 
         if (options?.onSuccess) {
-          options.onSuccess(activeSession.value)
+          options.onSuccess(paymentSession.value)
         }
       }
   }
@@ -126,9 +138,10 @@ export const usePayment = () => {
     reset,
     selectAsset,
     isOptionConnected,
+    paymentMethods,
     product,
     amount,
-    activeSession,
+    paymentSession,
     selectedPaymentOption,
     selectedChain,
     selectedAsset,

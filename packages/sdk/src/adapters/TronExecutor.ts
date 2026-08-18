@@ -1,10 +1,14 @@
 import { TronWeb } from 'tronweb'
-import axios, { AxiosError } from 'axios'
-import { EvmAsset } from '../../asset'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { Types } from 'tronweb'
-import { defaultPaymentProviderOptions, PaymentProvider, PaymentProviderContext, PaymentProviderOptions } from './PaymentProvider'
+import {
+  ChainExecutorApproveParams,
+  ChainExecutorTransferParams,
+  IChainExecutor,
+  ExecutorEvent,
+} from '../executor'
 import { parseUnits } from 'viem'
+import { TronAsset } from '../asset/tron'
 
 const trc20Abi = [
   {
@@ -45,17 +49,12 @@ const trc20Abi = [
   },
 ]
 
-type DelegateEnergyResponse = {
-  success: boolean
-}
-
-export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
+export class TronExecutor implements IChainExecutor<TronAsset> {
+  type = 'tron'
   connector: TronConnector
-  isEnergyAlreadyDelegated = false
   private readonly _tronWeb: TronWeb
 
-  constructor(context: PaymentProviderContext<EvmAsset>, options: PaymentProviderOptions, connector: TronConnector) {
-    super(context, options)
+  constructor(connector: TronConnector) {
     this.connector = connector
     this._tronWeb = new TronWeb({
       fullHost: 'https://api.trongrid.io',
@@ -66,23 +65,26 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
     return this._tronWeb
   }
 
-  static getSponsorshipMechanism(asset: EvmAsset) {
-    return (asset.symbol === 'USDT' || asset.symbol === 'USDC') ? 'delegate' : null
+  validateAsset(asset: TronAsset) {
+    if (!asset?.address) {
+      throw new Error('Asset does not have an address')
+    }
+
+    if (!asset?.decimals) {
+      throw new Error('Asset does not have decimals')
+    }
   }
 
-  async approve() {
-    const { asset, amount, merchantAddress, userAddress } = this.context
-    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
+  async approve(params: ChainExecutorApproveParams<TronAsset>, onUpdate?: (event: ExecutorEvent) => void) {
+    this.validateAsset(params.asset)
+    const { asset, amount, fromAddress, toAddress } = params
     const parsedAmount = parseUnits(amount, asset.decimals)
 
-    onUpdateStatus('Preparing approval')
-    if (!userAddress) {
-      throw new Error('User address is not defined')
-    }
-    this.tronWeb.setAddress(userAddress)
+    onUpdate?.({ type: 'approval:preparing' })
+    this.tronWeb.setAddress(fromAddress)
     const contract = this.tronWeb.contract(trc20Abi, asset.address)
 
-    const allowance = await contract.allowance(userAddress, merchantAddress).call()
+    const allowance = await contract.allowance(fromAddress, toAddress).call()
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     const allowanceValue = BigInt(allowance.toString())
@@ -91,9 +93,7 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
       return
     }
 
-    onUpdateStatus('Waiting for approval signature')
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
+    onUpdate?.({ type: 'approval:signing' })
     const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
       asset.address,
       'approve(address,uint256)',
@@ -101,29 +101,29 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
         feeLimit: 100_000_000,
       },
       [
-        { type: 'address', value: merchantAddress },
+        { type: 'address', value: toAddress },
         { type: 'uint256', value: parsedAmount.toString() },
       ],
-      userAddress,
+      fromAddress,
     )
     await new Promise(resolve => setTimeout(resolve, 1000))
     const approveHash = await this._sendTransaction(tx)
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    onUpdateStatus('Confirming approval')
+    onUpdate?.({ type: 'approval:confirming' })
     await this.waitForTransaction(approveHash)
+    onUpdate?.({ type: 'approval:completed' })
+
+    return approveHash
   }
 
-  async transfer() {
-    const { asset, amount, merchantAddress, userAddress } = this.context
-    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
+  async transfer(params: ChainExecutorTransferParams<TronAsset>, onUpdate?: (event: ExecutorEvent) => void) {
+    this.validateAsset(params.asset)
+    const { asset, amount, fromAddress, toAddress } = params
     const parsedAmount = parseUnits(amount, asset.decimals)
 
-    if (!userAddress) {
-      throw new Error('User address is not defined')
-    }
-    this.tronWeb.setAddress(userAddress)
-    onUpdateStatus('Waiting for signature')
+    this.tronWeb.setAddress(fromAddress)
+    onUpdate?.({ type: 'transfer:preparing' })
     const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
       asset.address,
       'transfer(address,uint256)',
@@ -131,57 +131,22 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
         feeLimit: 100_000_000,
       },
       [
-        { type: 'address', value: merchantAddress },
+        { type: 'address', value: toAddress },
         { type: 'uint256', value: parsedAmount.toString() },
       ],
-      userAddress,
+      fromAddress,
     )
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     const hash = await this._sendTransaction(tx)
 
-    onUpdateStatus('Confirming transaction')
+    onUpdate?.({ type: 'transfer:confirming' })
     await this.waitForTransaction(hash)
-  }
-
-  async pay() {
-    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
-
-    if (this.context.gasless && !this.isEnergyAlreadyDelegated) {
-      onUpdateStatus('Requesting gas sponsorship')
-      await this.delegateEnergy()
-    }
-
-    // await this.approve()
-    await this.transfer()
-  }
-
-  private async delegateEnergy() {
-    try {
-      const { data } = await axios.post<DelegateEnergyResponse>
-      (`${this.context.payzapUrl}/v1/public/session/${this.context.sessionId}/delegate-energy`, {
-        buyerAddress: this.context.userAddress,
-      })
-
-      if (!data.success) {
-        throw new Error('Failed to delegate energy')
-      }
-
-      this.isEnergyAlreadyDelegated = true
-    }
-    catch (e) {
-      if (e instanceof AxiosError && e.status === 429) {
-        // Rate limit exceeded, just allow going further
-        return
-      }
-      throw e
-    }
+    onUpdate?.({ type: 'transfer:completed' })
+    return hash
   }
 
   private async _sendTransaction(txWrapper: Types.TransactionWrapper) {
-    const { userAddress } = this.context
-    const { onUpdateStatus = defaultPaymentProviderOptions.onUpdateStatus } = this.options || {}
-
     if (!txWrapper.transaction?.raw_data?.contract?.[0]?.parameter?.value?.data) {
       throw new Error('Failed to extract transaction data')
     }
@@ -190,29 +155,30 @@ export class TronPaymentProvider extends PaymentProvider<EvmAsset> {
 
     // FIXME: wait for appkit-adapter-tron update
     // internalRequest does not exist in TronWalletConnectConnector
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (isWalletConnect && !(this.connector as any).internalRequest) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.connector as any).internalRequest = (args: any) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (this.connector as any).provider.request(args, (this.connector as any).chains?.[0]?.caipNetworkId)
+    const connectorHack = this.connector as unknown as {
+      internalRequest?: (args: unknown) => Promise<unknown>
+      provider: {
+        request: (args: unknown, networkId?: string) => Promise<unknown>
+      }
+      chains?: { caipNetworkId: string }[]
+    }
+    if (isWalletConnect && !connectorHack.internalRequest) {
+      connectorHack.internalRequest = (args: unknown) => {
+        return connectorHack.provider.request(args, connectorHack.chains?.[0]?.caipNetworkId)
       }
     }
-
-    onUpdateStatus('Waiting for signature')
 
     const method = isWalletConnect ? 'tron_signTransaction' : 'tron_sendTransaction'
 
     const response = await this.connector.request({
       method,
-      params: { address: userAddress, transaction: txWrapper.transaction },
+      params: { address: this.tronWeb.defaultAddress.base58, transaction: txWrapper.transaction },
     })
 
     if (typeof response === 'string') {
       return response
     }
 
-    onUpdateStatus('Broadcasting transaction')
     const result = await this.tronWeb.trx.sendRawTransaction(response as Types.SignedTransaction)
     if (!result.result) {
       throw new Error(result.message || 'Failed to broadcast transaction')

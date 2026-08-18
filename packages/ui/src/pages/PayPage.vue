@@ -6,13 +6,13 @@ import PageHeader from '@/components/PageHeader.vue'
 import PayFormBlockchain from '@/components/pay/PayFormBlockchain.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 
-const { createSession, selectedAsset, activeSession, reset } = usePayment()
+const { createSession, selectedAsset, paymentSession, reset } = usePayment()
 const router = useRouter()
 
 const isLoading = ref(false)
 
-watch(() => activeSession.value?.status, (status) => {
-  if (status && status !== 'pending') {
+watch(() => paymentSession.value?.state, (status) => {
+  if (status && status !== 'idle' && status !== 'paying' && status !== 'cancelled') {
     router.replace({ name: 'status' })
   }
 })
@@ -81,7 +81,7 @@ onMounted(async () => {
     </div>
 
     <PayFormBlockchain
-      v-else-if="activeSession?.chain === 'evm' || activeSession?.chain === 'tron'"
+      v-else-if="['evm', 'tron'].includes(paymentSession?.session?.chain!) "
       class="flex-1"
       @error="handleError"
     />

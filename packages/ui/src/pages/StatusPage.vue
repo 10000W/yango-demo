@@ -8,21 +8,21 @@ import { formatNumber } from '@/utils/string-utils'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 import { useAppKit } from '@/composables/useAppKit'
-import { SessionStatus } from '@tac-crypto-payment/sdk'
+import { PaymentState } from '@tac-crypto-payment/sdk'
 
 const route = useRoute()
 const router = useRouter()
-const { activeSession, selectedChain, amount, reset } = usePayment()
+const { paymentSession, selectedChain, amount, reset } = usePayment()
 
 const options = inject<TacCryptoPaymentOptions | null>('tacPaymentOptions', null)
 const onCloseCallback = options?.onClose
 
 const status = computed(() => {
   if (route.query.status) {
-    return route.query.status as SessionStatus
+    return route.query.status as PaymentState
   }
 
-  return activeSession.value?.status
+  return paymentSession.value?.state
 })
 const title = computed(() => {
   if (route.query.title) {
@@ -53,7 +53,7 @@ const description = computed(() => {
     case 'confirming':
       return 'Please wait while your transaction is being processed.'
     case 'completed':
-      return `${formatNumber(amount.value)} ${activeSession.value?.asset}`
+      return `${formatNumber(amount.value)} ${paymentSession.value?.asset.symbol}`
     default:
       return 'Please wait until transaction status is updated.'
   }
@@ -71,15 +71,6 @@ const icon = computed(() => {
       return 'loading'
   }
 })
-const paymentTypeIconUrl = computed(() => {
-  const { walletInfo } = useAppKit()
-  switch (selectedChain.value) {
-    case 'evm':
-      return walletInfo.value?.icon
-    default:
-      return '/tac.png'
-  }
-})
 const submitLabel = computed(() => {
   switch (status.value) {
     case 'expired':
@@ -93,15 +84,21 @@ const submitLabel = computed(() => {
   }
 })
 const isSubmitVisible = computed(() => !!submitLabel.value)
+const paymentTypeIconUrl = computed(() => {
+  const { walletInfo } = useAppKit()
+  if (selectedChain?.value === 'evm') {
+    return walletInfo.value?.icon
+  }
+  return '/tac.png'
+})
 
 const handleSubmit = () => {
   switch (status.value) {
+    case 'cancelled':
     case 'expired':
-      router.replace('/')
-      reset()
-      return
     case 'failed':
       router.replace('/')
+      reset()
       return
     case 'completed':
       if (onCloseCallback) {

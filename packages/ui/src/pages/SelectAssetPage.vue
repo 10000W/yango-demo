@@ -7,10 +7,11 @@ import PageHeader from '@/components/PageHeader.vue'
 import { computed, ComputedRef } from 'vue'
 import { appKitNetworksMap } from '@/entities/appkit'
 import { tronMainnet } from '@reown/appkit/networks'
-import { Asset, getSponsorshipMechanism } from '@tac-crypto-payment/sdk'
+import { Asset } from '@tac-crypto-payment/sdk'
+import { PayZapService } from '@tac-crypto-payment/sdk'
 
 const router = useRouter()
-const { product, selectedPaymentOption, selectAsset } = usePayment()
+const { product, selectedPaymentOption, selectAsset, sdkInstance } = usePayment()
 
 const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
   if (!selectedPaymentOption.value) {
@@ -33,7 +34,9 @@ const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
         .filter(asset => chainIds.includes(asset.chain.id))
         .map(asset => ({
           ...asset,
-          gasless: !!getSponsorshipMechanism(asset),
+          gasless: sdkInstance?.service instanceof PayZapService
+            ? !!sdkInstance?.service?.getSponsorshipMechanism(asset)
+            : false,
         }))
     default:
       return paymentOptionAssets
