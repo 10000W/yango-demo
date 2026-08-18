@@ -30,7 +30,7 @@ const createSession = async () => {
   try {
     paymentSession.value = await sdkInstance.createPayment()({
       productId: product.value?.id,
-      gasless: true,
+      gasless: product.value.gasless.enabled || false,
       chain: selectedChain.value,
       asset: selectedAsset.value,
       // idempotencyKey?: string;

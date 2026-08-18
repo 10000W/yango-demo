@@ -34,7 +34,7 @@ const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
         .filter(asset => chainIds.includes(asset.chain.id))
         .map(asset => ({
           ...asset,
-          gasless: sdkInstance?.service instanceof PayZapService
+          gasless: product.value?.gasless.enabled && sdkInstance?.service instanceof PayZapService
             ? !!sdkInstance?.service?.getSponsorshipMechanism(asset)
             : false,
         }))

@@ -89,6 +89,10 @@ export class PayZapService implements IService, ISponsorshipService {
     return new PayZapProduct(data.data)
   }
 
+  // async mandatesSetup(id: string): Promise<unknown> {
+
+  // }
+
   async delegateEnergy(sessionId: string, buyerAddress: string) {
     const { data } = await this.request('delegateEnergy', () => this.http.post<PayZapDelegateEnergyResponse>
     (`/v1/public/session/${sessionId}/delegate-energy`, { buyerAddress }))

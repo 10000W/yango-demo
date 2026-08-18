@@ -15,7 +15,7 @@ const mountPaymentApp = async (test = false) => {
   }
 
   const payment = new TacCryptoPayment({
-    productId: 'e9c80daa-5ed5-4705-9052-3ee1cb16cd7e',
+    productId: 'ba280f9d-bc00-47be-b4b9-4dc1ac1900e8',
     amount: '0.01',
     payzapUrl: 'https://staging-api.payzap.cc',
     elementSelector: '#payment-container',
