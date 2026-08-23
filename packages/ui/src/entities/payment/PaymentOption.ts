@@ -21,3 +21,4 @@ export type PaymentOptionBlockchain = {
 }
 
 export type PaymentOption = PaymentOptionBase & PaymentOptionBlockchain
+export type PaymentMethod = PaymentOption

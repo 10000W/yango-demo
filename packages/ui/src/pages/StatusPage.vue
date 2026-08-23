@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { computed, inject } from 'vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import { usePayment } from '@/composables/usePayment'
-import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
+import type { TacPaymentUIConfig } from '@/TacPaymentUI'
 import { formatNumber } from '@/utils/string-utils'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
@@ -14,8 +14,8 @@ const route = useRoute()
 const router = useRouter()
 const { paymentSession, selectedChain, amount, reset } = usePayment()
 
-const options = inject<TacCryptoPaymentOptions | null>('tacPaymentOptions', null)
-const onCloseCallback = options?.onClose
+const config = inject<TacPaymentUIConfig | null>('tacPaymentUiConfig', null)
+const onCloseCallback = config?.onClose
 
 const status = computed(() => {
   if (route.query.status) {

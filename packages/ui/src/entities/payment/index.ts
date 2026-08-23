@@ -10,19 +10,7 @@ import {
   PaymentOptionType,
 } from '@/entities/payment/PaymentOption'
 
-export const paymentOptions: PaymentOption[] = [
-  {
-    name: 'Binance',
-    description: 'Crypto exchange (CEX)',
-    type: 'binance',
-    icon: binanceIcon,
-  },
-  {
-    name: 'ByBit',
-    description: 'Crypto exchange (CEX)',
-    type: 'bybit',
-    icon: bybitIcon,
-  },
+export const evmPaymentOptions: PaymentOption[] = [
   {
     name: 'MetaMask',
     description: 'Web3 Wallet',
@@ -41,8 +29,6 @@ export const paymentOptions: PaymentOption[] = [
     walletName: 'trust',
     walletId: '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0',
   },
-  // new PaymentOption('TronLink', 'Web3 Wallet', 'tron', '/icons/tronlink.svg'),
-  // new PaymentOption('TON', 'Tonchain Wallet', 'ton', '/icons/ton.svg'),
   {
     name: 'Other wallets',
     description: 'Choose other EVM wallet',
@@ -50,6 +36,21 @@ export const paymentOptions: PaymentOption[] = [
     namespaces: ['eip155', 'tron'],
     icon: 'evm',
   },
+]
+export const paymentOptions: PaymentOption[] = [
+  {
+    name: 'Binance',
+    description: 'Crypto exchange (CEX)',
+    type: 'binance',
+    icon: binanceIcon,
+  },
+  {
+    name: 'ByBit',
+    description: 'Crypto exchange (CEX)',
+    type: 'bybit',
+    icon: bybitIcon,
+  },
+  ...evmPaymentOptions,
   {
     name: 'Yango',
     description: 'Apply to waiting list',

@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { BaseButton } from '@tac-crypto-payment/ui'
+import { BaseButton, BaseInput } from '@tac-crypto-payment/ui'
+import { ref } from 'vue'
 
+const mandateSessionId = ref('')
+const productId = ref('')
 defineEmits<{
-  pay: []
-  test: []
+  'pay': [productId: string]
+  'test': [productId: string]
+  'mandate': [sessionId: string]
+  'test-mandate-session': [productId: string]
 }>()
 </script>
 
@@ -21,20 +26,46 @@ defineEmits<{
         <div :class="$style.rect" />
         <div :class="$style.rectHalf" />
         <div :class="$style.rect" />
+        <BaseInput
+          v-model="productId"
+          placeholder="Product id (abcd1234-.....)"
+        />
         <BaseButton
           style="align-self: flex-start"
           variant="danger"
-          @click="$emit('pay')"
+          @click="$emit('pay', productId)"
         >
           Pay with Crypto
+        </BaseButton>
+        <br>
+
+        <BaseInput
+          v-model="mandateSessionId"
+          placeholder="Mandate session id (abcd1234-.....)"
+        />
+        <BaseButton
+          style="align-self: flex-start"
+          variant="danger"
+          @click="$emit('mandate', mandateSessionId)"
+        >
+          Manage mandate
+        </BaseButton>
+
+        <br>
+        <BaseButton
+          style="align-self: flex-start"
+          variant="danger"
+          @click="$emit('test', productId)"
+        >
+          Test connections
         </BaseButton>
 
         <BaseButton
           style="align-self: flex-start"
-          variant="danger"
-          @click="$emit('test')"
+          variant="secondary"
+          @click="$emit('test-mandate-session', productId)"
         >
-          Test connections
+          Test mandate session
         </BaseButton>
 
         <div :class="$style.rect" />

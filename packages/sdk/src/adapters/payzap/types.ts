@@ -1,6 +1,7 @@
 import { Asset } from '../../asset'
 import { TypedDataParameter } from 'viem'
 export const PayZapEvmPaymentProviderNetworks = ['ethereum', 'base', 'arbitrum', 'polygon', 'bsc'] as const
+export const PayZapMandateNetworks = [...PayZapEvmPaymentProviderNetworks, 'tron'] as const
 export const PayZapPaymentGasslessChains = ['polygon', 'bsc', 'arbitrum', 'base', 'tron', 'solana'] as const
 
 export type PayZapSessionStatus = 'completed' | 'expired' | 'failed' | 'confirming' | 'pending'
@@ -104,3 +105,63 @@ export type PayZapProductData = {
   tip: null
 }
 export type PayZapSponsorshipMechanism = 'sponsor' | 'permit' | 'delegate' | null
+export type PayZapMandateSetupDataMethod = {
+  id: string
+  kind: 'evm_wallet' | 'tron_wallet' // evm_wallet, ...
+  isActive: boolean
+  network: (typeof PayZapMandateNetworks)[number]
+  tokenSymbol: string
+  customerWallet: string
+  capUnits: string
+  tokenDecimals: number
+}
+export type PayZapMandateSetupData = {
+  id: string
+  status: 'active' | 'pending' | 'revoked' | 'expired'
+  customerRef: string
+  setupExpiresAt: string
+  spenderAddress: string
+  availableKinds: PayZapMandateSetupDataMethod['kind']
+  supportedNetworks: PayZapMandateSetupDataMethod['network'][]
+  merchant: {
+    brandName: string | null
+    logoUrl: string | null
+    accentColor: string | null
+  }
+  methods: PayZapMandateSetupDataMethod[]
+}
+export type PayZapMandateSetupResponse = {
+  success: boolean
+  data: PayZapMandateSetupData
+}
+
+export type PayZapSetMandateSetupOptions = {
+  network: (typeof PayZapMandateNetworks)[number]
+  tokenSymbol: string
+  customerWallet: string
+}
+
+export type PayZapSetMandateSetupResponse = {
+  mandate: {
+    id: string
+    status: PayZapMandateSetupData['status']
+    customerRef: string
+    setupExpiresAt: string
+    metadata: Record<string, unknown>
+    createdAt: string
+  }
+  methodId: string
+}
+
+export type PayZapRevokeMandateSetupResponse = {
+  success: boolean
+  data: {
+    id: string
+    status: PayZapMandateSetupData['status']
+    customerRef: string
+    setupExpiresAt: string
+    revokeReason: string
+    metadata: Record<string, unknown>
+    createdAt: string
+  }
+}

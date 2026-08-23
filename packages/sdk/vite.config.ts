@@ -19,9 +19,12 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: fileURLToPath(new URL('./index.ts', import.meta.url)),
+      entry: {
+        'index': fileURLToPath(new URL('./index.ts', import.meta.url)),
+        'adapters/payzap': fileURLToPath(new URL('./src/adapters/payzap/index.ts', import.meta.url)),
+      },
       formats: ['es'],
-      fileName: () => 'index.js',
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       external: id => external.some(dep => id === dep || id.startsWith(`${dep}/`)),

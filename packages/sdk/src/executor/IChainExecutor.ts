@@ -10,6 +10,6 @@ export type ChainExecutorTransferParams<TAsset> = {
 export type ChainExecutorApproveParams<T> = ChainExecutorTransferParams<T>
 
 export interface IChainExecutor<TAsset> extends IExecutor {
-  transfer: (options: ChainExecutorTransferParams<TAsset>, onUpdate?: (event: ExecutorEvent) => void) => Promise<unknown>
-  approve: (options: ChainExecutorApproveParams<TAsset>, onUpdate?: (event: ExecutorEvent) => void) => Promise<unknown>
+  transfer: (params: ChainExecutorTransferParams<TAsset>, onUpdate?: (event: ExecutorEvent) => void) => Promise<unknown>
+  approve: (params: ChainExecutorApproveParams<TAsset>, onUpdate?: (event: ExecutorEvent) => void) => Promise<unknown>
 }

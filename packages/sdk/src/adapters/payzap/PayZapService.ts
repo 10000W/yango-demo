@@ -1,14 +1,18 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { Asset, EvmAsset } from '../../asset'
 import {
-  // PayZapChain,
   PayZapCreateSessionOptions,
   PayZapDelegateEnergyResponse,
   PayZapPermitDataResponse,
   PayZapPermitResponse,
   PayZapSessionData,
-  PayZapSponsorGasResponse, PayZapSponsorshipMechanism,
+  PayZapSponsorGasResponse,
+  PayZapSponsorshipMechanism,
   PayZapProductData,
+  PayZapSetMandateSetupOptions,
+  PayZapSetMandateSetupResponse,
+  PayZapRevokeMandateSetupResponse,
+  PayZapMandateSetupResponse,
 } from './types'
 import { PayZapProduct } from './PayZapProduct'
 import { IService, ISponsorshipService, ServiceError } from '../../service'
@@ -22,7 +26,7 @@ const postpone = (attempt: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, delay))
 }
 
-type PayZapServiceRequestConfig = {
+export type PayZapServiceRequestConfig = {
   idempotencyKey?: string
   abortSignal?: AbortSignal
 }
@@ -89,9 +93,36 @@ export class PayZapService implements IService, ISponsorshipService {
     return new PayZapProduct(data.data)
   }
 
-  // async mandatesSetup(id: string): Promise<unknown> {
+  async getMandateSetup(id: string): Promise<PayZapMandateSetupResponse> {
+    const { data } = await this.request('getMandateSetup', () =>
+      this.http.get<PayZapMandateSetupResponse>(`/v1/public/mandate-setup/${id}`),
+    )
+    return data
+  }
 
-  // }
+  async revoke(id: string): Promise<PayZapRevokeMandateSetupResponse> {
+    const { data } = await this.request('revoke', () =>
+      this.http.post<PayZapRevokeMandateSetupResponse>(`/v1/public/mandate-setup/${id}/revoke`),
+    )
+    return data
+  }
+
+  async setMandateSetup(
+    id: string,
+    options: PayZapSetMandateSetupOptions,
+    config?: PayZapServiceRequestConfig,
+  ): Promise<PayZapSetMandateSetupResponse> {
+    const method = options.network === 'tron' ? 'tron' : 'evm'
+    const { data } = await this.request('setMandateSetup', () =>
+      this.http.post<PayZapSetMandateSetupResponse>(`/v1/public/mandate-setup/${id}/${method}`, options, {
+        signal: config?.abortSignal,
+        headers: config?.idempotencyKey
+          ? { 'Idempotency-Key': config.idempotencyKey }
+          : undefined,
+      }),
+    config?.abortSignal)
+    return data
+  }
 
   async delegateEnergy(sessionId: string, buyerAddress: string) {
     const { data } = await this.request('delegateEnergy', () => this.http.post<PayZapDelegateEnergyResponse>

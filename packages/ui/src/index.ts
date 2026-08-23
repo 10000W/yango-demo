@@ -1,6 +1,7 @@
-import { TacCryptoPayment, type TacCryptoPaymentOptions } from './TacCryptoPayment'
+import { TacPaymentUI, type TacPaymentUIConfig } from './TacPaymentUI'
 
 export { default as BaseButton } from './components/base/BaseButton.vue'
 export { default as BaseBottomSheet } from './components/base/BaseBottomSheet.vue'
+export { default as BaseInput } from './components/base/BaseInput.vue'
 
-export { TacCryptoPayment, type TacCryptoPaymentOptions }
+export { TacPaymentUI, type TacPaymentUIConfig }

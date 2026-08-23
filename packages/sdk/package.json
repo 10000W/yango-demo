@@ -1,35 +1,40 @@
 {
   "name": "@tac-crypto-payment/sdk",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/tac-crypto-payment-sdk.js",
-      "development": "./index.ts",
-      "default": "./dist/tac-crypto-payment-sdk.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
-    "./adapters/payzap": "./src/adapters/payzap/index.ts",
-    "./*": "./src/*"
+    "./adapters/payzap": {
+      "types": "./dist/adapters/payzap.d.ts",
+      "import": "./dist/adapters/payzap.js",
+      "default": "./dist/adapters/payzap.js"
+    }
   },
-  "main": "./dist/tac-crypto-payment-sdk.js",
-  "module": "./dist/tac-crypto-payment-sdk.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "vite build",
     "type-check": "vue-tsc"
   },
   "dependencies": {
-    "axios": "^1.15.0"
+    "axios": "^1.19.0"
   },
   "peerDependencies": {
-    "@reown/appkit": "^1.8.20",
-    "@reown/appkit-adapter-tron": "^1.8.20",
-    "@wagmi/core": "^3.4.9",
-    "tronweb": "^6.3.0",
-    "viem": "^2.48.11",
-    "wagmi": "^3.6.11"
+    "@reown/appkit": "^1.8.23",
+    "@reown/appkit-adapter-tron": "^1.8.23",
+    "@wagmi/core": "^3.6.4",
+    "tronweb": "^6.5.0",
+    "viem": "^2.55.19",
+    "wagmi": "^3.7.6"
   },
   "devDependencies": {
     "typescript": "~6.0.0",

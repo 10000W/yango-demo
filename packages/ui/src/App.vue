@@ -1,28 +1,40 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, inject } from 'vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 import { useRoute, useRouter } from 'vue-router'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import { usePayment } from '@/composables/usePayment'
 import { useAppKit } from '@/composables/useAppKit'
 import { until } from '@vueuse/core'
+import type { TacPaymentUIConfig } from '@/TacPaymentUI'
+import { useMandate } from '@/composables/useMandate'
+
+const config = inject<TacPaymentUIConfig>('tacPaymentUiConfig')!
+const isAccoladeVisible = true
 
 const route = useRoute()
 const router = useRouter()
-const { product, init: initPayment } = usePayment()
 const { isLoaded: isAppKitLoaded, init: initAppKit } = useAppKit()
 const isLoading = ref(true)
 
 const isGlowVisible = computed(() => ['promo'].includes(route.name as string))
-const isAccoladeVisible = true
 
 onMounted(async () => {
   try {
-    await initPayment()
-    if (!product.value) {
-      throw new Error('Product not found')
+    if (config.flow === 'mandate') {
+      const { init } = useMandate()
+      await init()
+      initAppKit()
     }
-    initAppKit(product.value)
+    else {
+      const { init, product } = usePayment()
+      await init(config)
+      if (!product.value) {
+        throw new Error('Product not found')
+      }
+      initAppKit(product.value)
+    }
+
     await until(isAppKitLoaded).toBe(true)
     isLoading.value = false
   }
@@ -32,7 +44,7 @@ onMounted(async () => {
       name: 'error',
       query: {
         title: 'Initialization failed',
-        message: 'We could not initialize the payment system. Please check your connection and try again.',
+        message: `We could not initialize the ${config.flow} system. Please check your connection and try again.`,
       },
     })
     isLoading.value = false
@@ -102,7 +114,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: auto;
+  //overflow: auto;
   padding-top: 52px;
 
   & > *:first-child {

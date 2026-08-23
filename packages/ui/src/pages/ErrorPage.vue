@@ -3,7 +3,7 @@ import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
-import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
+import type { TacPaymentUIConfig } from '@/TacPaymentUI'
 
 const props = defineProps<{
   title?: string
@@ -11,7 +11,7 @@ const props = defineProps<{
 }>()
 
 const route = useRoute()
-const options = inject<TacCryptoPaymentOptions | null>('tacPaymentOptions', null)
+const options = inject<TacPaymentUIConfig | null>('tacPaymentUiConfig', null)
 const onCloseCallback = options?.onClose || (() => {})
 
 const errorTitle = computed(() => props.title

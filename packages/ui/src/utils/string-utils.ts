@@ -1,4 +1,3 @@
-import { Address } from '@ton/core'
 import { getAddress, isAddress } from 'viem'
 
 export const truncate = (string = '', length = 6) => {
@@ -30,10 +29,6 @@ export const stringToColor = (value: string, saturation = 85, lightness = 40) =>
 
 export const getAddressByType = (type: 'evm' | 'tvm', value: string) => {
   try {
-    if (type === 'tvm') {
-      return Address.parse(value)
-    }
-
     return getAddress(value)
   }
   catch {
@@ -43,10 +38,6 @@ export const getAddressByType = (type: 'evm' | 'tvm', value: string) => {
 
 export const isAddressValidByType = (type: 'evm' | 'tvm', value: string) => {
   try {
-    if (type === 'tvm') {
-      return Address.isAddress(Address.parse(value))
-    }
-
     return isAddress(value)
   }
   catch {

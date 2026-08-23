@@ -1,5 +1,6 @@
 import { IService } from './service'
 import {
+  PayZapMandate,
   PayZapPayment,
   PayZapPaymentCreateConfig,
   PayZapService,
@@ -30,6 +31,15 @@ export class TacPaymentSdk {
 
   getProduct(id: string) {
     return this.service.getProduct(id)
+  }
+
+  async getMandate(id: string) {
+    if (this.service instanceof PayZapService) {
+      const { data } = await this.service.getMandateSetup(id)
+      return new PayZapMandate(this.service, data)
+    }
+
+    throw new Error('Service is not supported')
   }
 
   createPayment() {

@@ -57,10 +57,12 @@ const chainBgColor = computed(() => {
     >
       Gasless ⚡
     </BaseChip>
-    <BaseIcon
-      name="chevron-right"
-      class="c-text-primary"
-    />
+    <slot name="right">
+      <BaseIcon
+        name="chevron-right"
+        class="c-text-primary"
+      />
+    </slot>
   </div>
 </template>
 

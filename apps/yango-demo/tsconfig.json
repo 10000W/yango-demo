@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.app.json",
   "compilerOptions": {
     "composite": true,
-    "baseUrl": ".",
     "paths": {
       "@tac-crypto-payment/sdk": ["../../packages/sdk/index.ts"],
       "@tac-crypto-payment/ui": ["../../packages/ui/src/index.ts"],

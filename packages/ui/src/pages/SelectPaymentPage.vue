@@ -8,9 +8,11 @@ import { computed, ref } from 'vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseBottomSheet from '@/components/base/BaseBottomSheet.vue'
+import { usePaymentMethods } from '@/composables/usePaymentMethods'
 
 const router = useRouter()
-const { selectedPaymentOption, isOptionConnected } = usePayment()
+const { isPaymentMethodConnected } = usePaymentMethods()
+const { selectedPaymentOption } = usePayment()
 const { isConnected: isEvmConnected, disconnect: disconnectEvm } = useAppKit()
 
 const isConfirmOpen = ref(false)
@@ -29,7 +31,7 @@ const handlePaymentOptionClick = async (option: PaymentOption) => {
     return
   }
 
-  if (isEvmConnected.value && !isOptionConnected(option)) {
+  if (isEvmConnected.value && !isPaymentMethodConnected(option)) {
     pendingOption.value = option
     const confirmed = await confirmDisconnect()
     if (!confirmed) {
@@ -88,7 +90,7 @@ const handleConfirm = (value: boolean) => {
       >
         <PaymentOptionComponent
           :payment-option="o"
-          :is-connected="isOptionConnected(o)"
+          :is-connected="isPaymentMethodConnected(o)"
           @click="handlePaymentOptionClick(o)"
         />
       </li>

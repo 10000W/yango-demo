@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, type App } from 'vue'
 import SkeletonPage from './components/skeleton/SkeletonPage.vue'
-import { BaseBottomSheet, TacCryptoPayment } from '@tac-crypto-payment/ui'
+import { BaseBottomSheet, TacPaymentUI } from '@tac-crypto-payment/ui'
 const isModalOpen = ref(false)
 const paymentApp = ref<App | null>(null)
 
-const mountPaymentApp = async (test = false) => {
+const mountPaymentApp = async (
+  routeName?: 'test' | 'payment' | 'test-mandate-session' | 'mandate',
+  productOrMandateSessionId?: string,
+) => {
   isModalOpen.value = true
 
   await nextTick()
@@ -14,8 +17,12 @@ const mountPaymentApp = async (test = false) => {
     paymentApp.value = null
   }
 
-  const payment = new TacCryptoPayment({
-    productId: 'ba280f9d-bc00-47be-b4b9-4dc1ac1900e8',
+  // product id ba280f9d-bc00-47be-b4b9-4dc1ac1900e8
+  // session id 3cda9e0c-91a6-4214-a173-5d160e2d800f
+  const payment = new TacPaymentUI({
+    flow: routeName === 'mandate' ? 'mandate' : 'payment',
+    productId: routeName === 'mandate' ? '' : productOrMandateSessionId!,
+    mandateId: routeName === 'mandate' ? productOrMandateSessionId! : '',
     amount: '0.01',
     payzapUrl: 'https://staging-api.payzap.cc',
     elementSelector: '#payment-container',
@@ -25,10 +32,10 @@ const mountPaymentApp = async (test = false) => {
   })
 
   paymentApp.value = payment.mount()
-  if (test) {
+  if (routeName) {
     const router = paymentApp.value?.config?.globalProperties?.$router
     if (router) {
-      router.push({ name: 'test' })
+      router.push({ name: routeName })
     }
   }
 }
@@ -48,8 +55,10 @@ watch(isModalOpen, (isOpen) => {
 <template>
   <div class="host-app">
     <SkeletonPage
-      @pay="mountPaymentApp"
-      @test="mountPaymentApp(true)"
+      @pay="mountPaymentApp('payment', $event)"
+      @test="mountPaymentApp('test', $event)"
+      @mandate="mountPaymentApp('mandate', $event)"
+      @test-mandate-session="mountPaymentApp('test-mandate-session', $event)"
     />
 
     <BaseBottomSheet

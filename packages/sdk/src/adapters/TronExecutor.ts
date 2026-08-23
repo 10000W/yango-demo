@@ -6,8 +6,10 @@ import {
   ChainExecutorTransferParams,
   IChainExecutor,
   ExecutorEvent,
+  ExecutorError,
+  ExecutorErrorCode,
 } from '../executor'
-import { parseUnits } from 'viem'
+import { maxUint256, parseUnits } from 'viem'
 import { TronAsset } from '../asset/tron'
 
 const trc20Abi = [
@@ -67,88 +69,122 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
 
   validateAsset(asset: TronAsset) {
     if (!asset?.address) {
-      throw new Error('Asset does not have an address')
+      throw new ExecutorError('Asset does not have an address', {
+        code: 'invalid_asset',
+        chain: 'tron',
+        chainId: asset?.chain?.id,
+        assetAddress: asset?.address,
+      })
     }
 
-    if (!asset?.decimals) {
-      throw new Error('Asset does not have decimals')
+    if (!Number.isInteger(asset.decimals) || asset.decimals < 0) {
+      throw new ExecutorError('Asset does not have valid decimals', {
+        code: 'invalid_asset',
+        chain: 'tron',
+        chainId: asset.chain.id,
+        assetAddress: asset.address,
+      })
     }
   }
 
   async approve(params: ChainExecutorApproveParams<TronAsset>, onUpdate?: (event: ExecutorEvent) => void) {
-    this.validateAsset(params.asset)
     const { asset, amount, fromAddress, toAddress } = params
-    const parsedAmount = parseUnits(amount, asset.decimals)
+    let transactionHash: string | undefined
+    let errorCode: ExecutorErrorCode = 'invalid_amount'
 
-    onUpdate?.({ type: 'approval:preparing' })
-    this.tronWeb.setAddress(fromAddress)
-    const contract = this.tronWeb.contract(trc20Abi, asset.address)
+    try {
+      this.validateAsset(asset)
+      const parsedAmount = amount === 'infinite' ? maxUint256 : parseUnits(amount, asset.decimals)
+      onUpdate?.({ type: 'approval:preparing' })
+      this.tronWeb.setAddress(fromAddress)
+      const contract = this.tronWeb.contract(trc20Abi, asset.address)
 
-    const allowance = await contract.allowance(fromAddress, toAddress).call()
-    await new Promise(resolve => setTimeout(resolve, 1000))
+      errorCode = 'read_failed'
+      const allowance = await contract.allowance(fromAddress, toAddress).call()
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      const allowanceValue = BigInt(allowance.toString())
 
-    const allowanceValue = BigInt(allowance.toString())
+      if (allowanceValue >= parsedAmount) {
+        onUpdate?.({ type: 'approval:completed' })
+        return
+      }
 
-    if (allowanceValue >= parsedAmount) {
-      return
+      errorCode = 'signing_failed'
+      onUpdate?.({ type: 'approval:signing' })
+      const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
+        asset.address,
+        'approve(address,uint256)',
+        {
+          feeLimit: 100_000_000,
+        },
+        [
+          { type: 'address', value: toAddress },
+          { type: 'uint256', value: parsedAmount.toString() },
+        ],
+        fromAddress,
+      )
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      errorCode = 'broadcast_failed'
+      transactionHash = await this._sendTransaction(tx)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      errorCode = 'confirmation_failed'
+      onUpdate?.({ type: 'approval:confirming' })
+      await this.waitForTransaction(transactionHash, params, 'approve')
+      onUpdate?.({ type: 'approval:completed' })
+      return transactionHash
     }
-
-    onUpdate?.({ type: 'approval:signing' })
-    const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
-      asset.address,
-      'approve(address,uint256)',
-      {
-        feeLimit: 100_000_000,
-      },
-      [
-        { type: 'address', value: toAddress },
-        { type: 'uint256', value: parsedAmount.toString() },
-      ],
-      fromAddress,
-    )
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    const approveHash = await this._sendTransaction(tx)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    onUpdate?.({ type: 'approval:confirming' })
-    await this.waitForTransaction(approveHash)
-    onUpdate?.({ type: 'approval:completed' })
-
-    return approveHash
+    catch (cause) {
+      const error = this.toExecutorError(cause, errorCode, params, 'approve', transactionHash)
+      onUpdate?.({ type: 'failed', error })
+      throw error
+    }
   }
 
   async transfer(params: ChainExecutorTransferParams<TronAsset>, onUpdate?: (event: ExecutorEvent) => void) {
-    this.validateAsset(params.asset)
     const { asset, amount, fromAddress, toAddress } = params
-    const parsedAmount = parseUnits(amount, asset.decimals)
+    let transactionHash: string | undefined
+    let errorCode: ExecutorErrorCode = 'invalid_amount'
 
-    this.tronWeb.setAddress(fromAddress)
-    onUpdate?.({ type: 'transfer:preparing' })
-    const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
-      asset.address,
-      'transfer(address,uint256)',
-      {
-        feeLimit: 100_000_000,
-      },
-      [
-        { type: 'address', value: toAddress },
-        { type: 'uint256', value: parsedAmount.toString() },
-      ],
-      fromAddress,
-    )
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    try {
+      this.validateAsset(asset)
+      const parsedAmount = parseUnits(amount, asset.decimals)
+      this.tronWeb.setAddress(fromAddress)
+      onUpdate?.({ type: 'transfer:preparing' })
+      errorCode = 'signing_failed'
+      const tx = await this.tronWeb.transactionBuilder.triggerSmartContract(
+        asset.address,
+        'transfer(address,uint256)',
+        {
+          feeLimit: 100_000_000,
+        },
+        [
+          { type: 'address', value: toAddress },
+          { type: 'uint256', value: parsedAmount.toString() },
+        ],
+        fromAddress,
+      )
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-    const hash = await this._sendTransaction(tx)
+      errorCode = 'broadcast_failed'
+      transactionHash = await this._sendTransaction(tx)
 
-    onUpdate?.({ type: 'transfer:confirming' })
-    await this.waitForTransaction(hash)
-    onUpdate?.({ type: 'transfer:completed' })
-    return hash
+      errorCode = 'confirmation_failed'
+      onUpdate?.({ type: 'transfer:confirming' })
+      await this.waitForTransaction(transactionHash, params, 'transfer')
+      onUpdate?.({ type: 'transfer:completed' })
+      return transactionHash
+    }
+    catch (cause) {
+      const error = this.toExecutorError(cause, errorCode, params, 'transfer', transactionHash)
+      onUpdate?.({ type: 'failed', error })
+      throw error
+    }
   }
 
   private async _sendTransaction(txWrapper: Types.TransactionWrapper) {
     if (!txWrapper.transaction?.raw_data?.contract?.[0]?.parameter?.value?.data) {
-      throw new Error('Failed to extract transaction data')
+      throw new ExecutorError('Failed to extract transaction data', { code: 'broadcast_failed' })
     }
 
     const isWalletConnect = this.connector.type === 'WALLET_CONNECT' || this.connector.id === 'walletConnect'
@@ -181,12 +217,18 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
 
     const result = await this.tronWeb.trx.sendRawTransaction(response as Types.SignedTransaction)
     if (!result.result) {
-      throw new Error(result.message || 'Failed to broadcast transaction')
+      throw new ExecutorError(result.message || 'Failed to broadcast transaction', {
+        code: 'broadcast_failed',
+      })
     }
     return result.txid
   }
 
-  private async waitForTransaction(hash: string) {
+  private async waitForTransaction(
+    hash: string,
+    params: ChainExecutorTransferParams<TronAsset> | ChainExecutorApproveParams<TronAsset>,
+    operation: 'approve' | 'transfer',
+  ) {
     // FIXME: use tronweb or new adapter for receipt waiting
     while (true) {
       const info = await this.tronWeb.trx.getTransactionInfo(hash)
@@ -199,10 +241,48 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         if (info.result && info.result !== 'SUCCESS') {
-          throw new Error(`Transaction failed: ${info.result}`)
+          throw new ExecutorError(`Transaction failed: ${info.result}`, {
+            code: 'transaction_reverted',
+            operation,
+            chain: 'tron',
+            chainId: params.asset.chain.id,
+            assetAddress: params.asset.address,
+            fromAddress: params.fromAddress,
+            toAddress: params.toAddress,
+            amount: params.amount,
+            transactionHash: hash,
+          })
         }
       }
       await new Promise(resolve => setTimeout(resolve, 4000))
     }
+  }
+
+  private toExecutorError(
+    cause: unknown,
+    code: ExecutorErrorCode,
+    params: ChainExecutorTransferParams<TronAsset> | ChainExecutorApproveParams<TronAsset>,
+    operation: 'approve' | 'transfer',
+    transactionHash?: string,
+  ): ExecutorError {
+    if (cause instanceof ExecutorError && cause.operation) {
+      return cause
+    }
+
+    return new ExecutorError(
+      operation === 'approve' ? 'Failed to approve token allowance' : 'Failed to transfer token',
+      {
+        cause,
+        code: cause instanceof ExecutorError ? cause.code : code,
+        operation,
+        chain: 'tron',
+        chainId: params.asset.chain.id,
+        assetAddress: params.asset.address,
+        fromAddress: params.fromAddress,
+        toAddress: params.toAddress,
+        amount: params.amount,
+        transactionHash,
+      },
+    )
   }
 }

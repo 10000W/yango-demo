@@ -15,7 +15,13 @@ import { createAppKitWalletButton, type Wallet } from '@reown/appkit-wallet-butt
 import { appKitNetworksMap } from '@/entities/appkit'
 import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/vue'
 import { AxiosError } from 'axios'
-import { EvmExecutor, ExecutorEvent, PayZapService, TronExecutor } from '@tac-crypto-payment/sdk'
+import {
+  EvmAsset,
+  EvmExecutor,
+  ExecutorEvent,
+  PayZapService,
+  TronExecutor,
+} from '@tac-crypto-payment/sdk'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { tronMainnet } from '@reown/appkit/networks'
 import { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
@@ -110,7 +116,7 @@ const isCorrectChain = computed(() => {
   if (!selectedAsset.value || !('chain' in selectedAsset.value) || !isConnected.value || !isNamespaceSupported.value) {
     return true
   }
-  return chainId.value === selectedAsset.value.chain.id
+  return +(chainId.value || 0) === selectedAsset.value.chain.id
 })
 const namespace = computed(() => {
   return selectedAsset.value && 'namespace' in selectedAsset.value
@@ -172,7 +178,11 @@ const switchNetwork = async () => {
     throw new Error('Unable to switch network, connector is not ready')
   }
 
-  const network = Object.values(appKitNetworksMap).find(n => n.id === asset.chain.id)
+  const network = Object.values(appKitNetworksMap).find((n) => {
+    console.log(+n.id, +asset.chain.id)
+    return +n.id === +asset.chain.id
+  })
+  console.log(asset.chain.id)
   if (!network) {
     throw new Error(`Unable to find network ${asset.chain.name} in current wallet.`)
   }
@@ -180,6 +190,7 @@ const switchNetwork = async () => {
   const appKitNetwork = useAppKitNetwork()
   await appKitNetwork.value.switchNetwork(network)
 
+  console.log(isCorrectChain.value)
   if (!isCorrectChain.value) {
     throw new Error(`Unable to switch network to ${asset.chain.name}.`)
   }

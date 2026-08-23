@@ -1,5 +1,5 @@
-import { inject, nextTick, ref, type Ref, watch } from 'vue'
-import type { TacCryptoPaymentOptions } from '@/TacCryptoPayment'
+import { nextTick, ref, type Ref, watch } from 'vue'
+import type { TacPaymentUIConfig } from '@/TacPaymentUI'
 import { useTimeoutPoll } from '@vueuse/core'
 import { type PaymentOption, paymentOptions } from '@/entities/payment'
 import { useAppKit } from '@/composables/useAppKit'
@@ -16,6 +16,7 @@ const txStatusMessage = ref('')
 const paymentMethods: Ref<unknown[]> = ref([])
 const product: Ref<PayZapProduct | undefined> = ref()
 const paymentSession: Ref<PayZapPayment | undefined> = ref()
+let uiConfig: TacPaymentUIConfig | undefined
 
 const createSession = async () => {
   console.log('create session', selectedChain.value, selectedAsset.value, product.value)
@@ -60,17 +61,25 @@ const updateSession = async () => {
 }
 const poll = useTimeoutPoll(updateSession, 3000, { immediate: false })
 
-const init = async () => {
-  const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
+const init = async (config: TacPaymentUIConfig) => {
+  uiConfig = config
+  if (config.flow === 'payment') {
+    if (!config.productId) {
+      throw new Error('Product id is not specified')
+    }
 
-  amount.value = options.amount || undefined
-  sdkInstance = new TacPaymentSdk({
-    service: 'payzap',
-    serviceParams: {
-      payzapUrl: options.payzapUrl,
-    },
-  })
-  product.value = await sdkInstance.getProduct(options.productId) as PayZapProduct
+    amount.value = config.amount || undefined
+    sdkInstance = new TacPaymentSdk({
+      service: 'payzap',
+      serviceParams: {
+        payzapUrl: config.payzapUrl,
+      },
+    })
+    product.value = await sdkInstance.getProduct(config.productId) as PayZapProduct
+  }
+  else {
+    throw new Error('Flow from config is not payment, usePayment is unsupported')
+  }
 }
 const reset = () => {
   poll.pause()
@@ -88,40 +97,17 @@ watch(() => paymentSession.value?.state, (val) => {
     case 'completed':
       poll.pause()
       if (val === 'completed' && paymentSession.value) {
-        // FIXME: options is undefined
-        const options = inject<TacCryptoPaymentOptions>('tacPaymentOptions')!
-
-        if (options?.onSuccess) {
-          options.onSuccess(paymentSession.value)
+        const config = uiConfig
+        if (config?.flow === 'payment' && config.onSuccess) {
+          config.onSuccess(paymentSession.value)
         }
       }
   }
 })
 
 export const usePayment = () => {
-  const { address, chainId, isConnected, walletInfo, isLoaded } = useAppKit()
+  const { address, chainId, isLoaded } = useAppKit()
 
-  const isOptionConnected = (option: PaymentOption) => {
-    if (!isConnected.value) {
-      return false
-    }
-
-    if (option.type !== 'blockchain') {
-      return false
-    }
-
-    const connectedName = walletInfo.value?.name?.toLowerCase() || ''
-    if (option.walletName) {
-      return connectedName.includes(option.walletName.toLowerCase())
-    }
-
-    const otherEvmOptions = paymentOptions.filter(o => o.type === 'blockchain' && o.walletName)
-    const matchesAnySpecific = otherEvmOptions.some(o =>
-      connectedName.includes(o.walletName!.toLowerCase()),
-    )
-
-    return !matchesAnySpecific
-  }
   const selectAsset = async (asset: Asset) => {
     selectedAsset.value = asset
     if ('namespace' in asset) {
@@ -137,7 +123,6 @@ export const usePayment = () => {
     updateSession,
     reset,
     selectAsset,
-    isOptionConnected,
     paymentMethods,
     product,
     amount,

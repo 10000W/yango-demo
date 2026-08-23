@@ -16,4 +16,5 @@ export const appKitNetworksMap = {
   base: base,
   baseSepolia: baseSepolia,
   tron: tronMainnet,
+  tronMainnet: tronMainnet,
 } as const

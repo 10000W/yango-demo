@@ -62,7 +62,15 @@
     color: var(--ypm-color-text-secondary)
   }
 
+  .c-text-warning {
+    color: var(--ypm-color-state-warning)
+  }
+
   .c-text-error {
     color: var(--ypm-color-state-error)
+  }
+
+  .c-text-success {
+    color: var(--ypm-color-state-success)
   }
 }

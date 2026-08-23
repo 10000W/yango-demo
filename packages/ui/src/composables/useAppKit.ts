@@ -19,39 +19,51 @@ import {
   tronMainnet,
 } from '@reown/appkit/networks'
 import { appKitNetworksMap } from '@/entities/appkit'
-import { Product } from '@tac-crypto-payment/sdk'
+import { PayZapProduct } from '@tac-crypto-payment/sdk'
 
 const isLoaded = ref(false)
 const isInitialized = ref(false)
 
 let modal: AppKit | undefined
 
-const init = (product: Product) => {
+const init = (product?: PayZapProduct) => {
   if (modal) {
     return modal
   }
   const adapters: ChainAdapter[] = []
   const networks: AppKitNetwork[] = []
 
-  if (product.availableChains.includes('evm')) {
+  if (!product) {
     adapters.push(wagmiAdapter)
-    product.evmNetworks.forEach((name) => {
-      networks.push(appKitNetworksMap[name])
-    })
+    Object.values(appKitNetworksMap).forEach(n => networks.push(n))
   }
+  else {
+    if (product.availableChains.includes('evm')) {
+      adapters.push(wagmiAdapter)
+      product.evmNetworks.forEach((name) => {
+        networks.push(appKitNetworksMap[name])
+      })
+    }
 
-  if (product.availableChains.includes('tron')) {
-    adapters.push(tronAdapter)
-    networks.push(tronMainnet)
+    console.log(product)
+    if (product.availableChains.includes('tron')) {
+      adapters.push(tronAdapter)
+      networks.push(tronMainnet)
+    }
   }
 
   if (!networks.length) {
     throw new Error('Networks are not provided')
   }
 
+  if (!networks.length) {
+    throw new Error('Networks are not provided')
+  }
+
+  console.log(adapters)
   modal = createAppKit({
     adapters,
-    networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia, tronMainnet],
+    networks: [mainnet, bsc, polygon, arbitrum, base, baseSepolia, tronMainnet], // TODO: hardcoded
     projectId: REOWN_PROJECT_ID,
     metadata: APP_METADATA,
     experimental_preferUniversalLinks: true,

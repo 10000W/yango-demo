@@ -28,8 +28,9 @@ const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
       const chainIds: (number | string)[] = product.value.evmNetworks
         .map(name => appKitNetworksMap[name].id)
       if (productAvailableChains.includes('tron')) {
-        chainIds.push(tronMainnet.id)
+        chainIds.push(+tronMainnet.id)
       }
+      console.log(chainIds, paymentOptionAssets)
       return paymentOptionAssets
         .filter(asset => chainIds.includes(asset.chain.id))
         .map(asset => ({

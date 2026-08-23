@@ -1,8 +1,5 @@
 export type ServiceErrorCode
-  = | 'cancelled'
-    | 'invalid_configuration'
-    | 'rate_limited'
-    | 'request_failed'
+  = 'cancelled' | 'invalid_configuration' | 'rate_limited' | 'request_failed'
 
 export class ServiceError extends Error {
   readonly code: ServiceErrorCode

@@ -14,7 +14,6 @@ const { icon = 'important', variant = 'info' } = defineProps<{
   >
     <BaseIcon
       :class="$style.icon"
-      class="c-text-primary"
       :name="icon"
     />
 
@@ -29,19 +28,35 @@ const { icon = 'important', variant = 'info' } = defineProps<{
   width: 100%;
   background-color: var(--ypm-color-bg-secondary);
 
+  .icon {
+    color: var(--ypm-color-brand-primary);
+  }
+
   &.is-error {
-    background-color: oklch(from var(--c-danger) l c h / 10%);
-    color: var(--c-danger);
+    background-color: oklch(from var(--ypm-color-state-error) l c h / 10%);
+    color: var(--ypm-color-state-error);
+
+    .icon {
+      color: inherit
+    }
   }
 
   &.is-warning {
-    background-color: oklch(from var(--c-warning) l c h / 10%);
-    color: var(--c-warning);
+    background-color: oklch(from var(--ypm-color-state-warning) l c h / 10%);
+    color: var(--ypm-color-state-warning);
+
+    .icon {
+      color: inherit
+    }
   }
 
   &.is-success {
-    background-color: oklch(from var(--c-success) l c h / 10%);
-    color: var(--c-success);
+    background-color: oklch(from var(--ypm-color-state-success) l c h / 10%);
+    color: var(--ypm-color-state-success);
+
+    .icon {
+      color: inherit
+    }
   }
 }
 
