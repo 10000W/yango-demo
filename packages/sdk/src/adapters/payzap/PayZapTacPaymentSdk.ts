@@ -1,4 +1,4 @@
-import { TacPaymentSdk } from '../../index'
+import { TacPaymentSdk } from '../../sdk'
 import { PayZapMandate } from './PayZapMandate'
 import { PayZapPayment, type PayZapPaymentCreateConfig } from './PayZapPayment'
 import { PayZapService } from './PayZapService'

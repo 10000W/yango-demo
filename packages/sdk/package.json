@@ -31,9 +31,14 @@
       "default": "./dist/index.js"
     },
     "./adapters/payzap": {
-      "types": "./dist/adapters/payzap.d.ts",
-      "import": "./dist/adapters/payzap.js",
-      "default": "./dist/adapters/payzap.js"
+      "types": "./dist/adapters/payzap/index.d.ts",
+      "import": "./dist/adapters/payzap/index.js",
+      "default": "./dist/adapters/payzap/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "default": "./dist/*.js"
     }
   },
   "main": "./dist/index.js",

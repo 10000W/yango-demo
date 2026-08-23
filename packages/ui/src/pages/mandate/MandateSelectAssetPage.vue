@@ -27,7 +27,7 @@ const tronAccount = useAppKitAccount({ namespace: 'tron' })
 const isSubmitting = ref(false)
 const submitError = ref('')
 
-const selectedAssetAddress = computed(() => selectedAsset.value.address)
+const selectedAssetAddress = computed(() => selectedAsset.value?.address)
 const assets: ComputedRef<Asset[]> = computed(() => {
   if (!selectedPaymentOption.value) {
     return []

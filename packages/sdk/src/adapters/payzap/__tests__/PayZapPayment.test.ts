@@ -4,9 +4,9 @@ import { EvmExecutor } from '../../EvmExecutor'
 import { PayZapPayment } from '../PayZapPayment'
 import type { PayZapService } from '../PayZapService'
 import type { PayZapSessionData } from '../types'
-import type { EvmAsset } from '../../../asset'
+import { Asset } from '@tac-crypto-payment/sdk'
 
-const asset: EvmAsset = {
+const asset: Asset = {
   name: 'USD Coin',
   symbol: 'USDC',
   namespace: 'eip155',
@@ -20,7 +20,7 @@ const createSession = (overrides: Partial<PayZapSessionData> = {}): PayZapSessio
   merchantId: 'merchant-1',
   status: 'pending',
   amount: '5.00',
-  payerAmount: '5.10',
+  payerAmount: null,
   asset: 'USDC',
   chain: 'evm',
   merchantWallet: '0x1111111111111111111111111111111111111111',
@@ -59,8 +59,8 @@ const createPayment = (service: PayZapService) => PayZapPayment.create({
 })
 
 describe('PayZapPayment', () => {
-  it('uses the refreshed server payer amount for the transfer', async () => {
-    const payment = await createPayment(createService(createSession(), createSession({ payerAmount: '5.25' })))
+  it('uses the refreshed server amount for the transfer', async () => {
+    const payment = await createPayment(createService(createSession(), createSession({ amount: '5.25' })))
     const executor = createExecutor()
     await payment.pay({ executor, fromAddress: '0x2222222222222222222222222222222222222222' })
     expect(executor.transfer).toHaveBeenCalledWith(expect.objectContaining({ amount: '5.25' }), undefined)
@@ -83,7 +83,7 @@ describe('PayZapPayment', () => {
     })).rejects.toMatchObject({ code: 'session_mismatch' })
     expect(executor.transfer).not.toHaveBeenCalled()
   })
-  it('rejects a session with an invalid payer amount', async () => {
-    await expect(createPayment(createService(createSession({ payerAmount: '0' })))).rejects.toMatchObject({ code: 'session_mismatch' })
+  it('rejects a session with an invalid amount', async () => {
+    await expect(createPayment(createService(createSession({ amount: '0' })))).rejects.toMatchObject({ code: 'session_mismatch' })
   })
 })

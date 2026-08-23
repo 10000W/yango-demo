@@ -22,7 +22,6 @@ import {
 } from '@tac-crypto-payment/sdk'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { tronMainnet } from '@reown/appkit/networks'
-import { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 import { wagmiAdapter } from '@/entities/config'
 import { getWalletClient } from '@wagmi/core'
 
@@ -220,7 +219,6 @@ const pay = async () => {
       : (executor instanceof TronExecutor)
           ? tronAccount.value.address!
           : '0x0',
-    amount: paymentSession.value.session.amount,
     executor,
   }, onUpdateStatus)
 }

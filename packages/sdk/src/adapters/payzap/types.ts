@@ -21,7 +21,7 @@ export type PayZapSessionData = {
   exchangePayQr: string | null
   gasless: boolean
   gasFeeUsd: string
-  payerAmount: string
+  payerAmount: string | null
   permitData: string | null
   gasMode: string
   gasSponsored: boolean

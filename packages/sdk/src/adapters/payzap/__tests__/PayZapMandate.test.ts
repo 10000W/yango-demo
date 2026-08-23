@@ -3,6 +3,7 @@ import type { IChainExecutor } from '../../../executor'
 import { MandateError } from '../../../mandate'
 import { PayZapMandate } from '../PayZapMandate'
 import type { PayZapService } from '../PayZapService'
+import { Asset } from '../../../asset'
 import { evmAsset, mandateData } from '../../../__tests__/fixtures'
 
 const createService = () => ({
@@ -39,7 +40,7 @@ describe('PayZapMandate', () => {
       type: 'evm',
       approve: vi.fn().mockResolvedValue(undefined),
       transfer: vi.fn(),
-    } as IChainExecutor<typeof evmAsset>
+    } as unknown as IChainExecutor<Asset>
 
     await mandate.approve({
       executor,

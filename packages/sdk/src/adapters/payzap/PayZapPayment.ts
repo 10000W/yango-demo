@@ -69,6 +69,8 @@ export class PayZapPayment implements IPayment {
     this.session = session
     this.asset = options.asset
     this.abortController = options.abortController ?? new AbortController()
+
+    this.validateSession(session)
   }
 
   static async create(options: PayZapPaymentCreateConfig): Promise<PayZapPayment> {
@@ -150,7 +152,9 @@ export class PayZapPayment implements IPayment {
       return
     }
     try {
-      this.session = await this.service.getSession(this.session.id)
+      const session = await this.service.getSession(this.session.id)
+      this.validateSession(session)
+      this.session = session
       this.state = this.getStateFromPayZapSession(this.session)
       if (!this.isSponsored) {
         this.isSponsored = this.getIsSponsoredStateFromPayZapSession(this.session)
@@ -158,6 +162,9 @@ export class PayZapPayment implements IPayment {
       return this.session
     }
     catch (cause) {
+      if (cause instanceof PaymentError) {
+        throw cause
+      }
       throw this.toPaymentError(cause, 'session_refresh_failed')
     }
   }
@@ -265,12 +272,16 @@ export class PayZapPayment implements IPayment {
 
     this.state = 'paying'
     try {
+      await this.refresh()
+
       let submission: PayZapPaymentSubmission
+      const amount = this.session.amount
+
       if (executor instanceof EvmExecutor) {
-        submission = await this.evmPay(executor, fromAddress, this.session.amount, onUpdate)
+        submission = await this.evmPay(executor, fromAddress, amount, onUpdate)
       }
       else if (executor instanceof TronExecutor) {
-        submission = await this.tronPay(executor, fromAddress, this.session.amount, onUpdate)
+        submission = await this.tronPay(executor, fromAddress, amount, onUpdate)
       }
       else {
         throw this.toPaymentError(undefined, 'unsupported_executor', 'Unsupported executor')
@@ -283,6 +294,28 @@ export class PayZapPayment implements IPayment {
       const error = this.toPaymentError(e, 'unknown')
       this.state = 'idle'
       throw error
+    }
+  }
+
+  private validateSession(session: PayZapSessionData) {
+    if (!Number.isFinite(+session.amount) || +session.amount <= 0) {
+      throw this.toPaymentError(`Wrong amount: ${session.amount}`, 'session_mismatch', 'Session has invalid amount')
+    }
+
+    if (session.asset !== this.asset.symbol) {
+      throw this.toPaymentError(`Asset mismatch: ${session.asset} !== ${this.asset.symbol}`, 'session_mismatch', 'Session asset mismatch')
+    }
+
+    const tokenAddress = (this.asset as EvmAsset | TronAsset).address
+    if (tokenAddress && session.metadata?.tokenAddress) {
+      const sessionTokenAddress = session.metadata.tokenAddress
+      const mismatch = this.asset.namespace === 'eip155'
+        ? sessionTokenAddress.toLowerCase() !== tokenAddress.toLowerCase()
+        : sessionTokenAddress !== tokenAddress
+
+      if (mismatch) {
+        throw this.toPaymentError(`Token address mismatch: ${sessionTokenAddress} !== ${tokenAddress}`, 'session_mismatch', 'Session token address mismatch')
+      }
     }
   }
 

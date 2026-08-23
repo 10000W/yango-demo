@@ -1,6 +1,5 @@
 import { type PaymentOption, type PaymentOptionChainNamespace } from '@/entities/payment'
 import { Asset, evmAssets, tronAssets } from '@tac-crypto-payment/sdk'
-import type { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 
 const chainIconUrls: Record<string, string> = {
   polygon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png',

@@ -32,7 +32,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@tac-crypto-payment/sdk/': fileURLToPath(new URL('../sdk/src/', import.meta.url)),
-      '@tac-crypto-payment/sdk': fileURLToPath(new URL('../sdk/index.ts', import.meta.url)),
+      '@tac-crypto-payment/sdk': fileURLToPath(new URL('../sdk/src/index.ts', import.meta.url)),
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },

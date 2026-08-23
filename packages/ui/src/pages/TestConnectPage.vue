@@ -78,7 +78,7 @@ const connectWallet = async (wallet: Wallet, namespace: 'eip155' | 'tron') => {
         :class="$style.infoCard"
         class="column gap-12"
       >
-        <div class="row items-center justify-between">
+        <div class="flex items-center justify-between">
           <h3 class="p2 w-700">
             Active Connection
           </h3>
@@ -88,15 +88,15 @@ const connectWallet = async (wallet: Wallet, namespace: 'eip155' | 'tron') => {
         </div>
 
         <div class="column gap-8">
-          <div class="row justify-between">
+          <div class="flex justify-between">
             <span class="p4 c-text-secondary">Wallet</span>
             <span class="p4 w-600">{{ appKitWalletName }}</span>
           </div>
-          <div class="row justify-between">
+          <div class="flex justify-between">
             <span class="p4 c-text-secondary">Network</span>
             <span class="p4 w-600">{{ caipNetwork?.name || 'Unknown' }}</span>
           </div>
-          <div class="row justify-between">
+          <div class="flex justify-between">
             <span class="p4 c-text-secondary">Chain ID</span>
             <span class="p4 w-600">{{ caipNetwork?.id || '-' }}</span>
           </div>
@@ -106,7 +106,7 @@ const connectWallet = async (wallet: Wallet, namespace: 'eip155' | 'tron') => {
           </div>
         </div>
 
-        <div class="row gap-8 mt-4">
+        <div class="flex gap-8 mt-4">
           <BaseButton
             size="small"
             @click="openProfile"

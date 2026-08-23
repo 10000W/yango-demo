@@ -13,22 +13,24 @@ export default defineConfig({
   plugins: [
     dts({
       tsconfigPath: './tsconfig.json',
-      include: ['src/**/*.ts', 'index.ts'],
-      exclude: ['src/**/*.test.ts'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/__tests__/**/*'],
       insertTypesEntry: true,
+      entryRoot: 'src',
     }),
   ],
   build: {
     lib: {
-      entry: {
-        'index': fileURLToPath(new URL('./index.ts', import.meta.url)),
-        'adapters/payzap': fileURLToPath(new URL('./src/adapters/payzap/index.ts', import.meta.url)),
-      },
+      entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
       formats: ['es'],
-      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       external: id => external.some(dep => id === dep || id.startsWith(`${dep}/`)),
+      output: {
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        entryFileNames: '[name].js',
+      },
     },
     sourcemap: true,
     emptyOutDir: true,

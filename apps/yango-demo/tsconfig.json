@@ -3,11 +3,11 @@
   "compilerOptions": {
     "composite": true,
     "paths": {
-      "@tac-crypto-payment/sdk": ["../../packages/sdk/index.ts"],
+      "@tac-crypto-payment/sdk": ["../../packages/sdk/src/index.ts"],
       "@tac-crypto-payment/ui": ["../../packages/ui/src/index.ts"],
       "@/*": ["../../packages/ui/src/*"],
       "src": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "../../packages/sdk/index.ts", "../../packages/sdk/src/**/*"]
+  "include": ["src/**/*", "../../packages/sdk/src/**/*"]
 }
