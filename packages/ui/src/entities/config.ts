@@ -27,23 +27,23 @@ export const wagmiAdapter = new WagmiAdapter({
 export const tronAdapter = new TronAdapter({
   networks: [tronMainnet],
   walletAdapters: [
-    new WalletConnectAdapter({
-      network: 'Mainnet',
-      options: {
-        projectId: REOWN_PROJECT_ID,
-        metadata: APP_METADATA,
-      },
-      enableAnalytics: false,
-      debug: true,
-    }),
-    new TronLinkAdapter({
-      openAppWithDeeplink: true,
-      openTronLinkAppOnMobile: false,
-      openUrlWhenWalletNotFound: false,
-      checkTimeout: 3000,
-      dappIcon: APP_METADATA.icons[0],
-      dappName: APP_METADATA.name,
-    }),
+    // new WalletConnectAdapter({
+    //   network: 'Mainnet',
+    //   options: {
+    //     projectId: REOWN_PROJECT_ID,
+    //     metadata: APP_METADATA,
+    //   },
+    //   enableAnalytics: false,
+    //   debug: true,
+    // }),
+    // new TronLinkAdapter({
+    //   openAppWithDeeplink: true,
+    //   openTronLinkAppOnMobile: false,
+    //   openUrlWhenWalletNotFound: false,
+    //   checkTimeout: 3000,
+    //   dappIcon: APP_METADATA.icons[0],
+    //   dappName: APP_METADATA.name,
+    // }),
     new MetaMaskAdapter(),
     new TrustAdapter(),
   ],
