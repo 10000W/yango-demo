@@ -1,3 +1,5 @@
+import { SdkError } from '../SdkError'
+
 export type ExecutorErrorCode
   = | 'unknown'
     | 'transfer_failed'
@@ -15,7 +17,7 @@ export type ExecutorErrorCode
 export type ExecutorOperation = 'approve' | 'transfer' | 'sign'
 export type ExecutorChain = 'eip155' | 'tron'
 
-export class ExecutorError extends Error {
+export class ExecutorError extends SdkError {
   readonly code: ExecutorErrorCode
   readonly status?: number
   readonly retryable: boolean

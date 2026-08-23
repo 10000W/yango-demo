@@ -1,20 +1,18 @@
-export type SdkErrorCode = 'unsupported_chain'
-
 export class SdkError extends Error {
-  readonly code: SdkErrorCode
+  readonly code: string
   readonly details?: Readonly<Record<string, unknown>>
 
   constructor(
     message: string,
     options: {
       cause?: unknown
-      code?: SdkErrorCode
+      code?: string
       details?: Readonly<Record<string, unknown>>
     } = {},
   ) {
     super(message, { cause: options.cause })
     this.name = 'SdkError'
-    this.code = options.code ?? 'unsupported_chain'
+    this.code = options.code ?? 'unknown'
     this.details = options.details
   }
 }

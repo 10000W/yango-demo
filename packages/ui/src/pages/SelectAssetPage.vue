@@ -8,7 +8,6 @@ import { computed, ComputedRef } from 'vue'
 import { appKitNetworksMap } from '@/entities/appkit'
 import { tronMainnet } from '@reown/appkit/networks'
 import { Asset } from '@tac-crypto-payment/sdk'
-import { PayZapService } from '@tac-crypto-payment/sdk'
 
 const router = useRouter()
 const { product, selectedPaymentOption, selectAsset, sdkInstance } = usePayment()
@@ -35,8 +34,8 @@ const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
         .filter(asset => chainIds.includes(asset.chain.id))
         .map(asset => ({
           ...asset,
-          gasless: product.value?.gasless.enabled && sdkInstance?.service instanceof PayZapService
-            ? !!sdkInstance?.service?.getSponsorshipMechanism(asset)
+          gasless: product.value?.gasless.enabled && sdkInstance?.service.getSponsorshipMechanism
+            ? !!sdkInstance.service.getSponsorshipMechanism(asset)
             : false,
         }))
     default:

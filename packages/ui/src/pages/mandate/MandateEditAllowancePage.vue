@@ -46,7 +46,10 @@ const save = () => {
 
 <template>
   <div class="column flex-1 gap-16">
-    <PageHeader title="Edit permission" />
+    <PageHeader
+      title="Edit permission"
+      back-route="/asset"
+    />
 
     <div class="column gap-24 flex-1">
       <div class="column gap-8">

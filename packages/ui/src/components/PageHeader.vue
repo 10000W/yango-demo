@@ -5,11 +5,12 @@ import { useRouter } from 'vue-router'
 const emit = defineEmits(['back'])
 const router = useRouter()
 
-defineProps<{ title?: string, backDisabled?: boolean }>()
+const { title = '', backRoute = '/' }
+  = defineProps<{ title?: string, backDisabled?: boolean, backRoute?: string }>()
 
 const handleBack = () => {
   emit('back')
-  router.replace('/')
+  router.replace(backRoute)
 }
 </script>
 

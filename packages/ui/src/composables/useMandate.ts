@@ -4,7 +4,7 @@ import {
   Asset, EvmAsset,
   EvmExecutor, IChainExecutor,
   PayZapMandate,
-  TacPaymentSdk,
+  createPayZapSdk,
   TronExecutor,
 } from '@tac-crypto-payment/sdk'
 import { PaymentOption } from '@/entities/payment'
@@ -16,7 +16,7 @@ import { getWalletClient } from '@wagmi/core'
 import { wagmiAdapter } from '@/entities/config'
 import { useAppKit } from '@/composables/useAppKit'
 
-let sdkInstance: TacPaymentSdk | undefined
+let sdkInstance: ReturnType<typeof createPayZapSdk> | undefined
 
 const { address } = useAppKit()
 
@@ -45,12 +45,7 @@ const init = async () => {
       throw new Error('Mandate id is not specified')
     }
 
-    sdkInstance = new TacPaymentSdk({
-      service: 'payzap',
-      serviceParams: {
-        payzapUrl: config.payzapUrl,
-      },
-    })
+    sdkInstance = createPayZapSdk(config.payzapUrl)
 
     mandate.value = await sdkInstance.getMandate(config.mandateId)
   }

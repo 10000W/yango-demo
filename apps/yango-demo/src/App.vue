@@ -32,7 +32,7 @@ const mountPaymentApp = async (
   })
 
   paymentApp.value = payment.mount()
-  if (routeName) {
+  if (routeName !== 'payment' && routeName !== 'mandate') {
     const router = paymentApp.value?.config?.globalProperties?.$router
     if (router) {
       router.push({ name: routeName })

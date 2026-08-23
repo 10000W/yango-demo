@@ -14,6 +14,7 @@ export default defineConfig({
     dts({
       tsconfigPath: './tsconfig.json',
       include: ['src/**/*.ts', 'index.ts'],
+      exclude: ['src/**/*.test.ts'],
       insertTypesEntry: true,
     }),
   ],

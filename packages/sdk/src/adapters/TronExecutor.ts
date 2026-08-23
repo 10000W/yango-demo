@@ -136,7 +136,7 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
     }
     catch (cause) {
       const error = this.toExecutorError(cause, errorCode, params, 'approve', transactionHash)
-      onUpdate?.({ type: 'failed', error })
+      onUpdate?.({ type: 'approval:failed', error })
       throw error
     }
   }
@@ -177,7 +177,7 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
     }
     catch (cause) {
       const error = this.toExecutorError(cause, errorCode, params, 'transfer', transactionHash)
-      onUpdate?.({ type: 'failed', error })
+      onUpdate?.({ type: 'transfer:failed', error })
       throw error
     }
   }

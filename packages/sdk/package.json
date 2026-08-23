@@ -1,6 +1,24 @@
 {
   "name": "@tac-crypto-payment/sdk",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for TAC crypto payments through PayZap.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/10000W/yango-demo.git",
+    "directory": "packages/sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/10000W/yango-demo/issues"
+  },
+  "homepage": "https://github.com/10000W/yango-demo#readme",
+  "keywords": [
+    "payments",
+    "crypto",
+    "web3",
+    "evm",
+    "tron"
+  ],
   "type": "module",
   "files": [
     "dist"
@@ -23,7 +41,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "vite build",
-    "type-check": "vue-tsc"
+    "type-check": "tsc -p tsconfig.test.json --noEmit",
+    "test": "vitest run",
+    "prepack": "npm run build && npm run type-check"
   },
   "dependencies": {
     "axios": "^1.19.0"
@@ -31,15 +51,13 @@
   "peerDependencies": {
     "@reown/appkit": "^1.8.23",
     "@reown/appkit-adapter-tron": "^1.8.23",
-    "@wagmi/core": "^3.6.4",
     "tronweb": "^6.5.0",
-    "viem": "^2.55.19",
-    "wagmi": "^3.7.6"
+    "viem": "^2.55.19"
   },
   "devDependencies": {
     "typescript": "~6.0.0",
     "vite": "^7.3.2",
     "vite-plugin-dts": "^5.0.0",
-    "vue-tsc": "^3.2.6"
+    "vitest": "^4.1.0"
   }
 }

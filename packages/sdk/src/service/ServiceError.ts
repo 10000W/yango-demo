@@ -1,7 +1,9 @@
+import { SdkError } from '../SdkError'
+
 export type ServiceErrorCode
   = 'cancelled' | 'invalid_configuration' | 'rate_limited' | 'request_failed'
 
-export class ServiceError extends Error {
+export class ServiceError extends SdkError {
   readonly code: ServiceErrorCode
   readonly status?: number
   readonly retryable: boolean

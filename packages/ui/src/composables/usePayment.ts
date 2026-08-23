@@ -3,10 +3,9 @@ import type { TacPaymentUIConfig } from '@/TacPaymentUI'
 import { useTimeoutPoll } from '@vueuse/core'
 import { type PaymentOption, paymentOptions } from '@/entities/payment'
 import { useAppKit } from '@/composables/useAppKit'
-import { type Asset, TacPaymentSdk } from '@tac-crypto-payment/sdk'
-import { PayZapChain, PayZapPayment, PayZapProduct } from '@tac-crypto-payment/sdk'
+import { type Asset, createPayZapSdk, PayZapChain, PayZapPayment, PayZapProduct } from '@tac-crypto-payment/sdk'
 
-let sdkInstance: TacPaymentSdk
+let sdkInstance: ReturnType<typeof createPayZapSdk>
 
 const amount: Ref<number | string | undefined> = ref()
 const selectedPaymentOption: Ref<PaymentOption | undefined> = ref()
@@ -29,7 +28,7 @@ const createSession = async () => {
   }
 
   try {
-    paymentSession.value = await sdkInstance.createPayment()({
+    paymentSession.value = await sdkInstance.createPayment({
       productId: product.value?.id,
       gasless: product.value.gasless.enabled || false,
       chain: selectedChain.value,
@@ -69,13 +68,8 @@ const init = async (config: TacPaymentUIConfig) => {
     }
 
     amount.value = config.amount || undefined
-    sdkInstance = new TacPaymentSdk({
-      service: 'payzap',
-      serviceParams: {
-        payzapUrl: config.payzapUrl,
-      },
-    })
-    product.value = await sdkInstance.getProduct(config.productId) as PayZapProduct
+    sdkInstance = createPayZapSdk(config.payzapUrl)
+    product.value = await sdkInstance.service.getProduct(config.productId) as PayZapProduct
   }
   else {
     throw new Error('Flow from config is not payment, usePayment is unsupported')

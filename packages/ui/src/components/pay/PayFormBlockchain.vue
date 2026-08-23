@@ -16,10 +16,8 @@ import { appKitNetworksMap } from '@/entities/appkit'
 import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/vue'
 import { AxiosError } from 'axios'
 import {
-  EvmAsset,
   EvmExecutor,
   ExecutorEvent,
-  PayZapService,
   TronExecutor,
 } from '@tac-crypto-payment/sdk'
 import { TronConnector } from '@reown/appkit-adapter-tron'
@@ -70,12 +68,7 @@ const onUpdateStatus = (event: ExecutorEvent) => {
     'approval:confirming': 'Confirming token approval...',
     'transfer:preparing': 'Preparing transfer...',
     'transfer:confirming': 'Confirming transfer...',
-    'payment:preparing': 'Preparing payment...',
-    'payment:sponsoring': 'Requesting gasless transaction...',
-    'payment:signing': 'Waiting for a signature...',
-    'payment:confirming': 'Confirming payment...',
-    'cancelled': 'Transaction cancelled',
-    'failed': 'Transaction failed',
+    'transfer:failed': 'Transaction failed',
   }
 
   txStatusMessage.value = statusMessages[event.type] || event.type
@@ -129,7 +122,7 @@ const gasless = computed(() => {
     return false
   }
 
-  return sdkInstance?.service instanceof PayZapService
+  return sdkInstance?.service.getSponsorshipMechanism
     ? sdkInstance.service.getSponsorshipMechanism(selectedAsset.value)
     : false
 })
@@ -227,7 +220,6 @@ const pay = async () => {
       : (executor instanceof TronExecutor)
           ? tronAccount.value.address!
           : '0x0',
-    amount: paymentSession.value.session.amount,
     executor,
   }, onUpdateStatus)
 }
@@ -298,8 +290,8 @@ load()
         </p>
 
         <p class="h3">
-          {{ formatNumber(paymentSession?.session.amount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary">
-            ≈ {{ formatNumber((Number(paymentSession?.session.amount || amount)), 2) }} $</span>
+          {{ formatNumber(paymentSession?.session.payerAmount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary">
+            ≈ {{ formatNumber((Number(paymentSession?.session.payerAmount || amount)), 2) }} $</span>
         </p>
       </div>
       <hr>

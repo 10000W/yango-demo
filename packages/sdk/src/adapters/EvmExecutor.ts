@@ -22,10 +22,6 @@ const assetAbi = parseAbi([
   'function transfer(address, uint256) returns ()',
 ])
 
-export type EvmExecutorEvents = {
-  status: string
-}
-
 export class EvmExecutor implements IChainExecutor<EvmAsset> {
   type = 'evm'
   client: WalletClient
@@ -143,7 +139,7 @@ export class EvmExecutor implements IChainExecutor<EvmAsset> {
     }
     catch (cause) {
       const error = this.toExecutorError(cause, errorCode, params, 'approve', transactionHash)
-      onUpdate?.({ type: 'failed', error })
+      onUpdate?.({ type: 'approval:failed', error })
       throw error
     }
   }
@@ -188,7 +184,7 @@ export class EvmExecutor implements IChainExecutor<EvmAsset> {
     }
     catch (cause) {
       const error = this.toExecutorError(cause, errorCode, params, 'transfer', transactionHash)
-      onUpdate?.({ type: 'failed', error })
+      onUpdate?.({ type: 'transfer:failed', error })
       throw error
     }
   }

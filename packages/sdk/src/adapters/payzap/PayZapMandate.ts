@@ -53,6 +53,7 @@ export class PayZapMandate implements IMandate {
     const { success, data } = await this.service.getMandateSetup(this.data.id)
     if (success) {
       this.data = data
+      this.methods = data.methods
       return data
     }
     return data
