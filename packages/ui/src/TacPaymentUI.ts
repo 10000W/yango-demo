@@ -5,6 +5,7 @@ import { PayZapPayment } from '@tac-crypto-payment/sdk'
 
 export interface TacPaymentUIBaseConfig {
   flow: 'payment' | 'mandate'
+  skipSetup?: boolean
   payzapUrl?: string
   elementSelector: string
   onClose?: () => void

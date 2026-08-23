@@ -19,6 +19,7 @@ const mountPaymentApp = async (
 
   const payment = new TacPaymentUI({
     flow: routeName === 'mandate' ? 'mandate' : 'payment',
+    skipSetup: routeName === 'test' || routeName === 'test-mandate-session',
     productId: routeName === 'test' || routeName === 'test-mandate-session'
       ? '12345678-1234-4444-4444-123456789012'
       : routeName === 'mandate' ? '' : productOrMandateSessionId!,
