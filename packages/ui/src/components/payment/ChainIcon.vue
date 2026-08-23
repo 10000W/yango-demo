@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { EvmAsset } from '@tac-crypto-payment/sdk'
-import type { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 import { getAssetIconUrl, getChainIconUrl } from '@/entities/asset'
 import { computed } from 'vue'
+import { Asset } from '@tac-crypto-payment/sdk'
 
 const props = defineProps<{
   chain: string
-  asset?: string | EvmAsset | TronAsset
+  asset?: string | Asset
 }>()
 
 const chainIcon = computed(() => getChainIconUrl(props.chain))

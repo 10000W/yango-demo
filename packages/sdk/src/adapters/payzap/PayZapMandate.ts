@@ -1,11 +1,11 @@
-import { IMandate, IMandateMethod } from '../../mandate'
+import { IMandate } from '../../mandate'
 import { PayZapService } from './PayZapService'
 import {
   PayZapMandateSetupData,
   PayZapMandateSetupDataMethod,
 } from './types'
 import { ExecutorEvent, IChainExecutor } from '../../executor'
-import { EvmAsset } from '../../asset'
+import { Asset } from '../../asset'
 import { MandateError } from '../../mandate'
 import { getNetworkName } from './network'
 
@@ -64,7 +64,7 @@ export class PayZapMandate implements IMandate {
   }
 
   async approve(
-    { asset, fromAddress, toAddress, amount, executor }: PayZapMandateAllowanceParams<EvmAsset>,
+    { asset, fromAddress, toAddress, amount, executor }: PayZapMandateAllowanceParams<Asset>,
     onUpdate?: ((event: ExecutorEvent) => void),
   ) {
     const network = getNetworkName(asset.chain.id)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SdkError } from '../../../SdkError'
+import { SdkError } from '../../../error'
 import { getNetworkName, payZapNetworksByChainId } from '../network'
 
 describe('PayZap network mapping', () => {

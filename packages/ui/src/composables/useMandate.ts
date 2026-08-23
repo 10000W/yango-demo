@@ -1,14 +1,14 @@
 import { computed, inject, Ref, ref } from 'vue'
 import type { TacPaymentUIConfig } from '@/TacPaymentUI'
 import {
-  Asset, EvmAsset,
-  EvmExecutor, IChainExecutor,
+  Asset,
+  EvmExecutor,
+  IChainExecutor,
   PayZapMandate,
   createPayZapSdk,
   TronExecutor,
 } from '@tac-crypto-payment/sdk'
 import { PaymentOption } from '@/entities/payment'
-import { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 import { tronMainnet } from '@reown/appkit/networks'
 import { useAppKitProvider } from '@reown/appkit/vue'
 import { TronConnector } from '@reown/appkit-adapter-tron'
@@ -22,14 +22,14 @@ const { address } = useAppKit()
 
 const mandate: Ref<PayZapMandate | undefined> = ref()
 const selectedPaymentOption: Ref<PaymentOption | undefined> = ref()
-const selectedAsset: Ref<EvmAsset | TronAsset | undefined> = ref()
+const selectedAsset: Ref<Asset | undefined> = ref()
 const allowanceAmount = ref('200')
 const isInfiniteAllowance = ref(false)
 
 const status = computed(() => mandate.value?.data.status)
 
 const createPaymentExecutor = async () => {
-  if ((selectedAsset.value as TronAsset)?.chain?.id === +tronMainnet.id) {
+  if (selectedAsset.value?.chain?.id === +tronMainnet.id) {
     const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
 
     return new TronExecutor(tronProvider!)

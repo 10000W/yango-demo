@@ -1,17 +1,15 @@
 // import { tronMainnet } from '@reown/appkit/networks'
 import { assets as evmAssets } from './evm'
-import { assets as tronAssets, TronAsset } from './tron'
+import { assets as tronAssets } from './tron'
 
 export type AssetNamespace = 'ton' | 'tron' | 'eip155'
-export type BaseAsset = {
+
+export type Asset = {
   name: string
-  symbol: string
+  namespace: AssetNamespace
   disabled?: boolean
   icon: string
-}
-
-export type EvmAsset = BaseAsset & {
-  namespace: AssetNamespace
+  symbol: string
   address: string
   chain: {
     id: number
@@ -21,6 +19,5 @@ export type EvmAsset = BaseAsset & {
   }
   decimals: number
 }
-export type Asset = BaseAsset | EvmAsset | TronAsset
 
 export { evmAssets, tronAssets }

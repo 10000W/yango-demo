@@ -1,7 +1,9 @@
 import { tronMainnet } from '@reown/appkit/networks'
-import { EvmAsset } from './index'
+import { Asset } from './index'
 
-export type TronAsset = EvmAsset
+export type TronAsset = Asset & {
+  namespace: 'tron'
+}
 export const assets: TronAsset[] = [
   {
     name: 'Tether',

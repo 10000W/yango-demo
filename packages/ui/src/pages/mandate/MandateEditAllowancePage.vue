@@ -5,8 +5,6 @@ import { useMandate } from '@/composables/useMandate'
 import PageHeader from '@/components/PageHeader.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
-import { EvmAsset } from '@tac-crypto-payment/sdk'
-import { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 
 const router = useRouter()
 const { allowanceAmount, isInfiniteAllowance, selectedAsset } = useMandate()
@@ -16,9 +14,7 @@ const localIsInfinite = ref(isInfiniteAllowance.value)
 
 const error = ref('')
 
-const assetSymbol = computed(() => {
-  return (selectedAsset.value as EvmAsset | TronAsset)?.symbol || 'USDT'
-})
+const assetSymbol = computed(() => selectedAsset.value?.symbol || 'UKWN')
 
 const validate = () => {
   if (localIsInfinite.value) {

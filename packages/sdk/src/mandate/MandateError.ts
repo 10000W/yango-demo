@@ -1,4 +1,4 @@
-import { SdkError } from '../SdkError'
+import { SdkError } from '../error'
 
 export type MandateErrorCode
   = 'setup_failed' | 'approve_failed' | 'request_failed' | 'invalid_id'

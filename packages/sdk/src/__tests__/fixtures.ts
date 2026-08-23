@@ -1,4 +1,4 @@
-import type { EvmAsset } from '../asset'
+import type { EvmAsset } from '../asset/evm'
 import type { TronAsset } from '../asset/tron'
 import type { PayZapMandateSetupData } from '../adapters/payzap'
 

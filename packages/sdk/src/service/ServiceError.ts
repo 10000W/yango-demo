@@ -1,4 +1,4 @@
-import { SdkError } from '../SdkError'
+import { SdkError } from '../error'
 
 export type ServiceErrorCode
   = 'cancelled' | 'invalid_configuration' | 'rate_limited' | 'request_failed'

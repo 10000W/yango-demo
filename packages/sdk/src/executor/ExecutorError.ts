@@ -1,4 +1,4 @@
-import { SdkError } from '../SdkError'
+import { SdkError } from '../error'
 
 export type ExecutorErrorCode
   = | 'unknown'

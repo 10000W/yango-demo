@@ -152,7 +152,7 @@ const load = async () => {
   }
 }
 const createPaymentExecutor = async () => {
-  if ((selectedAsset.value as TronAsset)?.chain?.id === +tronMainnet.id) {
+  if (selectedAsset.value?.chain?.id === +tronMainnet.id) {
     const { walletProvider: tronProvider } = useAppKitProvider<TronConnector>('tron')
 
     return new TronExecutor(tronProvider!)
@@ -220,6 +220,7 @@ const pay = async () => {
       : (executor instanceof TronExecutor)
           ? tronAccount.value.address!
           : '0x0',
+    amount: paymentSession.value.session.amount,
     executor,
   }, onUpdateStatus)
 }
@@ -290,8 +291,8 @@ load()
         </p>
 
         <p class="h3">
-          {{ formatNumber(paymentSession?.session.payerAmount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary">
-            ≈ {{ formatNumber((Number(paymentSession?.session.payerAmount || amount)), 2) }} $</span>
+          {{ formatNumber(paymentSession?.session.amount || amount) }} {{ selectedAsset.symbol }} <span class="c-text-secondary">
+            ≈ {{ formatNumber((Number(paymentSession?.session.amount || amount)), 2) }} $</span>
         </p>
       </div>
       <hr>

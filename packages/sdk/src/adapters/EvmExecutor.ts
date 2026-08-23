@@ -14,7 +14,7 @@ import {
   ExecutorError,
   ExecutorErrorCode,
 } from '../executor'
-import { EvmAsset } from '../asset'
+import { EvmAsset } from '../asset/evm'
 
 const assetAbi = parseAbi([
   'function approve(address, uint256) returns (bool)',

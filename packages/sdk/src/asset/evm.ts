@@ -6,8 +6,11 @@ import {
   mainnet,
   polygon,
 } from '@reown/appkit/networks'
-import { EvmAsset } from './index'
+import { Asset } from './index'
 
+export type EvmAsset = Asset & {
+  namespace: 'eip155'
+}
 export const assets: EvmAsset[] = [
   {
     name: 'Tether',

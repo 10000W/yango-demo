@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
-import { Asset, EvmAsset } from '../../asset'
+import { Asset } from '../../asset'
 import {
   PayZapCreateSessionOptions,
   PayZapDelegateEnergyResponse,
@@ -16,10 +16,18 @@ import {
 } from './types'
 import { PayZapProduct } from './PayZapProduct'
 import { IService, ISponsorshipService, ServiceError } from '../../service'
-import { arbitrum, base, bsc, polygon } from '@reown/appkit/networks'
+import { payZapNetworks } from './network'
 
-const permitChainIds: readonly number[] = [base.id, arbitrum.id, polygon.id]
-const sponsoredUsdtChainIds: readonly number[] = [arbitrum.id, polygon.id, bsc.id]
+const permitChainIds: readonly number[] = [
+  payZapNetworks.base.id,
+  payZapNetworks.arbitrum.id,
+  payZapNetworks.polygon.id,
+]
+const sponsoredUsdtChainIds: readonly number[] = [
+  payZapNetworks.arbitrum.id,
+  payZapNetworks.polygon.id,
+  payZapNetworks.bsc.id,
+]
 
 const postpone = (attempt: number): Promise<void> => {
   const delay = Math.min(1000 * attempt, 5000)
@@ -35,7 +43,7 @@ export class PayZapService implements IService, ISponsorshipService {
   name = 'payzap'
   http: AxiosInstance
   baseUrl: string
-  maxRetries = 10
+  maxRetries = 5
 
   constructor(baseUrl?: string) {
     this.baseUrl = baseUrl || 'https://api.payzap.cc'
@@ -56,7 +64,7 @@ export class PayZapService implements IService, ISponsorshipService {
         gasless: chain === 'evm' ? gasless : undefined,
         asset: asset.symbol,
         metadata: chain === 'evm'
-          ? { chainId: (asset as EvmAsset)?.chain?.id }
+          ? { chainId: asset.chain.id }
           : undefined,
       }, {
         signal: config?.abortSignal,
@@ -174,22 +182,21 @@ export class PayZapService implements IService, ISponsorshipService {
   }
 
   getSponsorshipMechanism(asset: Asset): PayZapSponsorshipMechanism | null {
-    const evmAsset = asset as EvmAsset
-    if (evmAsset.namespace === 'tron') {
-      return evmAsset.symbol === 'USDT' || evmAsset.symbol === 'USDC' ? 'delegate' : null
+    if (asset.namespace === 'tron') {
+      return asset.symbol === 'USDT' || asset.symbol === 'USDC' ? 'delegate' : null
     }
-    if (evmAsset.namespace !== 'eip155') {
+    if (asset.namespace !== 'eip155') {
       return null
     }
-    const chainId = evmAsset.chain.id
-    const symbol = evmAsset.symbol.toUpperCase()
+    const chainId = asset.chain.id
+    const symbol = asset.symbol.toUpperCase()
     if (symbol === 'USDC' && permitChainIds.includes(chainId)) {
       return 'permit'
     }
     if (symbol === 'USDT' && sponsoredUsdtChainIds.includes(chainId)) {
       return 'sponsor'
     }
-    if (symbol === 'USDC' && chainId === bsc.id) {
+    if (symbol === 'USDC' && chainId === payZapNetworks.bsc.id) {
       return 'sponsor'
     }
     return null

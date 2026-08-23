@@ -1,5 +1,5 @@
 import { type PaymentOption, type PaymentOptionChainNamespace } from '@/entities/payment'
-import { EvmAsset, evmAssets, tronAssets } from '@tac-crypto-payment/sdk'
+import { Asset, evmAssets, tronAssets } from '@tac-crypto-payment/sdk'
 import type { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 
 const chainIconUrls: Record<string, string> = {
@@ -12,7 +12,7 @@ const chainIconUrls: Record<string, string> = {
 
 export const getChainIconUrl = (chain: string) => chainIconUrls[chain.toLowerCase()]
 
-export const getAssetIconUrl = (asset?: string | EvmAsset | TronAsset) => {
+export const getAssetIconUrl = (asset?: string | Asset) => {
   if (typeof asset !== 'string') {
     return asset?.icon
   }
@@ -28,7 +28,7 @@ export const getAssetsByPaymentOption = (option: PaymentOption) => {
     return []
   }
 
-  const assets: EvmAsset[] = []
+  const assets: Asset[] = []
   if (option.namespaces.includes('eip155')) {
     assets.push(...evmAssets)
   }

@@ -4,12 +4,11 @@ import PageHeader from '@/components/PageHeader.vue'
 import { computed, ComputedRef, ref } from 'vue'
 import { appKitNetworksMap } from '@/entities/appkit'
 import { tronMainnet } from '@reown/appkit/networks'
-import { Asset, EvmAsset } from '@tac-crypto-payment/sdk'
+import { Asset } from '@tac-crypto-payment/sdk'
 import { useMandate } from '@/composables/useMandate'
 import AssetOptionSelectable from '@/components/assets/AssetOptionSelectable.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
-import { TronAsset } from '@tac-crypto-payment/sdk/asset/tron'
 import { useRouter } from 'vue-router'
 import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/vue'
 import { useAppKit } from '@/composables/useAppKit'
@@ -28,9 +27,7 @@ const tronAccount = useAppKitAccount({ namespace: 'tron' })
 const isSubmitting = ref(false)
 const submitError = ref('')
 
-const selectedAssetAddress = computed(() => {
-  return (selectedAsset.value as EvmAsset)?.address
-})
+const selectedAssetAddress = computed(() => selectedAsset.value.address)
 const assets: ComputedRef<Asset[]> = computed(() => {
   if (!selectedPaymentOption.value) {
     return []
@@ -74,7 +71,7 @@ const isCorrectChain = computed(() => {
   return +(chainId.value || 0) === selectedAsset.value.chain.id
 })
 
-const onClickAsset = async (asset: EvmAsset | TronAsset) => {
+const onClickAsset = async (asset: Asset) => {
   console.log(asset)
   selectedAsset.value = asset
   // await selectAsset(asset)

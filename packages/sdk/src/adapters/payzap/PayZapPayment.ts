@@ -1,12 +1,14 @@
 import { PayZapService } from './PayZapService'
 import { EvmExecutor } from '../EvmExecutor'
 import { TronExecutor } from '../TronExecutor'
-import { Asset, EvmAsset } from '../../asset'
-import { PayZapChain, PayZapCreateSessionOptions, PayZapPermitDataResponse, PayZapSessionData } from './types'
+import { Asset } from '../../asset'
+import { PayZapCreateSessionOptions, PayZapPermitDataResponse, PayZapSessionData } from './types'
 import { SignTypedDataParameters } from 'viem'
 import { IPayment, PaymentError, PaymentErrorCode, PaymentState } from '../../payment'
 import { ExecutorError, ExecutorEvent, IExecutor } from '../../executor'
 import { ServiceError } from '../../service'
+import { EvmAsset } from '../../asset/evm'
+import { TronAsset } from '../../asset/tron'
 
 export type PayZapPaymentCreateConfig = PayZapCreateSessionOptions & {
   payzapUrl?: string
@@ -50,24 +52,9 @@ const getErrorMetadata = (cause: unknown) => ({
   status: cause instanceof ServiceError ? cause.status : undefined,
 })
 
-const isChainAsset = (asset: Asset): asset is EvmAsset => 'namespace' in asset
-
-const normalizeAddress = (address: string, namespace: EvmAsset['namespace']): string => {
-  return namespace === 'eip155' ? address.toLowerCase() : address
-}
-
-const isPositiveDecimalAmount = (amount: unknown): amount is string => {
-  if (typeof amount !== 'string' || !/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(amount)) {
-    return false
-  }
-
-  return /[1-9]/.test(amount)
-}
-
 export class PayZapPayment implements IPayment {
   private service: PayZapService
   private abortController: AbortController
-  private readonly chain: PayZapChain
   state: PaymentState = 'idle'
   asset: Asset
   session: PayZapSessionData
@@ -81,7 +68,6 @@ export class PayZapPayment implements IPayment {
     this.service = service
     this.session = session
     this.asset = options.asset
-    this.chain = options.chain
     this.abortController = options.abortController ?? new AbortController()
   }
 
@@ -97,9 +83,7 @@ export class PayZapPayment implements IPayment {
         idempotencyKey: options.idempotencyKey,
         abortSignal: options.abortController?.signal,
       })
-      const payment = new PayZapPayment(service, session, options)
-      payment.getAuthoritativeAmount()
-      return payment
+      return new PayZapPayment(service, session, options)
     }
     catch (cause) {
       if (cause instanceof PaymentError) {
@@ -259,7 +243,7 @@ export class PayZapPayment implements IPayment {
     try {
       const result = await executor.transfer({
         amount,
-        asset: this.asset as EvmAsset,
+        asset: this.asset as TronAsset,
         fromAddress,
         toAddress: this.session.merchantWallet,
       }, onUpdate)
@@ -279,18 +263,14 @@ export class PayZapPayment implements IPayment {
     }
     this.validateState()
 
-    await this.refresh()
-    this.validateState()
-    const amount = this.getAuthoritativeAmount()
-
     this.state = 'paying'
     try {
       let submission: PayZapPaymentSubmission
       if (executor instanceof EvmExecutor) {
-        submission = await this.evmPay(executor, fromAddress, amount, onUpdate)
+        submission = await this.evmPay(executor, fromAddress, this.session.amount, onUpdate)
       }
       else if (executor instanceof TronExecutor) {
-        submission = await this.tronPay(executor, fromAddress, amount, onUpdate)
+        submission = await this.tronPay(executor, fromAddress, this.session.amount, onUpdate)
       }
       else {
         throw this.toPaymentError(undefined, 'unsupported_executor', 'Unsupported executor')
@@ -321,34 +301,5 @@ export class PayZapPayment implements IPayment {
       code: cause instanceof ServiceError && cause.code === 'cancelled' ? 'cancelled' : code,
       ...metadata,
     })
-  }
-
-  private getAuthoritativeAmount(): string {
-    if (!isChainAsset(this.asset)) {
-      throw this.toPaymentError(undefined, 'session_mismatch', 'Payment asset is missing chain information')
-    }
-
-    const { session, asset } = this
-    if (session.chain !== this.chain) {
-      throw this.toPaymentError(undefined, 'session_mismatch', 'Payment session chain does not match the requested chain')
-    }
-
-    if (typeof session.asset !== 'string' || session.asset.toUpperCase() !== asset.symbol.toUpperCase()) {
-      throw this.toPaymentError(undefined, 'session_mismatch', 'Payment session asset does not match the requested asset')
-    }
-
-    if (!session.metadata || session.metadata.chainId !== asset.chain.id) {
-      throw this.toPaymentError(undefined, 'session_mismatch', 'Payment session chain ID does not match the requested asset')
-    }
-
-    if (typeof session.metadata.tokenAddress !== 'string' || normalizeAddress(session.metadata.tokenAddress, asset.namespace) !== normalizeAddress(asset.address, asset.namespace)) {
-      throw this.toPaymentError(undefined, 'session_mismatch', 'Payment session token address does not match the requested asset')
-    }
-
-    if (!isPositiveDecimalAmount(session.payerAmount)) {
-      throw this.toPaymentError(undefined, 'session_mismatch', 'Payment session has an invalid payer amount')
-    }
-
-    return session.payerAmount
   }
 }
