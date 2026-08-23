@@ -13,7 +13,6 @@ export interface TacPaymentUIBaseConfig {
 export interface TacPaymentUIPaymentConfig extends TacPaymentUIBaseConfig {
   flow: 'payment'
   productId: string
-  amount: number | string
   onSuccess?: (session: PayZapPayment) => void
 }
 

@@ -21,7 +21,11 @@ const isGlowVisible = computed(() => ['promo'].includes(route.name as string))
 
 onMounted(async () => {
   try {
-    if (config.flow === 'mandate') {
+    if (route.name !== 'test-mandate-session' && route.name !== 'test') {
+      console.log('Skipping setup...')
+      initAppKit()
+    }
+    else if (config.flow === 'mandate') {
       const { init } = useMandate()
       await init()
       initAppKit()

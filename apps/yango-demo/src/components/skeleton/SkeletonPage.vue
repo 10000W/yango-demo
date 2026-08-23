@@ -50,7 +50,6 @@ defineEmits<{
         >
           Manage mandate
         </BaseButton>
-
         <br>
         <BaseButton
           style="align-self: flex-start"
@@ -59,7 +58,6 @@ defineEmits<{
         >
           Test connections
         </BaseButton>
-
         <BaseButton
           style="align-self: flex-start"
           variant="secondary"
@@ -67,9 +65,6 @@ defineEmits<{
         >
           Test mandate session
         </BaseButton>
-
-        <div :class="$style.rect" />
-        <div :class="$style.rect" />
       </div>
     </div>
   </div>
@@ -79,8 +74,6 @@ defineEmits<{
 .skeleton {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
-  background: var(--ypm-color-bg-primary);
   padding: 24px;
   align-items: center;
 }
@@ -117,7 +110,7 @@ defineEmits<{
 
 .hero {
   width: 100%;
-  height: 240px;
+  height: 120px;
   border-radius: 16px;
   background: var(--ypm-color-bg-secondary);
 }

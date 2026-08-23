@@ -9,5 +9,11 @@
       "src": ["./src/*"]
     }
   },
-  "include": ["src/**/*", "../../packages/sdk/src/**/*"]
+  "include": [
+    "src/**/*",
+    "src/**/*.vue",
+    "../../packages/sdk/src/**/*",
+    "../../packages/ui/src/**/*",
+    "../../packages/ui/src/**/*.vue"
+  ]
 }

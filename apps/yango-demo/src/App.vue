@@ -17,17 +17,20 @@ const mountPaymentApp = async (
     paymentApp.value = null
   }
 
-  // product id ba280f9d-bc00-47be-b4b9-4dc1ac1900e8
-  // session id 3cda9e0c-91a6-4214-a173-5d160e2d800f
   const payment = new TacPaymentUI({
     flow: routeName === 'mandate' ? 'mandate' : 'payment',
-    productId: routeName === 'mandate' ? '' : productOrMandateSessionId!,
+    productId: routeName === 'test' || routeName === 'test-mandate-session'
+      ? '12345678-1234-4444-4444-123456789012'
+      : routeName === 'mandate' ? '' : productOrMandateSessionId!,
     mandateId: routeName === 'mandate' ? productOrMandateSessionId! : '',
-    amount: '0.01',
     payzapUrl: 'https://staging-api.payzap.cc',
     elementSelector: '#payment-container',
     onClose: () => {
       isModalOpen.value = false
+      // TODO: closing logic
+      // if (window) {
+      //   window.close()
+      // }
     },
   })
 
@@ -104,5 +107,6 @@ watch(isModalOpen, (isOpen) => {
 
 body {
   margin: 0;
+  background: var(--ypm-color-bg-primary);
 }
 </style>
