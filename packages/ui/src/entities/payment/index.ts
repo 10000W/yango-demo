@@ -1,8 +1,8 @@
-import binanceIcon from '@/assets/images/payment/binance.png'
-import bybitIcon from '@/assets/images/payment/bybit.png'
-import metamaskIcon from '@/assets/images/payment/metamask.png'
-import trustIcon from '@/assets/images/payment/trust.png'
-import yangoIcon from '@/assets/images/payment/yango.png'
+import binanceIcon from '@/public/images/payment/binance.png?no-inline'
+import bybitIcon from '@/public/images/payment/bybit.png?no-inline'
+import metamaskIcon from '@/public/images/payment/metamask.png?no-inline'
+import trustIcon from '@/public/images/payment/trust.png?no-inline'
+import yangoIcon from '@/public/images/payment/yango.png?no-inline'
 import {
   PaymentOption,
   PaymentOptionChainNamespace,

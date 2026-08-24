@@ -67,7 +67,7 @@ const init = async (config: TacPaymentUIConfig) => {
       throw new Error('Product id is not specified')
     }
 
-    amount.value = config.amount || undefined
+    amount.value = undefined
     sdkInstance = createPayZapSdk(config.payzapUrl)
     product.value = await sdkInstance.service.getProduct(config.productId) as PayZapProduct
   }

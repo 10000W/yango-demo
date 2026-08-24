@@ -67,6 +67,8 @@ const init = (product?: PayZapProduct) => {
     projectId: REOWN_PROJECT_ID,
     metadata: APP_METADATA,
     experimental_preferUniversalLinks: true,
+    enableBaseAccount: false,
+    enableCoinbase: false,
     features: {
       swaps: false,
       onramp: false,

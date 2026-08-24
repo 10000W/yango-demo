@@ -9,6 +9,7 @@ import BaseIcon from '@/components/base/BaseIcon.vue'
 import BaseSpinner from '@/components/base/BaseSpinner.vue'
 import { useAppKit } from '@/composables/useAppKit'
 import { PaymentState } from '@tac-crypto-payment/sdk'
+import tacImage from '@/public/images/tac.png?no-inline'
 
 const route = useRoute()
 const router = useRouter()
@@ -53,7 +54,7 @@ const description = computed(() => {
     case 'confirming':
       return 'Please wait while your transaction is being processed.'
     case 'completed':
-      return `${formatNumber(amount.value)} ${paymentSession.value?.asset.symbol}`
+      return `${formatNumber(paymentSession?.value?.session.amount || amount.value)} ${paymentSession.value?.asset.symbol}`
     default:
       return 'Please wait until transaction status is updated.'
   }
@@ -89,7 +90,7 @@ const paymentTypeIconUrl = computed(() => {
   if (selectedChain?.value === 'evm') {
     return walletInfo.value?.icon
   }
-  return '/tac.png'
+  return tacImage
 })
 
 const handleSubmit = () => {
@@ -220,7 +221,6 @@ const handleSubmit = () => {
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  //background-image: url("/card.png");
 }
 
 .loadingIcon {

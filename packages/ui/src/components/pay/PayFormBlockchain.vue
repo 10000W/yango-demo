@@ -415,7 +415,7 @@ load()
     >
       Pay now
       <span style="color: #F2EBFF26">·</span>
-      {{ formatNumber(amount) }} {{ selectedAsset.symbol }}
+      {{ formatNumber(paymentSession?.session.amount || amount) }} {{ selectedAsset.symbol }}
     </BaseButton>
   </form>
 </template>

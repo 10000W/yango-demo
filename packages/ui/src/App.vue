@@ -136,13 +136,6 @@ onMounted(async () => {
   }
 }
 
-.accoladeTac {
-  width: 16px;
-  height: 16px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-image: url(@/assets/images/tac.png);
-}
 </style>
 
 <style lang="scss">

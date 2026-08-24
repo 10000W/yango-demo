@@ -12,6 +12,9 @@
         },
         {
             "path": "./apps/yango-demo"
+        },
+        {
+            "path": "./apps/yango"
         }
     ]
 }

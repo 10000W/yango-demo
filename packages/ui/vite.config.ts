@@ -16,6 +16,7 @@ const external = [
 ]
 
 export default defineConfig({
+  base: './',
   plugins: [
     vue(),
     cssInjectedByJsPlugin(),

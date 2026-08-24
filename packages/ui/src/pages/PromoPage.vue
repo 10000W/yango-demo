@@ -2,8 +2,8 @@
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseIcon from '@/components/base/BaseIcon.vue'
-import cardImage from '@/assets/images/card.png'
-import cardPercent from '@/assets/images/percent.png'
+import cardImage from '@/public/images/card.png?no-inline'
+import percentImage from '@/public/images/percent.png?no-inline'
 
 const router = useRouter()
 
@@ -47,11 +47,11 @@ const onDismiss = () => {
       <div :class="$style.percents">
         <div
           :class="[$style.percent, $style._left]"
-          :style="{ backgroundImage: `url('${cardPercent}')` }"
+          :style="{ backgroundImage: `url('${percentImage}')` }"
         />
         <div
           :class="[$style.percent, $style._right]"
-          :style="{ backgroundImage: `url('${cardPercent}')` }"
+          :style="{ backgroundImage: `url('${percentImage}')` }"
         />
       </div>
     </div>

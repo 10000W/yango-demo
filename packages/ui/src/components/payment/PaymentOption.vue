@@ -93,10 +93,6 @@ const iconStyle = computed(() => {
   flex: 1;
 }
 
-.card {
-  background-image: url(@/assets/images/manifest-img.jpg);
-}
-
 .icon {
   width: 54px;
   height: 54px;
