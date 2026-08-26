@@ -27,19 +27,23 @@ type MandateSession = {
   [key: string]: unknown
 }
 
+type DepositDraft = Record<string, unknown>
+
 const apiKey = ref('')
 const customerRef = ref('')
 const accessToken = ref('')
 const merchant = ref<AuthData['merchant'] | null>(null)
 const sessionResponse = ref<ApiResponse<MandateSession> | null>(null)
+const depositDraftResponse = ref<ApiResponse<DepositDraft> | null>(null)
 const errorMessage = ref('')
 const isAuthenticating = ref(false)
 const isCreatingSession = ref(false)
 const isManagingSession = ref(false)
+const isCreatingDepositDraft = ref(false)
 
 const isAuthorized = computed(() => Boolean(accessToken.value))
 
-const post = async <T>(path: string, body: Record<string, string>, token?: string) => {
+const post = async <T>(path: string, body: Record<string, unknown>, token?: string) => {
   const response = await fetch(`${PAYZAP_API_URL}${path}`, {
     method: 'POST',
     headers: {
@@ -55,6 +59,30 @@ const post = async <T>(path: string, body: Record<string, string>, token?: strin
   }
 
   return result
+}
+
+const createDepositDraft = async () => {
+  errorMessage.value = ''
+  depositDraftResponse.value = null
+  isCreatingDepositDraft.value = true
+
+  try {
+    depositDraftResponse.value = await post<DepositDraft>('/v1/deposits/draft', {
+      partnerRef: 'fleet_4417',
+      fiatAmount: 500,
+      creditCurrency: 'USD',
+      asset: 'USDT',
+      metadata: {
+        source: 'test-mandate',
+      },
+    }, accessToken.value)
+  }
+  catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : 'Unable to create a B2B deposit draft.'
+  }
+  finally {
+    isCreatingDepositDraft.value = false
+  }
 }
 
 const authorize = async () => {
@@ -134,6 +162,7 @@ const reset = () => {
   accessToken.value = ''
   merchant.value = null
   sessionResponse.value = null
+  depositDraftResponse.value = null
   errorMessage.value = ''
 }
 </script>
@@ -181,6 +210,13 @@ const reset = () => {
             Merchant {{ merchant?.id }} · {{ merchant?.plan }}
           </span>
         </div>
+        <BaseButton
+          :loading="isCreatingDepositDraft"
+          wide
+          @click="createDepositDraft"
+        >
+          Create B2B deposit draft
+        </BaseButton>
 
         <form
           class="column gap-12"
@@ -248,6 +284,16 @@ const reset = () => {
           </a>
         </div>
         <pre :class="$style.response">{{ JSON.stringify(sessionResponse, null, 2) }}</pre>
+      </section>
+
+      <section
+        v-if="depositDraftResponse"
+        class="column gap-12"
+      >
+        <h2 class="h3">
+          B2B deposit draft response
+        </h2>
+        <pre :class="$style.response">{{ JSON.stringify(depositDraftResponse, null, 2) }}</pre>
       </section>
 
       <BaseButton

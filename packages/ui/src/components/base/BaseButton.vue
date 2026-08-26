@@ -1,26 +1,51 @@
 <script setup lang="ts">
-const { variant = 'primary', loading = false } = defineProps<{
+import { computed } from 'vue'
+
+const {
+  variant = 'primary',
+  loading = false,
+  wide = false,
+  disabled = false,
+  to = undefined,
+  href = undefined,
+} = defineProps<{
   variant?: 'primary' | 'secondary' | 'danger' | 'transparent'
   wide?: boolean
   disabled?: boolean
   loading?: boolean
+  to?: string | object
+  href?: string
 }>()
+
+const tag = computed(() => {
+  if (to) {
+    return 'router-link'
+  }
+  if (href) {
+    return 'a'
+  }
+  return 'button'
+})
 </script>
 
 <template>
-  <button
+  <component
+    :is="tag"
     class="base-button"
-    :class="[`is-${variant}`, wide && 'is-wide', loading && 'is-loading']"
-    type="button"
+    :class="[`is-${variant}`, wide && 'is-wide', loading && 'is-loading', (disabled || loading) && 'is-disabled']"
     v-bind="$attrs"
-    :disabled="loading || disabled"
+    :to="to"
+    :href="href"
+    :type="tag === 'button' ? 'button' : undefined"
+    :disabled="tag === 'button' ? (loading || disabled) : undefined"
+    :tabindex="(disabled || loading) ? -1 : undefined"
   >
     <span
       v-if="loading"
       class="spinner"
     />
     <slot v-else />
-  </button>
+  </component>
 </template>
 
 <style lang="scss" scoped>
@@ -59,21 +84,24 @@ const { variant = 'primary', loading = false } = defineProps<{
   user-select: none;
   touch-action: manipulation;
   outline: none;
+  text-decoration: none;
 
-  &:disabled {
+  &:disabled,
+  &.is-disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    pointer-events: none;
   }
 
   &.is-primary {
     background-color: var(--b-color-primary);
     color: var(--ypm-color-btn-main-text);
 
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-primary-hover);
     }
 
-    &:active:not(:disabled) {
+    &:active:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-primary-active);
       transform: scale(0.98);
     }
@@ -83,11 +111,11 @@ const { variant = 'primary', loading = false } = defineProps<{
     background-color: var(--b-color-secondary);
     color: var(--ypm-color-btn-secondary-text);
 
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-secondary-hover);
     }
 
-    &:active:not(:disabled) {
+    &:active:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-secondary-active);
       transform: scale(0.98);
     }
@@ -97,11 +125,11 @@ const { variant = 'primary', loading = false } = defineProps<{
     background-color: var(--b-color-danger);
     color: var(--ypm-color-btn-main-text);
 
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-danger-hover);
     }
 
-    &:active:not(:disabled) {
+    &:active:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-danger-active);
       transform: scale(0.98);
     }
@@ -111,11 +139,11 @@ const { variant = 'primary', loading = false } = defineProps<{
     background-color: transparent;
     color: var(--ypm-color-btn-secondary-text);
 
-    &:hover:not(:disabled) {
+    &:hover:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-transparent-hover);
     }
 
-    &:active:not(:disabled) {
+    &:active:not(:disabled):not(.is-disabled) {
       background-color: var(--b-color-transparent-active);
       transform: scale(0.98);
     }
@@ -127,7 +155,6 @@ const { variant = 'primary', loading = false } = defineProps<{
 
   &.is-loading {
     cursor: wait;
-    pointer-events: none;
   }
 }
 
