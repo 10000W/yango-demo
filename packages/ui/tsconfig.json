@@ -4,6 +4,7 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "verbatimModuleSyntax": false,
     "strict": true,
     "jsx": "preserve",
     "isolatedModules": true,

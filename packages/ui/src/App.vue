@@ -139,8 +139,6 @@ onMounted(async () => {
 </style>
 
 <style lang="scss">
-@use "@/assets/styles/main" as *;
-
 .fade-enter-active {
   transition: opacity .2s ease;
 }

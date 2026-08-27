@@ -17,7 +17,10 @@ const errorMessage = computed(() => props.message
 </script>
 
 <template>
-  <div :class="$style.ErrorPage">
+  <div
+    :class="$style.ErrorPage"
+    class="flex-1"
+  >
     <div :class="$style.content">
       <BaseIcon
         name="important"

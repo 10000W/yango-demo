@@ -11,7 +11,7 @@
 <style module lang="scss">
 .StackableCard {
   padding: 16px 24px;
-  background: #231E27;
+  background: var(--ypm-color-btn-secondary-bg);
   border-radius: 0;
 
   &:first-child {

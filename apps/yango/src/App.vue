@@ -2,11 +2,13 @@
 </script>
 
 <template>
-  <RouterView
-    v-slot="{ Component }"
-  >
-    <component :is="Component" />
-  </RouterView>
+  <main class="tac-crypto-payment">
+    <RouterView
+      v-slot="{ Component }"
+    >
+      <component :is="Component" />
+    </RouterView>
+  </main>
 </template>
 
 <style>
@@ -23,7 +25,7 @@ body {
   background: var(--ypm-color-bg-primary);
 }
 
-#ui-container {
+main {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;

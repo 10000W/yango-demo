@@ -6,14 +6,22 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/tac-crypto-payment-ui.js",
+      "import": "./dist/index.js",
       "development": "./src/index.ts",
-      "default": "./dist/tac-crypto-payment-ui.js"
+      "default": "./dist/index.js"
     },
+    "./TacPaymentUI": {
+      "types": "./dist/TacPaymentUI.d.ts",
+      "import": "./dist/TacPaymentUI.js",
+      "development": "./src/TacPaymentUI.ts",
+      "default": "./dist/TacPaymentUI.js"
+    },
+    "./style.css": "./dist/ui.css",
+    "./main.scss": "./src/assets/styles/main.scss",
     "./*": "./src/*"
   },
-  "main": "./dist/tac-crypto-payment-ui.js",
-  "module": "./dist/tac-crypto-payment-ui.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "vite build",

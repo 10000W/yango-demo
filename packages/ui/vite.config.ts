@@ -2,7 +2,6 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import dts from 'vite-plugin-dts'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { readFileSync } from 'node:fs'
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'))
@@ -19,11 +18,10 @@ export default defineConfig({
   base: './',
   plugins: [
     vue(),
-    cssInjectedByJsPlugin(),
     dts({
       tsconfigPath: './tsconfig.json',
       cleanVueFileName: true,
-      include: ['src/index.ts', 'src/vite-env.d.ts'],
+      include: ['src/index.ts', 'src/TacPaymentUI.ts', 'src/vite-env.d.ts'],
       entryRoot: 'src',
       compilerOptions: {
         composite: false,
@@ -40,9 +38,12 @@ export default defineConfig({
   build: {
     lib: {
       formats: ['es'],
-      entry: fileURLToPath(new URL('./src/index', import.meta.url)),
+      entry: {
+        index: fileURLToPath(new URL('./src/index', import.meta.url)),
+        TacPaymentUI: fileURLToPath(new URL('./src/TacPaymentUI', import.meta.url)),
+      },
       name: 'TacCryptoPaymentUI',
-      fileName: () => 'tac-crypto-payment-ui.js',
+      fileName: (format, entryName) => `${entryName}.js`,
     },
     target: 'esnext',
     outDir: 'dist',
@@ -56,7 +57,6 @@ export default defineConfig({
           'vue': 'Vue',
           'vue-router': 'VueRouter',
         },
-        inlineDynamicImports: true,
       },
     },
   },

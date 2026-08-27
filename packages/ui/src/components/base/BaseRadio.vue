@@ -3,10 +3,10 @@ import BaseIcon from '@/components/base/BaseIcon.vue'
 import { computed } from 'vue'
 
 const { value, type = 'radio' } = defineProps<{
-  value: string
+  value: string | number
   type?: 'radio' | 'checkbox'
 }>()
-const model = defineModel<string>()
+const model = defineModel<string | number>()
 const isActive = computed(() => model.value === value)
 </script>
 

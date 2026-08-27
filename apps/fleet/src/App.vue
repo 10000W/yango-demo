@@ -2,9 +2,11 @@
 </script>
 
 <template>
-  <RouterView v-slot="{ Component }">
-    <component :is="Component" />
-  </RouterView>
+  <main class="tac-crypto-payment">
+    <RouterView v-slot="{ Component }">
+      <component :is="Component" />
+    </RouterView>
+  </main>
 </template>
 
 <style>

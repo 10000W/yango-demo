@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, type App } from 'vue'
 import SkeletonPage from './components/skeleton/SkeletonPage.vue'
-import { BaseBottomSheet, TacPaymentUI } from '@tac-crypto-payment/ui'
+import { BaseBottomSheet } from '@tac-crypto-payment/ui'
+import { TacPaymentUI } from '@tac-crypto-payment/ui/TacPaymentUI'
 const isModalOpen = ref(false)
 const paymentApp = ref<App | null>(null)
 

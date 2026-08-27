@@ -33,39 +33,37 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="tac-crypto-payment">
-    <div class="column align-center justify-center flex-1">
-      <TheHeader />
+  <div class="column align-center justify-center flex-1">
+    <TheHeader />
 
+    <div
+      :class="$style.content"
+      class="container flex-1 column"
+    >
       <div
-        :class="$style.content"
-        class="container flex-1 column"
+        v-if="isLoading"
+        class="flex justify-center py-64"
       >
-        <div
-          v-if="isLoading"
-          class="flex justify-center py-64"
-        >
-          <BaseSpinner>
-            <BaseIcon
-              style="color: var(--ypm-color-brand-primary)"
-              name="tac"
-              :size="38"
-            />
-          </BaseSpinner>
-        </div>
-        <RouterView
-          v-slot="{ Component }"
-        >
-          <component
-            :is="Component"
-            v-show="!isLoading"
+        <BaseSpinner>
+          <BaseIcon
+            style="color: var(--ypm-color-brand-primary)"
+            name="tac"
+            :size="38"
           />
-        </RouterView>
+        </BaseSpinner>
       </div>
-
-      <TheFooter />
+      <RouterView
+        v-slot="{ Component }"
+      >
+        <component
+          :is="Component"
+          v-show="!isLoading"
+        />
+      </RouterView>
     </div>
-  </main>
+
+    <TheFooter />
+  </div>
 </template>
 
 <style module>
@@ -76,7 +74,7 @@ onMounted(async () => {
 </style>
 
 <style>
-.tac-crypto-payment {
+main {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
