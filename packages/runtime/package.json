@@ -13,12 +13,10 @@
   },
   "dependencies": {
     "@reown/appkit": "^1.8.23",
-    "@reown/appkit-adapter-tron": "^1.8.23",
     "@reown/appkit-adapter-wagmi": "^1.8.23",
     "@reown/appkit-wallet-button": "^1.8.23",
     "@tac-crypto-payment/sdk": "workspace:*",
     "@tac-crypto-payment/ui": "workspace:*",
-    "@tronweb3/tronwallet-adapters": "^1.3.2",
     "@vueuse/core": "^14.2.1",
     "@wagmi/core": "^3.6.4",
     "tronweb": "^6.5.0",

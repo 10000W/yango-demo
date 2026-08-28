@@ -7,9 +7,8 @@ import {
   base,
   baseSepolia,
   tronMainnet,
+  tron,
 } from '@reown/appkit/networks'
-import { TronAdapter } from '@reown/appkit-adapter-tron'
-import { TrustAdapter, MetaMaskAdapter } from '@tronweb3/tronwallet-adapters'
 import manifestImage from '../public/images/manifest-img.jpg?url'
 
 // export const REOWN_PROJECT_ID = 'b56e18d47c72ab683b10814fe9495694' // localhost
@@ -22,30 +21,6 @@ export const APP_METADATA = {
 }
 
 export const wagmiAdapter = new WagmiAdapter({
-  networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia],
+  networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia, tron, tronMainnet],
   projectId: REOWN_PROJECT_ID,
-})
-export const tronAdapter = new TronAdapter({
-  networks: [tronMainnet],
-  walletAdapters: [
-    // new WalletConnectAdapter({
-    //   network: 'Mainnet',
-    //   options: {
-    //     projectId: REOWN_PROJECT_ID,
-    //     metadata: APP_METADATA,
-    //   },
-    //   enableAnalytics: false,
-    //   debug: true,
-    // }),
-    // new TronLinkAdapter({
-    //   openAppWithDeeplink: true,
-    //   openTronLinkAppOnMobile: false,
-    //   openUrlWhenWalletNotFound: false,
-    //   checkTimeout: 3000,
-    //   dappIcon: APP_METADATA.icons[0],
-    //   dappName: APP_METADATA.name,
-    // }),
-    new MetaMaskAdapter(),
-    new TrustAdapter(),
-  ],
 })

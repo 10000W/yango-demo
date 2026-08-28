@@ -8,3 +8,5 @@ allowBuilds:
   keccak: true
 overrides:
   '@wagmi/connectors': 8.1.0
+  vue: 3.5.41
+  vue-router: 5.2.0

@@ -28,6 +28,7 @@ export default defineConfig({
         'vue',
         '@tac-crypto-payment/ui',
         '@tac-crypto-payment/sdk',
+        /^@reown\//,
       ],
     },
   },
