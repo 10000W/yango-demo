@@ -11,6 +11,9 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@tac-crypto-payment/mandate": "workspace:*",
+    "@tac-crypto-payment/payment": "workspace:*",
+    "@tac-crypto-payment/runtime": "workspace:*",
     "@tac-crypto-payment/ui": "workspace:*",
     "@vueuse/core": "^14.3.0",
     "axios": "^1.19.0",

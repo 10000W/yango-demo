@@ -1,26 +1,23 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ErrorPage from '@/pages/ErrorPage.vue'
+import { createPaymentRoutes } from '@tac-crypto-payment/payment'
+import { createMandateRoutes } from '@tac-crypto-payment/mandate'
+
+const payzapUrl = 'https://staging-api.payzap.cc'
+const featureRoutes: RouteRecordRaw[] = [
+  ...(createPaymentRoutes({ payzapUrl }) as unknown as RouteRecordRaw[]),
+  ...(createMandateRoutes({ payzapUrl }) as unknown as RouteRecordRaw[]),
+]
 
 export const createAppRouter = (base = '/') => createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(base),
   routes: [
     {
       name: 'error',
       path: '/error',
       component: ErrorPage,
     },
-    {
-      name: 'payment',
-      path: '/payment/:id',
-      alias: '/pay/:id',
-      component: () => import('@/pages/PaymentPage.vue'),
-    },
-    {
-      name: 'setup',
-      path: '/setup/:id',
-      alias: '/mandate/:id',
-      component: () => import('@/pages/MandatePage.vue'),
-    },
+    ...featureRoutes,
     {
       path: '/:pathMatch(.*)*',
       component: ErrorPage,

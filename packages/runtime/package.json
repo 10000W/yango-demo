@@ -1,5 +1,5 @@
 {
-  "name": "@tac-crypto-payment/ui",
+  "name": "@tac-crypto-payment/runtime",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -7,19 +7,9 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "development": "./src/index.ts",
-      "default": "./dist/index.js"
+      "development": "./src/index.ts"
     },
-    "./style.css": "./dist/ui.css",
-    "./main.scss": "./src/assets/styles/main.scss",
-    "./*": "./src/*"
-  },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "build": "vite build",
-    "type-check": "vue-tsc --build"
+    "./style.css": "./dist/index.css"
   },
   "dependencies": {
     "@reown/appkit": "^1.8.23",
@@ -27,26 +17,27 @@
     "@reown/appkit-adapter-wagmi": "^1.8.23",
     "@reown/appkit-wallet-button": "^1.8.23",
     "@tac-crypto-payment/sdk": "workspace:*",
+    "@tac-crypto-payment/ui": "workspace:*",
     "@tronweb3/tronwallet-adapters": "^1.3.2",
     "@vueuse/core": "^14.2.1",
     "@wagmi/core": "^3.6.4",
-    "axios": "^1.19.0",
-    "qrcode.vue": "^3.8.1",
     "tronweb": "^6.5.0",
     "viem": "^2.55.19",
     "wagmi": "^3.7.6"
   },
-  "peerDependencies": {
-    "vue": "^3.5.31",
-    "vue-router": "^5.0.4"
+    "peerDependencies": {
+        "vue": "^3.5.31",
+        "vue-router": "^5.0.4"
+  },
+  "scripts": {
+    "build": "vite build",
+    "type-check": "vue-tsc --noEmit"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.58.7",
     "@vitejs/plugin-vue": "^6.0.5",
     "sass": "^1.99.0",
     "typescript": "~6.0.0",
     "vite": "^7.3.2",
-    "vite-plugin-css-injected-by-js": "^5.0.1",
     "vite-plugin-dts": "^5.0.0",
     "vue-tsc": "^3.2.6"
   }

@@ -11,6 +11,15 @@
             "path": "./packages/ui"
         },
         {
+            "path": "./packages/runtime"
+        },
+        {
+            "path": "./packages/payment"
+        },
+        {
+            "path": "./packages/mandate"
+        },
+        {
             "path": "./apps/yango-demo"
         },
         {

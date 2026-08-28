@@ -1,10 +1,8 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "verbatimModuleSyntax": false,
     "strict": true,
     "jsx": "preserve",
     "isolatedModules": true,
@@ -15,13 +13,15 @@
     ],
     "skipLibCheck": true,
     "noEmit": true,
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo"
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
+    }
   },
   "include": [
     "src/**/*"
-  ],
-  "exclude": [
-    "src/**/*.test.ts"
   ]
 }

@@ -6,9 +6,8 @@ const mandateSessionId = ref('')
 const productId = ref('')
 defineEmits<{
   'pay': [productId: string]
-  'test': [productId: string]
   'mandate': [sessionId: string]
-  'test-mandate-session': [productId: string]
+  'test-mandate-session': []
 }>()
 </script>
 
@@ -50,21 +49,14 @@ defineEmits<{
         >
           Manage mandate
         </BaseButton>
-        <br>
-        <BaseButton
-          style="align-self: flex-start"
-          variant="danger"
-          @click="$emit('test', productId)"
-        >
-          Test connections
-        </BaseButton>
         <BaseButton
           style="align-self: flex-start"
           variant="secondary"
-          @click="$emit('test-mandate-session', productId)"
+          @click="$emit('test-mandate-session')"
         >
           Test mandate session
         </BaseButton>
+        <br>
       </div>
     </div>
   </div>

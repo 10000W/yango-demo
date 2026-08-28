@@ -8,8 +8,12 @@
     "preview": "vite preview --port 3000"
   },
   "dependencies": {
+    "@tac-crypto-payment/mandate": "workspace:*",
+    "@tac-crypto-payment/payment": "workspace:*",
+    "@tac-crypto-payment/runtime": "workspace:*",
     "@tac-crypto-payment/ui": "workspace:*",
-    "vue": "^3.5.31"
+    "vue": "^3.5.31",
+    "vue-router": "^5.0.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.5",

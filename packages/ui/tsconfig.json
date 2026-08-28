@@ -9,16 +9,28 @@
     "jsx": "preserve",
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "skipLibCheck": true,
     "noEmit": true,
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
     "paths": {
-      "@tac-crypto-payment/sdk": ["../sdk/src/index.ts"],
-      "@tac-crypto-payment/sdk/*": ["../sdk/src/*"],
-      "@/*": ["./src/*"]
+      "@tac-crypto-payment/sdk": [
+        "../sdk/src/index.ts"
+      ],
+      "@tac-crypto-payment/sdk/*": [
+        "../sdk/src/*"
+      ],
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src/**/*", "../sdk/src/**/*"]
+  "include": [
+    "src/**/*",
+    "../sdk/src/**/*"
+  ]
 }

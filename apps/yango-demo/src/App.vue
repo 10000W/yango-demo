@@ -1,77 +1,48 @@
 <script setup lang="ts">
-import { ref, nextTick, watch, type App } from 'vue'
+import { ref } from 'vue'
 import SkeletonPage from './components/skeleton/SkeletonPage.vue'
 import { BaseBottomSheet } from '@tac-crypto-payment/ui'
-import { TacPaymentUI } from '@tac-crypto-payment/ui/TacPaymentUI'
+import { useRouter } from 'vue-router'
+import { setDemoCloseHandler } from './router'
+
 const isModalOpen = ref(false)
-const paymentApp = ref<App | null>(null)
+const router = useRouter()
+setDemoCloseHandler(() => {
+  isModalOpen.value = false
+})
 
-const mountPaymentApp = async (
-  routeName?: 'test' | 'payment' | 'test-mandate-session' | 'mandate',
-  productOrMandateSessionId?: string,
+const openFlow = async (
+  flow: 'payment' | 'mandate',
+  id: string,
 ) => {
-  isModalOpen.value = true
-
-  await nextTick()
-  if (paymentApp.value) {
-    paymentApp.value.unmount()
-    paymentApp.value = null
-  }
-
-  const payment = new TacPaymentUI({
-    flow: routeName === 'mandate' ? 'mandate' : 'payment',
-    skipSetup: routeName === 'test' || routeName === 'test-mandate-session',
-    productId: routeName === 'test' || routeName === 'test-mandate-session'
-      ? '12345678-1234-4444-4444-123456789012'
-      : routeName === 'mandate' ? '' : productOrMandateSessionId!,
-    mandateId: routeName === 'mandate' ? productOrMandateSessionId! : '',
-    payzapUrl: 'https://staging-api.payzap.cc',
-    elementSelector: '#payment-container',
-    onClose: () => {
-      isModalOpen.value = false
-      // TODO: closing logic
-      // if (window) {
-      //   window.close()
-      // }
-    },
+  if (!id) return
+  await router.push({
+    name: flow === 'payment' ? 'payment.start' : 'mandate.start',
+    params: flow === 'payment' ? { productId: id } : { mandateId: id },
   })
-
-  paymentApp.value = payment.mount()
-  if (routeName !== 'payment' && routeName !== 'mandate') {
-    const router = paymentApp.value?.config?.globalProperties?.$router
-    if (router) {
-      router.push({ name: routeName })
-    }
-  }
+  isModalOpen.value = true
 }
 
-watch(isModalOpen, (isOpen) => {
-  if (!isOpen && paymentApp.value) {
-    setTimeout(() => {
-      if (!isModalOpen.value && paymentApp.value) {
-        paymentApp.value.unmount()
-        paymentApp.value = null
-      }
-    }, 400)
-  }
-})
+const openMandateTest = async () => {
+  await router.push({ name: 'test-mandate-session' })
+  isModalOpen.value = true
+}
 </script>
 
 <template>
   <div class="host-app">
     <SkeletonPage
-      @pay="mountPaymentApp('payment', $event)"
-      @test="mountPaymentApp('test', $event)"
-      @mandate="mountPaymentApp('mandate', $event)"
-      @test-mandate-session="mountPaymentApp('test-mandate-session', $event)"
+      @pay="openFlow('payment', $event)"
+      @mandate="openFlow('mandate', $event)"
+      @test-mandate-session="openMandateTest"
     />
 
     <BaseBottomSheet
       v-model="isModalOpen"
       full
     >
-      <div
-        id="payment-container"
+      <RouterView
+        v-if="isModalOpen"
         class="payment-container"
       />
     </BaseBottomSheet>

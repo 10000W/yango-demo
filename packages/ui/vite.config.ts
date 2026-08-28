@@ -21,7 +21,7 @@ export default defineConfig({
     dts({
       tsconfigPath: './tsconfig.json',
       cleanVueFileName: true,
-      include: ['src/index.ts', 'src/TacPaymentUI.ts', 'src/vite-env.d.ts'],
+      include: ['src/index.ts', 'src/vite-env.d.ts'],
       entryRoot: 'src',
       compilerOptions: {
         composite: false,
@@ -40,7 +40,6 @@ export default defineConfig({
       formats: ['es'],
       entry: {
         index: fileURLToPath(new URL('./src/index', import.meta.url)),
-        TacPaymentUI: fileURLToPath(new URL('./src/TacPaymentUI', import.meta.url)),
       },
       name: 'TacCryptoPaymentUI',
       fileName: (format, entryName) => `${entryName}.js`,
