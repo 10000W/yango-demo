@@ -11,6 +11,9 @@ export default defineConfig({
     mkcert(),
   ],
   resolve: {
+    // The feature packages import Vue Router as a peer dependency. Ensure their
+    // production bundle shares the host's injection keys with the app router.
+    dedupe: ['vue', 'vue-router'],
     alias: [
       {
         find: '@',
