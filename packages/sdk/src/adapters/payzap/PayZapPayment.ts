@@ -17,6 +17,11 @@ export type PayZapPaymentCreateConfig = PayZapCreateSessionOptions & {
   abortController?: AbortController
 }
 
+export type PayZapPaymentRestoreConfig = Pick<PayZapPaymentCreateConfig, 'asset' | 'abortController'> & {
+  session: PayZapSessionData
+  payZapService?: PayZapService
+}
+
 type PayZapPayParams = {
   executor: IExecutor
   fromAddress: string
@@ -63,7 +68,7 @@ export class PayZapPayment implements IPayment {
   private constructor(
     service: PayZapService,
     session: PayZapSessionData,
-    options: PayZapPaymentCreateConfig,
+    options: Pick<PayZapPaymentCreateConfig, 'asset' | 'abortController'>,
   ) {
     this.service = service
     this.session = session
@@ -101,6 +106,16 @@ export class PayZapPayment implements IPayment {
         ...metadata,
       })
     }
+  }
+
+  static fromSession(options: PayZapPaymentRestoreConfig): PayZapPayment {
+    const service = options.payZapService ?? new PayZapService()
+    const payment = new PayZapPayment(service, options.session, options)
+
+    payment.state = payment.getStateFromPayZapSession(options.session)
+    payment.isSponsored = payment.getIsSponsoredStateFromPayZapSession(options.session)
+
+    return payment
   }
 
   getStateFromPayZapSession(session: PayZapSessionData): PaymentState {

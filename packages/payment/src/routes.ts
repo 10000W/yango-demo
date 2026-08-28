@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 import YangoPayment from './YangoPayment.vue'
 import type { PaymentSetup } from './types'
+import { usePayment } from './usePayment'
 
 export const createPaymentRoutes = (setup: PaymentSetup = {}): RouteRecordRaw[] => [{
   path: '/payment/:productId?',
@@ -15,26 +16,50 @@ export const createPaymentRoutes = (setup: PaymentSetup = {}): RouteRecordRaw[] 
     ? true
     : {
         name: 'error',
-        query: {
-          title: 'Missing product ID',
-          message: 'A product ID is required to start a payment.',
-        },
       },
   children: [
     {
       path: '',
       name: 'payment.start',
       component: () => import('./pages/SelectPaymentPage.vue'),
+      beforeEnter: () => {
+        const { reset, selectedChain } = usePayment()
+        if (!selectedChain.value) {
+          reset()
+        }
+      },
     },
     {
       path: 'asset',
       name: 'payment.asset',
       component: () => import('./pages/SelectAssetPage.vue'),
+      beforeEnter: (route) => {
+        const { selectedPaymentOption } = usePayment()
+        return selectedPaymentOption.value
+          ? true
+          : {
+              name: 'payment.start',
+              params: { productId: route.params.productId },
+            }
+      },
     },
     {
-      path: 'pay',
+      path: 'pay/:sessionId?',
       name: 'payment.pay',
       component: () => import('./pages/PayPage.vue'),
+      beforeEnter: (route) => {
+        if (route.params.sessionId) {
+          return true
+        }
+
+        const { selectedAsset, selectedChain, selectedPaymentOption } = usePayment()
+        return selectedPaymentOption.value && selectedChain.value && selectedAsset.value
+          ? true
+          : {
+              name: 'payment.start',
+              params: { productId: route.params.productId },
+            }
+      },
     },
     {
       path: 'edit',
@@ -42,7 +67,7 @@ export const createPaymentRoutes = (setup: PaymentSetup = {}): RouteRecordRaw[] 
       component: () => import('./pages/EditConnectionsPage.vue'),
     },
     {
-      path: 'status',
+      path: 'status/:sessionId?',
       name: 'payment.status',
       component: () => import('./pages/StatusPage.vue'),
     },

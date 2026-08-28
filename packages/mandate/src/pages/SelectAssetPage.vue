@@ -10,8 +10,11 @@ import { AssetOptionSelectable } from '@tac-crypto-payment/runtime'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { useRouter } from 'vue-router'
-import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/vue'
-import { useAppKit } from '@tac-crypto-payment/runtime'
+import {
+  useAppKit,
+  useAppKitAccount,
+  useAppKitNetwork,
+} from '@tac-crypto-payment/runtime'
 import { BaseAlert } from '@tac-crypto-payment/ui'
 
 const router = useRouter()
@@ -72,7 +75,6 @@ const isCorrectChain = computed(() => {
 })
 
 const onClickAsset = async (asset: Asset) => {
-  console.log(asset)
   selectedAsset.value = asset
   // await selectAsset(asset)
   // router.replace('/pay')
@@ -86,7 +88,6 @@ const switchNetwork = async () => {
   const network = Object.values(appKitNetworksMap).find((n) => {
     return +n.id === +asset.chain.id
   })
-  console.log(asset.chain.id)
   if (!network) {
     throw new Error(`Unable to find network ${asset.chain.name} in current wallet.`)
   }
@@ -94,7 +95,6 @@ const switchNetwork = async () => {
   const appKitNetwork = useAppKitNetwork()
   await appKitNetwork.value.switchNetwork(network)
 
-  console.log(isCorrectChain.value)
   if (!isCorrectChain.value) {
     throw new Error(`Unable to switch network to ${asset.chain.name}.`)
   }

@@ -1,21 +1,30 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { usePayment } from '@/usePayment'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { PageHeader } from '@tac-crypto-payment/runtime'
 import PayFormBlockchain from '../components/PayFormBlockchain.vue'
 import { BaseSpinner } from '@tac-crypto-payment/ui'
 
-const { createSession, selectedAsset, paymentSession, reset } = usePayment()
+const { createSession, loadSession, selectedAsset, paymentSession, reset } = usePayment()
+const route = useRoute()
 const router = useRouter()
 
 const isLoading = ref(false)
 
 watch(() => paymentSession.value?.state, (status) => {
   if (status && status !== 'idle' && status !== 'paying' && status !== 'cancelled') {
-    router.replace({ name: 'payment.status' })
+    router.replace({
+      name: 'payment.status',
+      params: {
+        productId: route.params.productId,
+        sessionId: paymentSession.value?.session.id,
+      },
+    })
   }
 })
+
+const sessionId = computed(() => route.params.sessionId as string | undefined)
 
 const handleError = (message: string) => {
   router.replace({
@@ -32,7 +41,28 @@ onMounted(async () => {
   try {
     isLoading.value = true
 
-    await createSession()
+    if (sessionId.value) {
+      if (paymentSession.value?.session.id !== sessionId.value) {
+        await loadSession(sessionId.value)
+      }
+    }
+    else {
+      const session = await createSession()
+      await router.replace({
+        name: 'payment.pay',
+        params: { sessionId: session.session.id },
+      })
+    }
+
+    if (paymentSession.value?.state && !['idle', 'paying', 'cancelled'].includes(paymentSession.value.state)) {
+      await router.replace({
+        name: 'payment.status',
+        params: {
+          productId: route.params.productId,
+          sessionId: paymentSession.value.session.id,
+        },
+      })
+    }
   }
   catch (e) {
     handleError((e as Error)?.message || 'Unable to create a session. Please try again later.')

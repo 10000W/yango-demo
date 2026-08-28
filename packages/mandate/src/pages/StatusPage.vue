@@ -1,10 +1,26 @@
 <script setup lang="ts">
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 import type { MandateConfig } from '@/types'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import { BaseIcon } from '@tac-crypto-payment/ui'
+import { useRoute, useRouter } from 'vue-router'
 
 const config = inject<MandateConfig | null>('tacPaymentUiConfig', null)
+const route = useRoute()
+const router = useRouter()
+const hasOnClose = computed(() => !!config?.onClose)
+
+const handleClose = () => {
+  if (config?.onClose) {
+    config.onClose()
+    return
+  }
+
+  router.replace({
+    name: 'mandate.start',
+    params: { mandateId: route.params.mandateId },
+  })
+}
 </script>
 
 <template>
@@ -33,9 +49,9 @@ const config = inject<MandateConfig | null>('tacPaymentUiConfig', null)
 
     <BaseButton
       wide
-      @click="config?.onClose?.()"
+      @click="handleClose"
     >
-      Return to the app
+      {{ hasOnClose ? 'Return to the app' : 'Go back' }}
     </BaseButton>
   </div>
 </template>

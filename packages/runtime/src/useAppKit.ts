@@ -8,18 +8,21 @@ import {
 } from '@reown/appkit/vue'
 import { computed, nextTick, ref } from 'vue'
 import { APP_METADATA, REOWN_PROJECT_ID, wagmiAdapter } from './entities/config'
+import { TronAdapter } from '@reown/appkit-adapter-tron'
 import { truncate } from './utils/string-utils'
 import type { ChainAdapter } from '@reown/appkit'
 import {
   type AppKitNetwork,
-  arbitrum, base, baseSepolia,
-  bsc,
-  mainnet,
-  polygon,
   tronMainnet,
 } from '@reown/appkit/networks'
 import { appKitNetworksMap } from './entities/appkit'
 import { PayZapProduct } from '@tac-crypto-payment/sdk'
+
+export {
+  useAppKitAccount,
+  useAppKitNetwork,
+  useAppKitProvider,
+} from '@reown/appkit/vue'
 
 const isLoaded = ref(false)
 const isInitialized = ref(false)
@@ -35,7 +38,12 @@ const init = (product?: PayZapProduct) => {
 
   if (!product) {
     adapters.push(wagmiAdapter)
-    Object.values(appKitNetworksMap).forEach(n => networks.push(n))
+    adapters.push(new TronAdapter())
+    Object.values(appKitNetworksMap).forEach((network) => {
+      if (!networks.some(({ id }) => id === network.id)) {
+        networks.push(network)
+      }
+    })
   }
   else {
     if (product.availableChains.includes('evm')) {
@@ -46,6 +54,7 @@ const init = (product?: PayZapProduct) => {
     }
 
     if (product.availableChains.includes('tron')) {
+      adapters.push(new TronAdapter())
       networks.push(tronMainnet)
     }
   }
@@ -54,14 +63,9 @@ const init = (product?: PayZapProduct) => {
     throw new Error('Networks are not provided')
   }
 
-  if (!networks.length) {
-    throw new Error('Networks are not provided')
-  }
-
-  console.log(REOWN_PROJECT_ID)
   modal = createAppKit({
     adapters,
-    networks: [mainnet, bsc, polygon, arbitrum, base, baseSepolia, tronMainnet], // TODO: hardcoded
+    networks: networks as [AppKitNetwork, ...AppKitNetwork[]],
     projectId: REOWN_PROJECT_ID,
     metadata: APP_METADATA,
     experimental_preferUniversalLinks: true,

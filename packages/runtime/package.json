@@ -13,15 +13,16 @@
   },
   "dependencies": {
     "@reown/appkit": "^1.8.23",
+    "@reown/appkit-adapter-tron": "^1.8.23",
     "@reown/appkit-adapter-wagmi": "^1.8.23",
     "@reown/appkit-wallet-button": "^1.8.23",
     "@tac-crypto-payment/sdk": "workspace:*",
     "@tac-crypto-payment/ui": "workspace:*",
     "@vueuse/core": "^14.2.1",
-    "@wagmi/core": "^3.6.4",
+    "@wagmi/core": "^2.22.1",
     "tronweb": "^6.5.0",
     "viem": "^2.55.19",
-    "wagmi": "^3.7.6"
+    "wagmi": "^2.19.5"
   },
     "peerDependencies": {
         "vue": "^3.5.31",

@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
-import { useRoute } from 'vue-router'
+import { inject } from 'vue'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import type { MandateConfig } from '@/types'
 
-const route = useRoute()
+const props = withDefaults(defineProps<{
+  title?: string
+  message?: string
+}>(), {
+  title: 'Something went wrong',
+  message: 'Please try again later.',
+})
+
 const config = inject<MandateConfig | null>('tacPaymentUiConfig', null)
-const title = computed(() => route.query.title?.toString() || 'Something went wrong')
-const message = computed(() => route.query.message?.toString() || 'Please try again later.')
 </script>
 
 <template>
@@ -19,10 +23,10 @@ const message = computed(() => route.query.message?.toString() || 'Please try ag
       :class="$style.icon"
     />
     <h1 class="h2">
-      {{ title }}
+      {{ props.title }}
     </h1>
     <p class="center c-text-secondary">
-      {{ message }}
+      {{ props.message }}
     </p>
     <BaseButton
       v-if="config?.onClose"

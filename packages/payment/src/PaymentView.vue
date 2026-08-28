@@ -16,6 +16,7 @@ const router = useRouter()
 provide('tacPaymentRouter', router)
 const { isLoaded: isAppKitLoaded, init: initAppKit } = useAppKit()
 const isLoading = ref(true)
+const errorDetails = ref<{ title: string, message: string } | null>(null)
 
 const isGlowVisible = computed(() => ['promo'].includes(route.name as string))
 
@@ -41,12 +42,12 @@ onMounted(async () => {
   }
   catch (e) {
     console.error(e)
+    errorDetails.value = {
+      title: 'Initialization failed',
+      message: 'We could not initialize the payment system. Please check your connection and try again.',
+    }
     await router.replace({
       name: 'payment.error',
-      query: {
-        title: 'Initialization failed',
-        message: 'We could not initialize the payment system. Please check your connection and try again.',
-      },
     })
     isLoading.value = false
   }
@@ -87,6 +88,7 @@ onMounted(async () => {
         <component
           :is="Component"
           :key="route.path"
+          v-bind="route.name === 'payment.error' ? errorDetails || {} : {}"
         />
       </Transition>
     </RouterView>

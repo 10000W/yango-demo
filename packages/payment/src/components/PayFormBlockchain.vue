@@ -10,10 +10,14 @@ import { BaseProgressTimer } from '@tac-crypto-payment/ui'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import { BaseError } from 'viem'
 import { BaseIcon } from '@tac-crypto-payment/ui'
-import { useAppKit } from '@tac-crypto-payment/runtime'
+import {
+  useAppKit,
+  useAppKitAccount,
+  useAppKitNetwork,
+  useAppKitProvider,
+} from '@tac-crypto-payment/runtime'
 import { createWalletButton, type Wallet } from '@tac-crypto-payment/runtime'
 import { appKitNetworksMap } from '@tac-crypto-payment/runtime'
-import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/vue'
 import { AxiosError } from 'axios'
 import {
   EvmExecutor,
@@ -82,6 +86,7 @@ const timerDuration = computed(() => {
   return Math.max(0, Math.floor((expiresAt - now) / 1000))
 })
 const isNamespaceSupported = computed(() => {
+  console.log(isConnected.value, namespace.value, evmAccount.value)
   if (!isConnected.value) {
     return true
   }

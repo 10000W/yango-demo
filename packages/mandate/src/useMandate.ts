@@ -10,11 +10,9 @@ import {
 } from '@tac-crypto-payment/sdk'
 import { type PaymentOption } from '@tac-crypto-payment/runtime'
 import { tronMainnet } from '@reown/appkit/networks'
-import { useAppKitProvider } from '@reown/appkit/vue'
 import { TronConnector } from '@reown/appkit-adapter-tron'
 import { getWalletClient } from '@wagmi/core'
-import { wagmiAdapter } from '@tac-crypto-payment/runtime'
-import { useAppKit } from '@tac-crypto-payment/runtime'
+import { wagmiAdapter, useAppKit, useAppKitProvider } from '@tac-crypto-payment/runtime'
 
 let sdkInstance: ReturnType<typeof createPayZapSdk> | undefined
 

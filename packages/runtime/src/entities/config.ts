@@ -5,9 +5,6 @@ import {
   bsc,
   arbitrum,
   base,
-  baseSepolia,
-  tronMainnet,
-  tron,
 } from '@reown/appkit/networks'
 import manifestImage from '../public/images/manifest-img.jpg?url'
 
@@ -21,6 +18,6 @@ export const APP_METADATA = {
 }
 
 export const wagmiAdapter = new WagmiAdapter({
-  networks: [mainnet, polygon, bsc, arbitrum, base, baseSepolia, tron, tronMainnet],
+  networks: [mainnet, polygon, bsc, arbitrum, base],
   projectId: REOWN_PROJECT_ID,
 })

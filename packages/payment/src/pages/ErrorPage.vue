@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import { useRoute } from 'vue-router'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import type { PaymentConfig } from '@/types'
@@ -10,14 +9,13 @@ const props = defineProps<{
   message?: string
 }>()
 
-const route = useRoute()
 const options = inject<PaymentConfig | null>('tacPaymentUiConfig', null)
 const onCloseCallback = options?.onClose || (() => {})
 
 const errorTitle = computed(() => props.title
-  || (route.query.title as string) || 'Something went wrong')
+  || 'Something went wrong')
 const errorMessage = computed(() => props.message
-  || (route.query.message as string) || 'Please try again later')
+  || 'Please try again later')
 </script>
 
 <template>

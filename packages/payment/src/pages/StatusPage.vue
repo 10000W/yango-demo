@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { computed, inject } from 'vue'
+import { computed, inject, onMounted } from 'vue'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import { usePayment } from '@/usePayment'
 import type { PaymentConfig } from '@/types'
@@ -13,10 +13,35 @@ import { tacImage } from '@tac-crypto-payment/runtime'
 
 const route = useRoute()
 const router = useRouter()
-const { paymentSession, selectedChain, amount, reset } = usePayment()
+const { loadSession, paymentSession, selectedChain, amount, reset } = usePayment()
 
 const config = inject<PaymentConfig | null>('tacPaymentUiConfig', null)
 const onCloseCallback = config?.onClose
+const sessionId = computed(() => route.params.sessionId as string | undefined)
+
+onMounted(async () => {
+  if (!sessionId.value || paymentSession.value?.session.id === sessionId.value) {
+    return
+  }
+
+  try {
+    await loadSession(sessionId.value)
+  }
+  catch (error) {
+    await router.replace({
+      name: 'payment.status',
+      params: {
+        productId: route.params.productId,
+        sessionId: sessionId.value,
+      },
+      query: {
+        status: 'failed',
+        title: 'Unable to load payment',
+        description: error instanceof Error ? error.message : 'Unable to load payment session.',
+      },
+    })
+  }
+})
 
 const status = computed(() => {
   if (route.query.status) {
@@ -78,7 +103,7 @@ const submitLabel = computed(() => {
     case 'failed':
       return 'Create a new payment'
     case 'completed':
-      return 'Return to the app'
+      return onCloseCallback ? 'Return to the app' : 'Go back'
     case 'confirming':
     default:
       return ''
@@ -104,6 +129,13 @@ const handleSubmit = () => {
     case 'completed':
       if (onCloseCallback) {
         onCloseCallback()
+      }
+      else {
+        reset()
+        router.replace({
+          name: 'payment.start',
+          params: { productId: route.params.productId },
+        })
       }
       return
     case 'confirming':

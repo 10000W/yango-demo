@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 import YangoMandate from './YangoMandate.vue'
 import type { MandateSetup } from './types'
+import { useMandate } from './useMandate'
 
 export const createMandateRoutes = (setup: MandateSetup = {}): RouteRecordRaw[] => [{
   path: '/mandate/:mandateId?',
@@ -15,7 +16,6 @@ export const createMandateRoutes = (setup: MandateSetup = {}): RouteRecordRaw[] 
     ? true
     : {
         name: 'error',
-        query: { title: 'Missing mandate ID', message: 'A mandate ID is required to continue.' },
       },
   children: [
     {
@@ -32,6 +32,15 @@ export const createMandateRoutes = (setup: MandateSetup = {}): RouteRecordRaw[] 
       path: 'asset',
       name: 'mandate.asset',
       component: () => import('./pages/SelectAssetPage.vue'),
+      beforeEnter: (route) => {
+        const { selectedPaymentOption } = useMandate()
+        return selectedPaymentOption.value
+          ? true
+          : {
+              name: 'mandate.start',
+              params: { mandateId: route.params.mandateId },
+            }
+      },
     },
     {
       path: 'edit-allowance',

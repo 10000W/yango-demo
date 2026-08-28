@@ -4,9 +4,13 @@ packages:
 allowBuilds:
   '@parcel/watcher': true
   '@reown/appkit': true
+  bufferutil: true
   esbuild: true
   keccak: true
+  utf-8-validate: true
 overrides:
-  '@wagmi/connectors': 8.1.0
+  '@wagmi/connectors': 6.2.0
+  viem: 2.55.19
+  '@reown/appkit-common>viem': 2.55.19
   vue: 3.5.41
   vue-router: 5.2.0

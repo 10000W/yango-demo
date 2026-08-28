@@ -5,7 +5,12 @@ export { default as ChainIcon } from './payment/ChainIcon.vue'
 export { default as PaymentOptionCard } from './payment/PaymentOption.vue'
 export { default as WalletDisconnect } from './wallet/WalletDisconnect.vue'
 export { default as WalletDisconnectEVM } from './wallet/WalletDisconnectEVM.vue'
-export { useAppKit } from './useAppKit'
+export {
+  useAppKit,
+  useAppKitAccount,
+  useAppKitNetwork,
+  useAppKitProvider,
+} from './useAppKit'
 export { usePaymentMethods } from './usePaymentMethods'
 export * from './entities/asset'
 export * from './entities/appkit'
