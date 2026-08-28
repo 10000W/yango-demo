@@ -51,6 +51,9 @@ const trc20Abi = [
   },
 ]
 
+const WALLET_BROADCAST_TIMEOUT_MS = 30_000
+const WALLET_BROADCAST_POLL_INTERVAL_MS = 3_000
+
 export class TronExecutor implements IChainExecutor<TronAsset> {
   type = 'tron'
   connector: TronConnector
@@ -101,7 +104,6 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
 
       errorCode = 'read_failed'
       const allowance = await contract.allowance(fromAddress, toAddress).call()
-      await new Promise(resolve => setTimeout(resolve, 1000))
       const allowanceValue = BigInt(allowance.toString())
 
       if (allowanceValue >= parsedAmount) {
@@ -123,10 +125,8 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
         ],
         fromAddress,
       )
-      await new Promise(resolve => setTimeout(resolve, 1000))
       errorCode = 'broadcast_failed'
       transactionHash = await this._sendTransaction(tx)
-      await new Promise(resolve => setTimeout(resolve, 1000))
 
       errorCode = 'confirmation_failed'
       onUpdate?.({ type: 'approval:confirming' })
@@ -164,8 +164,6 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
         ],
         fromAddress,
       )
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
       errorCode = 'broadcast_failed'
       transactionHash = await this._sendTransaction(tx)
 
@@ -183,8 +181,9 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
   }
 
   private async _sendTransaction(txWrapper: Types.TransactionWrapper) {
-    if (!txWrapper.transaction?.raw_data?.contract?.[0]?.parameter?.value?.data) {
-      throw new ExecutorError('Failed to extract transaction data', { code: 'broadcast_failed' })
+    const unsignedTransaction = txWrapper.transaction
+    if (!unsignedTransaction?.raw_data?.contract?.[0]?.parameter?.value?.data) {
+      throw new ExecutorError('Failed to build transaction', { code: 'broadcast_failed' })
     }
 
     const isWalletConnect = this.connector.type === 'WALLET_CONNECT' || this.connector.id === 'walletConnect'
@@ -208,20 +207,83 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
 
     const response = await this.connector.request({
       method,
-      params: { address: this.tronWeb.defaultAddress.base58, transaction: txWrapper.transaction },
+      // WalletConnect's Tron provider expects an additional transaction wrapper.
+      params: {
+        address: this.tronWeb.defaultAddress.base58,
+        transaction: isWalletConnect ? { transaction: unsignedTransaction } : unsignedTransaction,
+      },
     })
 
     if (typeof response === 'string') {
+      if (isWalletConnect) await this.waitForWalletBroadcast(response)
       return response
     }
 
-    const result = await this.tronWeb.trx.sendRawTransaction(response as Types.SignedTransaction)
-    if (!result.result) {
-      throw new ExecutorError(result.message || 'Failed to broadcast transaction', {
-        code: 'broadcast_failed',
-      })
+    // Reown providers may wrap their payload in `result`.
+    const walletResponse = response as { result?: unknown }
+    const signedTransaction = (walletResponse.result ?? walletResponse) as Partial<Types.SignedTransaction>
+    const signature = signedTransaction.signature
+    const claimedTransactionHash = this.getTransactionHash(signedTransaction)
+
+    if (signature) {
+      // Always broadcast signed data ourselves. This is safe if the wallet
+      // already broadcast it, and prevents a claimed-but-unsent transaction.
+      const transactionToBroadcast = signedTransaction.raw_data
+        ? signedTransaction
+        : { ...unsignedTransaction, signature: this.normalizeSignatures(signature) }
+      const result = await this.tronWeb.trx.sendRawTransaction(transactionToBroadcast as Types.SignedTransaction)
+      if (!result.result) {
+        throw new ExecutorError(result.message || 'Failed to broadcast transaction', {
+          code: 'broadcast_failed',
+        })
+      }
+      return result.txid
     }
-    return result.txid
+
+    if (claimedTransactionHash) {
+      // Some WalletConnect wallets return a txID without signature data. Check
+      // that it was actually accepted instead of waiting indefinitely.
+      await this.waitForWalletBroadcast(claimedTransactionHash)
+      return claimedTransactionHash
+    }
+
+    throw new ExecutorError('Wallet returned an unsigned transaction response', { code: 'broadcast_failed' })
+  }
+
+  private getTransactionHash(transaction: Partial<Types.SignedTransaction>): string | undefined {
+    const response = transaction as { txID?: unknown, txid?: unknown }
+    if (typeof response.txID === 'string') return response.txID
+    if (typeof response.txid === 'string') return response.txid
+  }
+
+  private normalizeSignatures(signature: Types.SignedTransaction['signature']): string[] {
+    const normalized = (Array.isArray(signature) ? signature : [signature])
+      .filter((value): value is string => typeof value === 'string')
+      .map(value => value.replace(/^0x/, ''))
+
+    if (!normalized.length) {
+      throw new ExecutorError('Wallet returned an invalid transaction signature', { code: 'broadcast_failed' })
+    }
+    return normalized
+  }
+
+  private async waitForWalletBroadcast(hash: string) {
+    const deadline = Date.now() + WALLET_BROADCAST_TIMEOUT_MS
+    while (Date.now() < deadline) {
+      try {
+        const transaction = await this.tronWeb.trx.getTransaction(hash)
+        if (transaction && Object.keys(transaction).length) return
+      }
+      catch {
+        // Nodes can briefly return an error before an accepted transaction is indexed.
+      }
+      await new Promise(resolve => setTimeout(resolve, WALLET_BROADCAST_POLL_INTERVAL_MS))
+    }
+
+    throw new ExecutorError(
+      'Wallet did not broadcast the transaction. Please try again or use a different wallet.',
+      { code: 'broadcast_failed' },
+    )
   }
 
   private async waitForTransaction(

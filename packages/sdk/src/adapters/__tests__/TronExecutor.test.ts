@@ -24,4 +24,33 @@ describe('TronExecutor', () => {
     }, onUpdate)).rejects.toMatchObject({ code: 'invalid_amount', operation: 'transfer' })
     expect(onUpdate).toHaveBeenCalledWith(expect.objectContaining({ type: 'transfer:failed' }))
   })
+
+  it('uses WalletConnect transaction wrapping and broadcasts a signature-only response', async () => {
+    const request = vi.fn().mockResolvedValue({ result: { signature: '0xsigned' } })
+    const executor = new TronExecutor({
+      type: 'WALLET_CONNECT',
+      request,
+      internalRequest: vi.fn(),
+      provider: { request: vi.fn() },
+    } as unknown as TronConnector)
+    const sendRawTransaction = vi.spyOn(executor.tronWeb.trx, 'sendRawTransaction').mockResolvedValue({
+      result: true,
+      txid: 'broadcast-hash',
+    } as never)
+
+    const hash = await (executor as unknown as { _sendTransaction: (tx: unknown) => Promise<string> })._sendTransaction({
+      transaction: { raw_data: { contract: [{ parameter: { value: { data: 'a9059cbb' } } }] } },
+    })
+
+    expect(hash).toBe('broadcast-hash')
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({
+      method: 'tron_signTransaction',
+      params: expect.objectContaining({
+        transaction: expect.objectContaining({ transaction: expect.any(Object) }),
+      }),
+    }))
+    expect(sendRawTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      signature: ['signed'],
+    }))
+  })
 })
