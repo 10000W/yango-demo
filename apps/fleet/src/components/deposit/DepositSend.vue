@@ -90,7 +90,7 @@ const timerDuration = computed(() => {
       </template>
     </BaseProgressTimerLine>
     <BaseAlert>
-      You can close this page and come back anytime — we'll keep tracking your deposit in Payment history.
+      You can close this page and come back anytime — we'll keep tracking your deposit status here.
     </BaseAlert>
   </div>
 </template>

@@ -28,12 +28,6 @@ const { deposit } = useDeposit()
     </div>
 
     <div class="column gap-8">
-      <BaseButton wide>
-        <div class="flex gap-8">
-          <BaseIcon name="reload" />
-          Create a new payment
-        </div>
-      </BaseButton>
       <BaseButton
         wide
         :href="deposit?.returnUrl || undefined"

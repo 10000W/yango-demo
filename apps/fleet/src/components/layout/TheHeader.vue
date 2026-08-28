@@ -13,15 +13,6 @@ const { deposit } = useDeposit()
     <div class="container">
       <div class="flex gap-12 justify-self-end">
         <BaseButton
-          :class="[$style.btn, $style.historyBtn]"
-          variant="transparent"
-          class="gap-8"
-          disabled
-        >
-          <BaseIcon name="clock" />
-          Payment history (soon)
-        </BaseButton>
-        <BaseButton
           :class="$style.btn"
           variant="secondary"
           class="gap-8"

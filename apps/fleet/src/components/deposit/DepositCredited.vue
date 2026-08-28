@@ -87,12 +87,6 @@ const explorerLink = computed(() => {
       >
         Return to Fleet
       </BaseButton>
-      <BaseButton
-        wide
-        disabled
-      >
-        View payment history
-      </BaseButton>
     </div>
   </div>
 </template>
