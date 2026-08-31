@@ -15,22 +15,22 @@
     "@tac-crypto-payment/payment": "workspace:*",
     "@tac-crypto-payment/runtime": "workspace:*",
     "@tac-crypto-payment/ui": "workspace:*",
-    "@vueuse/core": "^14.3.0",
-    "axios": "^1.19.0",
-    "qrcode.vue": "^3.9.0",
-    "vue": "^3.5.40",
-    "vue-router": "^5.2.0"
+    "@vueuse/core": "catalog:workspace",
+    "axios": "catalog:workspace",
+    "qrcode.vue": "catalog:workspace",
+    "vue": "catalog:workspace",
+    "vue-router": "catalog:workspace"
   },
   "devDependencies": {
-    "@tsconfig/node24": "^24.0.4",
-    "@types/node": "^24.13.3",
-    "@vitejs/plugin-vue": "^6.0.8",
-    "@vue/tsconfig": "^0.9.1",
-    "npm-run-all2": "^9.0.2",
-    "typescript": "~6.0.0",
-    "vite": "^8.1.5",
-    "vite-plugin-vue-devtools": "^8.1.5",
-    "vue-tsc": "^3.3.7"
+    "@tsconfig/node24": "catalog:workspace",
+    "@types/node": "catalog:workspace",
+    "@vitejs/plugin-vue": "catalog:vite",
+    "@vue/tsconfig": "catalog:workspace",
+    "npm-run-all2": "catalog:workspace",
+    "typescript": "catalog:workspace",
+    "vite": "catalog:vite",
+    "vite-plugin-vue-devtools": "catalog:vite",
+    "vue-tsc": "catalog:workspace"
   },
   "engines": {
     "node": "^22.18.0 || >=24.12.0"

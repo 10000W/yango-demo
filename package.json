@@ -1,35 +1,37 @@
 {
-    "name": "tac-crypto-payment",
-    "version": "0.0.0",
-    "private": true,
-    "type": "module",
-    "workspaces": [
-        "packages/*"
-    ],
-    "scripts": {
-        "dev": "pnpm --filter yango-demo-app dev",
-        "build": "pnpm -r build",
-        "preview": "pnpm --filter yango-demo-app preview",
-        "type-check": "pnpm -r type-check",
-        "lint": "run-s lint:*",
-        "lint:oxlint": "oxlint . --fix",
-        "lint:eslint": "eslint . --fix --cache"
-    },
-    "devDependencies": {
-        "@stylistic/eslint-plugin": "^5.10.0",
-        "@tsconfig/node24": "^24.0.4",
-        "@types/node": "^24.12.0",
-        "@vue/eslint-config-typescript": "^14.7.0",
-        "@vue/tsconfig": "^0.9.1",
-        "eslint": "^10.2.0",
-        "eslint-plugin-oxlint": "~1.57.0",
-        "eslint-plugin-vue": "~10.8.0",
-        "jiti": "^2.6.1",
-        "npm-run-all2": "^8.0.4",
-        "oxlint": "~1.57.0",
-        "typescript": "~6.0.0"
-    },
-    "engines": {
-        "node": "^20.19.0 || >=22.12.0"
-    }
+  "name": "tac-crypto-payment",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter yango-demo-app dev",
+    "build": "pnpm -r build",
+    "preview": "pnpm --filter yango-demo-app preview",
+    "type-check": "pnpm -r type-check",
+    "lint": "run-s lint:*",
+    "lint:oxlint": "oxlint . --fix",
+    "lint:eslint": "eslint . --fix --cache"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@tsconfig/node24": "catalog:workspace",
+    "@types/node": "catalog:workspace",
+    "@vue/eslint-config-typescript": "^14.7.0",
+    "@vue/tsconfig": "catalog:workspace",
+    "eslint": "^10.2.0",
+    "eslint-plugin-oxlint": "~1.57.0",
+    "eslint-plugin-vue": "~10.8.0",
+    "jiti": "^2.6.1",
+    "npm-run-all2": "catalog:workspace",
+    "oxlint": "~1.57.0",
+    "typescript": "catalog:workspace",
+    "vite": "catalog:vite",
+    "vite-tsconfig-paths": "catalog:vite"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
 }

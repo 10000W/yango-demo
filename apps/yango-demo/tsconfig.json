@@ -1,19 +1,11 @@
 {
-  "extends": "../../tsconfig.app.json",
-  "compilerOptions": {
-    "composite": true,
-    "paths": {
-      "@tac-crypto-payment/sdk": ["../../packages/sdk/src/index.ts"],
-      "@tac-crypto-payment/ui": ["../../packages/ui/src/index.ts"],
-      "@/*": ["../../packages/ui/src/*"],
-      "src": ["./src/*"]
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
     }
-  },
-  "include": [
-    "src/**/*",
-    "src/**/*.vue",
-    "../../packages/sdk/src/**/*",
-    "../../packages/ui/src/**/*",
-    "../../packages/ui/src/**/*.vue"
   ]
 }

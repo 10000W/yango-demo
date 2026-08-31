@@ -29,7 +29,6 @@ const assets: ComputedRef<(Asset & { gasless?: boolean })[]> = computed(() => {
       if (productAvailableChains.includes('tron')) {
         chainIds.push(+tronMainnet.id)
       }
-      console.log(chainIds, paymentOptionAssets)
       return paymentOptionAssets
         .filter(asset => chainIds.includes(asset.chain.id))
         .map(asset => ({

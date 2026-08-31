@@ -86,7 +86,6 @@ const timerDuration = computed(() => {
   return Math.max(0, Math.floor((expiresAt - now) / 1000))
 })
 const isNamespaceSupported = computed(() => {
-  console.log(isConnected.value, namespace.value, evmAccount.value)
   if (!isConnected.value) {
     return true
   }
@@ -174,10 +173,8 @@ const switchNetwork = async () => {
   }
 
   const network = Object.values(appKitNetworksMap).find((n) => {
-    console.log(+n.id, +asset.chain.id)
     return +n.id === +asset.chain.id
   })
-  console.log(asset.chain.id)
   if (!network) {
     throw new Error(`Unable to find network ${asset.chain.name} in current wallet.`)
   }
@@ -185,7 +182,6 @@ const switchNetwork = async () => {
   const appKitNetwork = useAppKitNetwork()
   await appKitNetwork.value.switchNetwork(network)
 
-  console.log(isCorrectChain.value)
   if (!isCorrectChain.value) {
     throw new Error(`Unable to switch network to ${asset.chain.name}.`)
   }

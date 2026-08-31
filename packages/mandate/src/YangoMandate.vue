@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, provide } from 'vue'
-import FlowView from './FlowView.vue'
+import MandateView from './MandateView.vue'
 import type { MandateConfig, MandateSetup } from './types'
 
 const { mandateId = undefined, setup = {} } = defineProps<{
@@ -18,5 +18,5 @@ provide('tacPaymentUiConfig', config.value)
 </script>
 
 <template>
-  <FlowView />
+  <MandateView />
 </template>

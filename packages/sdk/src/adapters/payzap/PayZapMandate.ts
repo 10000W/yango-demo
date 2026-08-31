@@ -1,6 +1,8 @@
 import { IMandate } from '../../mandate'
 import { PayZapService } from './PayZapService'
 import {
+  PayZapMandateSetupBinanceKindResponse,
+  PayZapMandateSetupChainKindResponse,
   PayZapMandateSetupData,
   PayZapMandateSetupDataMethod,
 } from './types'
@@ -17,13 +19,24 @@ export type PayZapMandateConfig = {
   abortController?: AbortController
 }
 
-type PayZapMandateAllowanceParams<TAsset> = {
+type PayZapMandateAllowanceParamsBase = {
+  kind: 'binance' | 'blockchain'
+}
+type PayZapMandateAllowanceParamsChain<TAsset> = PayZapMandateAllowanceParamsBase & {
+  kind: 'blockchain'
   executor: IChainExecutor<TAsset>
   asset: TAsset
   fromAddress: string
   toAddress: string
   amount: string
 }
+type PayZapMandateAllowanceParamsBinance = PayZapMandateAllowanceParamsBase & {
+  kind: 'binance'
+  amount: string
+}
+type PayZapMandateAllowanceParams<TAsset>
+  = PayZapMandateAllowanceParamsChain<TAsset>
+    | PayZapMandateAllowanceParamsBinance
 
 export class PayZapMandate implements IMandate {
   private service: PayZapService
@@ -64,15 +77,25 @@ export class PayZapMandate implements IMandate {
   }
 
   async approve(
-    { asset, fromAddress, toAddress, amount, executor }: PayZapMandateAllowanceParams<Asset>,
+    params: PayZapMandateAllowanceParams<Asset>,
     onUpdate?: ((event: ExecutorEvent) => void),
   ) {
-    const network = getNetworkName(asset.chain.id)
-    await executor.approve({ asset, fromAddress, toAddress, amount }, onUpdate)
-    await this.service.setMandateSetup(this.data.id, {
-      network,
-      tokenSymbol: asset.symbol,
-      customerWallet: fromAddress,
-    })
+    if (params.kind === 'binance') {
+      return (await this.service.setMandateSetup(this.data.id, {
+        kind: 'binance_pay',
+        amount: +params.amount,
+      })) as PayZapMandateSetupBinanceKindResponse
+    }
+    else {
+      const { asset, fromAddress, toAddress, amount } = params
+      const network = getNetworkName(asset.chain.id)
+      await params.executor.approve({ asset, fromAddress, toAddress, amount }, onUpdate)
+      return (await this.service.setMandateSetup(this.data.id, {
+        kind: network === 'tron' ? 'tron_wallet' : 'evm_wallet',
+        network,
+        tokenSymbol: asset.symbol,
+        customerWallet: fromAddress,
+      })) as PayZapMandateSetupChainKindResponse
+    }
   }
 }

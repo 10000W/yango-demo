@@ -24,7 +24,7 @@ export default defineConfig({
       entry: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
       formats: ['es'],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: id => external.some(dep => id === dep || id.startsWith(`${dep}/`)),
       output: {
         preserveModules: true,

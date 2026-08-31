@@ -20,7 +20,8 @@
         "../runtime/src/index.ts"
       ],
       "@/*": [
-        "src/*"
+        "src/*",
+        "../runtime/src/*"
       ]
     }
   },

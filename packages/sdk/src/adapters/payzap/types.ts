@@ -107,7 +107,7 @@ export type PayZapProductData = {
 export type PayZapSponsorshipMechanism = 'sponsor' | 'permit' | 'delegate' | null
 export type PayZapMandateSetupDataMethod = {
   id: string
-  kind: 'evm_wallet' | 'tron_wallet' // evm_wallet, ...
+  kind: 'evm_wallet' | 'tron_wallet' | 'binance_pay' | 'solana_wallet' // evm_wallet, ...
   isActive: boolean
   network: (typeof PayZapMandateNetworks)[number]
   tokenSymbol: string
@@ -135,13 +135,30 @@ export type PayZapMandateSetupResponse = {
   data: PayZapMandateSetupData
 }
 
-export type PayZapSetMandateSetupOptions = {
+export type PayZapSetMandateSetupOptionsBase = {
+  kind: PayZapMandateSetupDataMethod['kind']
+
+}
+export type PayZapSetMandateSetupOptionsChain = PayZapSetMandateSetupOptionsBase & {
+  kind: 'evm_wallet' | 'tron_wallet' | 'solana_wallet'
   network: (typeof PayZapMandateNetworks)[number]
   tokenSymbol: string
   customerWallet: string
 }
+export type PayZapSetMandateSetupOptionsBinance = PayZapSetMandateSetupOptionsBase & {
+  kind: 'binance_pay'
+  amount: number
+}
+export type PayZapSetMandateSetupOptions
+  = PayZapSetMandateSetupOptionsChain | PayZapSetMandateSetupOptionsBinance
+export type PayZapMandateSetupBinanceKindResponse = {
+  qrcodeLink: string | null
+  qrContent: string | null
+  deeplink: string | null
+  expiresAt: number | null
+}
 
-export type PayZapSetMandateSetupResponse = {
+export type PayZapMandateSetupChainKindResponse = {
   mandate: {
     id: string
     status: PayZapMandateSetupData['status']

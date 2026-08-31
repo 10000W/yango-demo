@@ -6,40 +6,40 @@
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
-      "import": "./dist/index.js",
-      "development": "./src/index.ts"
+      "development": "./src/index.ts",
+      "import": "./dist/index.js"
     },
     "./style.css": "./dist/index.css"
   },
   "dependencies": {
-    "@reown/appkit": "^1.8.23",
-    "@reown/appkit-adapter-tron": "^1.8.23",
-    "@reown/appkit-wallet-button": "^1.8.23",
+    "@reown/appkit": "catalog:workspace",
+    "@reown/appkit-adapter-tron": "catalog:workspace",
+    "@reown/appkit-wallet-button": "catalog:workspace",
     "@tac-crypto-payment/runtime": "workspace:*",
     "@tac-crypto-payment/sdk": "workspace:*",
     "@tac-crypto-payment/ui": "workspace:*",
-    "@tronweb3/tronwallet-adapters": "^1.3.2",
-    "@vueuse/core": "^14.2.1",
+    "@tronweb3/tronwallet-adapters": "catalog:workspace",
+    "@vueuse/core": "catalog:workspace",
     "@wagmi/core": "^2.22.1",
-    "axios": "^1.19.0",
-    "tronweb": "^6.5.0",
-    "viem": "^2.55.19",
-    "wagmi": "^2.19.5"
+    "axios": "catalog:workspace",
+    "tronweb": "catalog:workspace",
+    "viem": "catalog:workspace",
+    "wagmi": "catalog:workspace"
   },
   "peerDependencies": {
-    "vue": "^3.5.31",
-    "vue-router": "^5.0.4"
+    "vue": "catalog:workspace",
+    "vue-router": "catalog:workspace"
   },
   "scripts": {
     "build": "vite build",
     "type-check": "vue-tsc --noEmit"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.5",
-    "sass": "^1.99.0",
-    "typescript": "~6.0.0",
-    "vite": "^7.3.2",
-    "vite-plugin-dts": "^5.0.0",
-    "vue-tsc": "^3.2.6"
+    "@vitejs/plugin-vue": "catalog:vite",
+    "sass": "catalog:workspace",
+    "typescript": "catalog:workspace",
+    "vite": "catalog:vite",
+    "vite-plugin-dts": "catalog:vite",
+    "vue-tsc": "catalog:workspace"
   }
 }

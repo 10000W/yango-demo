@@ -174,6 +174,7 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
       return transactionHash
     }
     catch (cause) {
+      console.warn(cause)
       const error = this.toExecutorError(cause, errorCode, params, 'transfer', transactionHash)
       onUpdate?.({ type: 'transfer:failed', error })
       throw error
@@ -194,28 +195,37 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
       internalRequest?: (args: unknown) => Promise<unknown>
       provider: {
         request: (args: unknown, networkId?: string) => Promise<unknown>
+        session?: {
+          sessionProperties?: Record<string, unknown>
+        }
       }
       chains?: { caipNetworkId: string }[]
     }
     if (isWalletConnect && !connectorHack.internalRequest) {
       connectorHack.internalRequest = (args: unknown) => {
-        return connectorHack.provider.request(args, connectorHack.chains?.[0]?.caipNetworkId)
+        return connectorHack.provider.request(args, 'tron:0x2b6653dc')
       }
     }
 
     const method = isWalletConnect ? 'tron_signTransaction' : 'tron_sendTransaction'
+    // WalletConnect negotiates the Tron RPC parameter shape per session. The
+    // legacy v1 format receives the raw transaction; v2 wraps it once.
+    const usesWalletConnectV1 = connectorHack.provider.session?.sessionProperties?.tron_method_version === 'v1'
 
     const response = await this.connector.request({
       method,
-      // WalletConnect's Tron provider expects an additional transaction wrapper.
       params: {
-        address: this.tronWeb.defaultAddress.base58,
-        transaction: isWalletConnect ? { transaction: unsignedTransaction } : unsignedTransaction,
+        address: this.tronWeb.defaultAddress.hex,
+        transaction: isWalletConnect && !usesWalletConnectV1
+          ? { transaction: unsignedTransaction }
+          : unsignedTransaction,
       },
     })
 
     if (typeof response === 'string') {
-      if (isWalletConnect) await this.waitForWalletBroadcast(response)
+      if (isWalletConnect) {
+        await this.waitForWalletBroadcast(response)
+      }
       return response
     }
 

@@ -53,6 +53,16 @@ export const createMandateRoutes = (setup: MandateSetup = {}): RouteRecordRaw[] 
       component: () => import('./pages/StatusPage.vue'),
     },
     {
+      name: 'mandate.binance.form',
+      path: 'binance/form',
+      component: () => import('./pages/binance/FormPage.vue'),
+    },
+    {
+      name: 'mandate.binance.confirm',
+      path: 'binance/confirm',
+      component: () => import('./pages/binance/ConfirmPage.vue'),
+    },
+    {
       // Keep initialization errors at the mandate root URL.
       path: '',
       name: 'mandate.error',

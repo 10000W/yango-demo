@@ -49,7 +49,7 @@ export default defineConfig({
     emptyOutDir: true,
     minify: true,
     sourcemap: true,
-    rollupOptions: {
+    rolldownOptions: {
       external,
       output: {
         globals: {

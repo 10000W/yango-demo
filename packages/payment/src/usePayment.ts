@@ -19,7 +19,6 @@ const paymentSession: Ref<PayZapPayment | undefined> = ref()
 let uiConfig: PaymentConfig | undefined
 
 const createSession = async () => {
-  console.log('create session', selectedChain.value, selectedAsset.value, product.value)
   if (!selectedChain.value || !selectedAsset.value || !product.value?.id) {
     throw new Error('Some parameters are not specified')
   }

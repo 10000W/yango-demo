@@ -10,9 +10,10 @@ import {
   PayZapSponsorshipMechanism,
   PayZapProductData,
   PayZapSetMandateSetupOptions,
-  PayZapSetMandateSetupResponse,
   PayZapRevokeMandateSetupResponse,
   PayZapMandateSetupResponse,
+  PayZapMandateSetupChainKindResponse,
+  PayZapMandateSetupBinanceKindResponse,
 } from './types'
 import { PayZapProduct } from './PayZapProduct'
 import { IService, ISponsorshipService, ServiceError } from '../../service'
@@ -119,17 +120,41 @@ export class PayZapService implements IService, ISponsorshipService {
     id: string,
     options: PayZapSetMandateSetupOptions,
     config?: PayZapServiceRequestConfig,
-  ): Promise<PayZapSetMandateSetupResponse> {
-    const method = options.network === 'tron' ? 'tron' : 'evm'
-    const { data } = await this.request('setMandateSetup', () =>
-      this.http.post<PayZapSetMandateSetupResponse>(`/v1/public/mandate-setup/${id}/${method}`, options, {
-        signal: config?.abortSignal,
-        headers: config?.idempotencyKey
-          ? { 'Idempotency-Key': config.idempotencyKey }
-          : undefined,
-      }),
-    config?.abortSignal)
-    return data
+  ): Promise<PayZapMandateSetupChainKindResponse | PayZapMandateSetupBinanceKindResponse> {
+    const kind = options.kind
+    if (kind === 'binance_pay') {
+      const { data } = await this.request('setMandateSetup', () =>
+        this.http.post<PayZapMandateSetupBinanceKindResponse>(`/v1/public/mandate-setup/${id}/binance`, {
+          singleUpperLimit: options.amount,
+        }, {
+          signal: config?.abortSignal,
+          headers: config?.idempotencyKey
+            ? { 'Idempotency-Key': config.idempotencyKey }
+            : undefined,
+        }),
+      config?.abortSignal)
+      return data
+    }
+    else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      if (options.network === 'solana') {
+        throw new ServiceError(`Unable to set mandate setup with solana chain`, {
+          cause: 'Solana is not supported yet',
+          code: 'invalid_configuration',
+        })
+      }
+      const method = options.network === 'tron' ? 'tron' : 'evm'
+      const { data } = await this.request('setMandateSetup', () =>
+        this.http.post<PayZapMandateSetupChainKindResponse>(`/v1/public/mandate-setup/${id}/${method}`, options, {
+          signal: config?.abortSignal,
+          headers: config?.idempotencyKey
+            ? { 'Idempotency-Key': config.idempotencyKey }
+            : undefined,
+        }),
+      config?.abortSignal)
+      return data
+    }
   }
 
   async delegateEnergy(sessionId: string, buyerAddress: string) {
@@ -252,7 +277,16 @@ export class PayZapService implements IService, ISponsorshipService {
             continue
           }
 
-          throw new ServiceError(`Unable to ${operation}`, {
+          const errorData = error.response?.data?.error as unknown as {
+            message?: string
+            error?: { message?: string }
+          }
+          // Look for any human-readable error from payzap validation error
+          const message = errorData.message
+            || error?.message
+            || `Unable to ${operation}`
+
+          throw new ServiceError(message, {
             cause: error,
             code: status === 429 ? 'rate_limited' : 'request_failed',
             status,

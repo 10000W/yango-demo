@@ -19,9 +19,7 @@
       "@tac-crypto-payment/runtime": [
         "../runtime/src/index.ts"
       ],
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
   "include": [

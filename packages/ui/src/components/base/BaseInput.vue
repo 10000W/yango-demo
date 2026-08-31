@@ -14,33 +14,32 @@ const isFocused = ref(false)
 </script>
 
 <template>
-  <div
-    :class="[$style.BaseInput, error && $style._error, isFocused && $style._focused]"
-    class="column gap-8"
-  >
-    <label
-      v-if="label"
-      class="p3 c-text-secondary"
-    >
-      {{ label }}
-    </label>
-
-    <label :class="$style.wrapper">
-      <input
-        v-model="model"
-        v-bind="$attrs"
-        :class="$style.input"
-        @focus="isFocused = true"
-        @blur="isFocused = false"
+  <div class="column gap-8">
+    <div :class="[$style.BaseInput, error && $style._error, isFocused && $style._focused]">
+      <label
+        v-if="label"
+        class="p3 c-text-secondary"
       >
+        {{ label }}
+      </label>
 
-      <span
-        v-if="caption"
-        :class="$style.caption"
-      >
-        {{ caption }}
-      </span>
-    </label>
+      <label :class="$style.wrapper">
+        <input
+          v-model="model"
+          v-bind="$attrs"
+          :class="$style.input"
+          @focus="isFocused = true"
+          @blur="isFocused = false"
+        >
+
+        <span
+          v-if="caption"
+          :class="$style.caption"
+        >
+          {{ caption }}
+        </span>
+      </label>
+    </div>
 
     <span
       v-if="typeof error === 'string' && error"

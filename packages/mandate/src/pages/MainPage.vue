@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MandateConfig } from '@/types'
-import { evmPaymentOptions, type PaymentOption } from '@tac-crypto-payment/runtime'
+import { type PaymentOption } from '@tac-crypto-payment/runtime'
 import { computed, inject, ref } from 'vue'
 import { useMandate } from '@/useMandate'
 import { usePaymentMethods } from '@tac-crypto-payment/runtime'
@@ -11,6 +11,7 @@ import MethodSelectable from '../components/MethodSelectable.vue'
 import { useAppKit } from '@tac-crypto-payment/runtime'
 import { useRouter } from 'vue-router'
 import { BaseBottomSheet } from '@tac-crypto-payment/ui'
+import { paymentOptions } from '@/entities/paymentOptions'
 
 const config = inject<MandateConfig | null>('tacPaymentUiConfig', null)
 const { isConnected: isEvmConnected, disconnect: disconnectEvm } = useAppKit()
@@ -45,7 +46,9 @@ const handleConfirm = (value: boolean) => {
   }
 }
 const handlePaymentOptionClick = async (option: PaymentOption) => {
-  if (option.type === 'binance' || option.type === 'bybit') {
+  if (option.type === 'binance') {
+    selectedPaymentOption.value = option
+    router.push({ name: 'mandate.binance.form' })
     return
   }
 
@@ -174,7 +177,7 @@ const handleRevoke = async () => {
         class="column"
       >
         <li
-          v-for="o in evmPaymentOptions"
+          v-for="o in paymentOptions"
           :key="o.name"
         >
           <PaymentOptionCard

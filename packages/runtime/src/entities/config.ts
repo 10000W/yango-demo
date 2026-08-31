@@ -8,8 +8,8 @@ import {
 } from '@reown/appkit/networks'
 import manifestImage from '../public/images/manifest-img.jpg?url'
 
-// export const REOWN_PROJECT_ID = 'b56e18d47c72ab683b10814fe9495694' // localhost
-export const REOWN_PROJECT_ID = '6e72dd19b1f21690fbf30d082bf9d929'
+export const REOWN_PROJECT_ID = 'b56e18d47c72ab683b10814fe9495694' // localhost
+// export const REOWN_PROJECT_ID = '6e72dd19b1f21690fbf30d082bf9d929'
 export const APP_METADATA = {
   name: 'Yango Payment DEMO',
   description: 'Yango Payment DEMO',

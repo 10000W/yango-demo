@@ -41,6 +41,10 @@ const chainBgColor = computed(() => {
           variant="primary"
           class="br-sm px-6 py-0"
           :class="$style.chainChip"
+          :style="{
+            color: chainColor || undefined,
+            backgroundColor: chainBgColor || undefined,
+          }"
         >
           {{ asset.chain.name }}
         </BaseChip>
@@ -80,8 +84,6 @@ const chainBgColor = computed(() => {
 
 .chainChip {
   font-weight: 600 !important;
-  color: v-bind(chainColor) !important;
-  background-color: v-bind(chainBgColor) !important;
 }
 
 .icon {

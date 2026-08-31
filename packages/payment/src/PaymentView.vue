@@ -22,7 +22,6 @@ const isGlowVisible = computed(() => ['promo'].includes(route.name as string))
 
 onMounted(async () => {
   if (config.skipSetup) {
-    console.log('Skipping setup...')
     initAppKit()
     await until(isAppKitLoaded).toBe(true)
     isLoading.value = false

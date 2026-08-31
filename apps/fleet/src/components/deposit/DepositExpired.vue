@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { useDeposit } from '@/composables/useDeposit.ts'
 import { BaseButton, BaseIcon } from '@tac-crypto-payment/ui'
 

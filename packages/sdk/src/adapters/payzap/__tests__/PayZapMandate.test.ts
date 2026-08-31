@@ -43,6 +43,7 @@ describe('PayZapMandate', () => {
     } as unknown as IChainExecutor<Asset>
 
     await mandate.approve({
+      kind: 'blockchain',
       executor,
       asset: evmAsset,
       fromAddress: '0x2222222222222222222222222222222222222222',
@@ -52,6 +53,7 @@ describe('PayZapMandate', () => {
 
     expect(executor.approve).toHaveBeenCalledOnce()
     expect(service.setMandateSetup).toHaveBeenCalledWith(mandateData.id, {
+      kind: 'evm_wallet',
       network: 'base',
       tokenSymbol: 'USDC',
       customerWallet: '0x2222222222222222222222222222222222222222',
