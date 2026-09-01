@@ -57,17 +57,22 @@ const connect = async () => {
 }
 
 onMounted(async () => {
+  if (!option.value) {
+    router.replace({ name: 'mandate.start' })
+    return
+  }
+
+  watch(isConnected, (val) => {
+    if (val) {
+      router.replace({ name: 'mandate.asset' })
+    }
+  }, { immediate: true })
+
   if (!isConnected.value) {
     await load()
     connect()
   }
 })
-
-watch(isConnected, (val) => {
-  if (val) {
-    router.replace({ name: 'mandate.asset' })
-  }
-}, { immediate: true })
 </script>
 
 <template>

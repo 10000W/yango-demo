@@ -6,9 +6,10 @@ import { PageHeader } from '@tac-crypto-payment/runtime'
 import { BaseAlert, BaseButton } from '@tac-crypto-payment/ui'
 import { BaseInput } from '@tac-crypto-payment/ui'
 import { ServiceError } from '@tac-crypto-payment/sdk'
+import { paymentOptions } from '../../entities/paymentOptions'
 
 const router = useRouter()
-const { binance, approve } = useMandate()
+const { binance, selectedPaymentOption, approve } = useMandate()
 
 const isSubmitting = ref(false)
 const localAmount = ref(binance.value.amount)
@@ -30,6 +31,9 @@ const next = async () => {
     if (!validate()) {
       amountError.value = 'Please enter a valid amount'
       return
+    }
+    if (!selectedPaymentOption.value) {
+      selectedPaymentOption.value = paymentOptions.find(o => o.type === 'binance')!
     }
     binance.value.amount = localAmount.value
     await approve()

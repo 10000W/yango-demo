@@ -92,12 +92,11 @@ const approve = async () => {
     throw new Error('Spender address is not present')
   }
 
-  const executor = await createPaymentExecutor()
-  const amount = isInfiniteAllowance.value ? 'infinite' : allowanceAmount.value
-
   const kind = selectedPaymentOption.value?.type === 'binance'
     ? 'binance'
     : 'blockchain'
+  const amount = isInfiniteAllowance.value ? 'infinite' : allowanceAmount.value
+
   if (kind === 'binance') {
     return await mandate.value.approve({
       kind,
@@ -105,6 +104,7 @@ const approve = async () => {
     })
   }
   else {
+    const executor = await createPaymentExecutor()
     return await mandate.value.approve({
       kind,
       asset: selectedAsset.value!,
