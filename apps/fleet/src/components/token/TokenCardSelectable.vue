@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import SelectableCard from '@/components/SelectableCard.vue'
-import type { DepositAssetRecord } from '@/entities/deposit'
+import SelectableCard from '../SelectableCard.vue'
+import type { DepositAssetRecord } from '../../entities/deposit'
 defineProps<{
   asset: DepositAssetRecord
 }>()

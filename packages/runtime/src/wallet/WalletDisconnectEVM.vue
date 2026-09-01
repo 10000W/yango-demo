@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAppKit } from '@/useAppKit'
+import { useAppKit } from '../useAppKit'
 import WalletDisconnect from './WalletDisconnect.vue'
 
 const {

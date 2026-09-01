@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import StackableCard from '@/components/StackableCard.vue'
-import { formatCryptocurrency } from '@/utils'
+import StackableCard from '../StackableCard.vue'
+import { formatCryptocurrency } from '../../utils'
 
 withDefaults(defineProps<{
   label?: string

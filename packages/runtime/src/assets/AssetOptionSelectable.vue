@@ -26,7 +26,3 @@ const model = defineModel<string>()
     </template>
   </AssetOption>
 </template>
-
-<style scoped lang="scss">
-
-</style>

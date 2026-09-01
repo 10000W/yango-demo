@@ -1,14 +1,14 @@
 <script setup lang="ts">
 
 import QrcodeVue from 'qrcode.vue'
-import DepositCryptoAmountCard from '@/components/deposit/DepositCryptoAmountCard.vue'
-import DepositFiatAmountCard from '@/components/deposit/DepositFiatAmountCard.vue'
-import DepositNetworkCard from '@/components/deposit/DepositNetworkCard.vue'
-import DepositDetailsCard from '@/components/deposit/DepositDetailsCard.vue'
-import { useDeposit } from '@/composables/useDeposit.ts'
+import DepositCryptoAmountCard from './DepositCryptoAmountCard.vue'
+import DepositFiatAmountCard from './DepositFiatAmountCard.vue'
+import DepositNetworkCard from './DepositNetworkCard.vue'
+import DepositDetailsCard from './DepositDetailsCard.vue'
+import { useDeposit } from '../../composables/useDeposit'
 import { computed } from 'vue'
 import { BaseAlert, BaseIcon, BaseProgressTimerLine } from '@tac-crypto-payment/ui'
-import { formatCryptocurrency } from '@/utils'
+import { formatCryptocurrency } from '../../utils'
 
 const now = Date.now()
 

@@ -11,6 +11,7 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "fleet": "workspace:*",
     "@tac-crypto-payment/mandate": "workspace:*",
     "@tac-crypto-payment/payment": "workspace:*",
     "@tac-crypto-payment/runtime": "workspace:*",
@@ -33,6 +34,6 @@
     "vue-tsc": "catalog:workspace"
   },
   "engines": {
-    "node": "^22.18.0 || >=24.12.0"
+    "node": "^24.0.0"
   }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { PaymentOption } from '@/entities/payment'
+import type { PaymentOption } from '../entities/payment'
 import { BaseChip, BaseIcon } from '@tac-crypto-payment/ui'
 
 const props = defineProps<{

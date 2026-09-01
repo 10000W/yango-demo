@@ -42,6 +42,7 @@
   "devDependencies": {
     "@microsoft/api-extractor": "^7.58.7",
     "@vitejs/plugin-vue": "catalog:vite",
+    "@vue/language-core": "catalog:workspace",
     "sass": "catalog:workspace",
     "typescript": "catalog:workspace",
     "vite": "catalog:vite",

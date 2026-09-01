@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useMandate } from '@/useMandate'
+import { useMandate } from '../../useMandate'
 import { PageHeader } from '@tac-crypto-payment/runtime'
 import { BaseAlert, BaseButton } from '@tac-crypto-payment/ui'
 import { BaseInput } from '@tac-crypto-payment/ui'

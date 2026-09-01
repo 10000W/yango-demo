@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ProgressStep, { type Step } from '@/components/common/ProgressStep.vue'
+import ProgressStep, { type Step } from './ProgressStep.vue'
 import { BaseProgress } from '@tac-crypto-payment/ui'
 
 defineProps<{ steps: Step[], failed?: boolean }>()

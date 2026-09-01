@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { MandateConfig } from '@/types'
+import type { MandateConfig } from '../types'
 import { type PaymentOption } from '@tac-crypto-payment/runtime'
 import { computed, inject, ref } from 'vue'
-import { useMandate } from '@/useMandate'
+import { useMandate } from '../useMandate'
 import { usePaymentMethods } from '@tac-crypto-payment/runtime'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { BaseButton } from '@tac-crypto-payment/ui'
@@ -11,7 +11,7 @@ import MethodSelectable from '../components/MethodSelectable.vue'
 import { useAppKit } from '@tac-crypto-payment/runtime'
 import { useRouter } from 'vue-router'
 import { BaseBottomSheet } from '@tac-crypto-payment/ui'
-import { paymentOptions } from '@/entities/paymentOptions'
+import { paymentOptions } from '../entities/paymentOptions'
 
 const config = inject<MandateConfig | null>('tacPaymentUiConfig', null)
 const { isConnected: isEvmConnected, disconnect: disconnectEvm } = useAppKit()

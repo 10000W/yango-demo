@@ -1,8 +1,24 @@
 <script setup lang="ts">
+import { computed, onUnmounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const isDesktop = computed(() => route.path === '/fleet' || route.path.startsWith('/fleet/'))
+
+watch(isDesktop, (active) => {
+  document.body.classList.toggle('is-desktop', active)
+}, { immediate: true })
+
+onUnmounted(() => {
+  document.body.classList.remove('is-desktop')
+})
 </script>
 
 <template>
-  <main class="tac-crypto-payment yango-shell">
+  <main
+    class="tac-crypto-payment yango-shell"
+    :class="{ 'yango-shell--desktop': isDesktop }"
+  >
     <RouterView
       v-slot="{ Component }"
     >
@@ -65,6 +81,26 @@ body {
     border: 1px solid var(--ypm-color-border-default);
     border-radius: 24px;
     box-shadow: 0 16px 48px rgb(30 23 44 / 12%);
+  }
+
+  body.is-desktop {
+    display: block;
+    padding: 0;
+  }
+
+  body.is-desktop #app {
+    flex: none;
+    min-height: 100dvh;
+  }
+
+  .yango-shell.yango-shell--desktop {
+    min-height: 100dvh;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 </style>

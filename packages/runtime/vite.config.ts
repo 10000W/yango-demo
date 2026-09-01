@@ -21,11 +21,6 @@ export default defineConfig({
       cleanVueFileName: true,
     }),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
   build: {
     assetsInlineLimit: 0,
     lib: {

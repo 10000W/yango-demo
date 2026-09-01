@@ -2,6 +2,6 @@ import { createAppKitWalletButton, type Wallet } from '@reown/appkit-wallet-butt
 
 export type { Wallet }
 
-export const createWalletButton = (namespace: 'eip155' | 'tron') => createAppKitWalletButton({
+export const createWalletButton = (namespace: 'eip155' | 'tron'): ReturnType<typeof createAppKitWalletButton> => createAppKitWalletButton({
   namespace,
 })

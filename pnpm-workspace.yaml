@@ -31,6 +31,7 @@ catalogs:
     '@types/node': ^24.13.3
     '@tsconfig/node24': ^24.0.4
     '@vue/tsconfig': ^0.9.1
+    '@vue/language-core': ^3.3.11
     qrcode.vue: ^3.10.0
 allowBuilds:
   '@parcel/watcher': false
@@ -41,6 +42,7 @@ allowBuilds:
   keccak: false
   utf-8-validate: false
 overrides:
+  '@reown/appkit': 1.8.23
   '@wagmi/connectors': 6.2.0
   viem: 2.55.19
   '@reown/appkit-common>viem': 2.55.19

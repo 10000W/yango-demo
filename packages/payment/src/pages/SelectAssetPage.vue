@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AssetOption } from '@tac-crypto-payment/runtime'
 import { getAssetsByPaymentOption } from '@tac-crypto-payment/runtime'
-import { usePayment } from '@/usePayment'
+import { usePayment } from '../usePayment'
 import { useRouter } from 'vue-router'
 import { PageHeader } from '@tac-crypto-payment/runtime'
 import { computed, ComputedRef } from 'vue'

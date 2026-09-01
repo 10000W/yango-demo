@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BaseButton, BaseIcon } from '@tac-crypto-payment/ui'
-import { useDeposit } from '@/composables/useDeposit'
+import { useDeposit } from '../../composables/useDeposit'
 
 const { deposit } = useDeposit()
 </script>

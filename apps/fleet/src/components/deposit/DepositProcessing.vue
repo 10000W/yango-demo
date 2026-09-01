@@ -1,12 +1,12 @@
 <script setup lang="ts">
 
-import DepositCryptoAmountCard from '@/components/deposit/DepositCryptoAmountCard.vue'
-import DepositFiatAmountCard from '@/components/deposit/DepositFiatAmountCard.vue'
-import DepositNetworkCard from '@/components/deposit/DepositNetworkCard.vue'
-import DepositDetailsCard from '@/components/deposit/DepositDetailsCard.vue'
-import { useDeposit } from '@/composables/useDeposit.ts'
+import DepositCryptoAmountCard from './DepositCryptoAmountCard.vue'
+import DepositFiatAmountCard from './DepositFiatAmountCard.vue'
+import DepositNetworkCard from './DepositNetworkCard.vue'
+import DepositDetailsCard from './DepositDetailsCard.vue'
+import { useDeposit } from '../../composables/useDeposit'
 import { BaseIcon, BaseSpinner } from '@tac-crypto-payment/ui'
-import { depositOptions } from '@/entities/deposit'
+import { depositOptions } from '../../entities/deposit'
 import { computed } from 'vue'
 
 const { deposit } = useDeposit()

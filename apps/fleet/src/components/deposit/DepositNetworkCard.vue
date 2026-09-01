@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import StackableCard from '@/components/StackableCard.vue'
-import { depositOptions } from '@/entities/deposit'
+import StackableCard from '../StackableCard.vue'
+import { depositOptions } from '../../entities/deposit'
 import { computed } from 'vue'
 
 const props = defineProps<{

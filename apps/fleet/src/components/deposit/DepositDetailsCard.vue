@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import StackableCard from '@/components/StackableCard.vue'
+import StackableCard from '../StackableCard.vue'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { useClipboard } from '@vueuse/core'
 

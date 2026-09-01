@@ -6,7 +6,7 @@ import { useAppKit } from '@tac-crypto-payment/runtime'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { createWalletButton, type Wallet } from '@tac-crypto-payment/runtime'
-import { useMandate } from '@/useMandate'
+import { useMandate } from '../useMandate'
 import { useRouter } from 'vue-router'
 let walletButton: ReturnType<typeof createWalletButton> | undefined
 

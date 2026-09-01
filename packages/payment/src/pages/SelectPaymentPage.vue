@@ -2,7 +2,7 @@
 import { useRouter, RouterLink } from 'vue-router'
 import { type PaymentOption, paymentOptions } from '@tac-crypto-payment/runtime'
 import { PaymentOptionCard as PaymentOptionComponent } from '@tac-crypto-payment/runtime'
-import { usePayment } from '@/usePayment'
+import { usePayment } from '../usePayment'
 import { useAppKit } from '@tac-crypto-payment/runtime'
 import { computed, ref } from 'vue'
 import { BaseIcon } from '@tac-crypto-payment/ui'

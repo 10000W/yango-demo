@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAssetIconUrl, getChainIconUrl } from '@/entities/asset'
+import { getAssetIconUrl, getChainIconUrl } from '../entities/asset'
 import { computed } from 'vue'
 import { Asset } from '@tac-crypto-payment/sdk'
 

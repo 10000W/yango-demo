@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { usePayment } from '@/usePayment'
+import { usePayment } from '../usePayment'
 import { useRoute, useRouter } from 'vue-router'
 import { PageHeader } from '@tac-crypto-payment/runtime'
 import PayFormBlockchain from '../components/PayFormBlockchain.vue'

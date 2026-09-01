@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useMandate } from '@/useMandate'
+import { useMandate } from '../../useMandate'
 import { PageHeader } from '@tac-crypto-payment/runtime'
 import { BaseAlert, BaseButton, BaseIcon } from '@tac-crypto-payment/ui'
 import { onMounted, onUnmounted, watch } from 'vue'

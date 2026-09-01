@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import type { MandateConfig } from '@/types'
+import type { MandateConfig } from '../types'
 import { BaseButton } from '@tac-crypto-payment/ui'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { useRoute, useRouter } from 'vue-router'

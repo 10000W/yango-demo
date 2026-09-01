@@ -5,7 +5,7 @@ import {
   type DepositAssetRecord,
   type DepositOptionRecord,
   fetchDeposit, selectDepositOptionAndAsset,
-} from '@/entities/deposit'
+} from '../entities/deposit'
 import type { AxiosError } from 'axios'
 
 const deposit = ref<Deposit | null>(null)

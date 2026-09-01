@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useDeposit } from '@/composables/useDeposit'
-import DepositChooseForm from '@/components/deposit/DepositChooseForm.vue'
-import { formatCryptocurrency, formatCurrency } from '@/utils'
-import StackableCard from '@/components/StackableCard.vue'
+import { useDeposit } from '../composables/useDeposit'
+import DepositChooseForm from '../components/deposit/DepositChooseForm.vue'
+import { formatCryptocurrency, formatCurrency } from '../utils'
+import StackableCard from '../components/StackableCard.vue'
 
 const { deposit } = useDeposit()
 </script>

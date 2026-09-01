@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import { depositAssets, depositOptions } from '@/entities/deposit'
-import TokenCardSelectable from '@/components/token/TokenCardSelectable.vue'
-import NetworkCardSelectable from '@/components/network/NetworkCardSelectable.vue'
+import { depositAssets, depositOptions } from '../../entities/deposit'
+import TokenCardSelectable from '../token/TokenCardSelectable.vue'
+import NetworkCardSelectable from '../network/NetworkCardSelectable.vue'
 import { computed, ref } from 'vue'
-import { useDeposit } from '@/composables/useDeposit.ts'
+import { useDeposit } from '../../composables/useDeposit'
 import { BaseAlert, BaseButton, BaseIcon } from '@tac-crypto-payment/ui'
 import { useRouter } from 'vue-router'
 
@@ -38,8 +38,8 @@ const submit = async () => {
     await select(selectedOption.value, selectedAsset.value)
 
     router.replace({
-      name: 'deposit-form',
-      params: { depositId: deposit.value?.id },
+      name: 'fleet.deposit-form',
+      params: { id: deposit.value?.id },
     })
   }
   catch (e) {

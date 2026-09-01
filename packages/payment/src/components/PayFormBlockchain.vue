@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePayment } from '@/usePayment'
+import { usePayment } from '../usePayment'
 import { formatNumber } from '@tac-crypto-payment/runtime'
 import { BaseChip } from '@tac-crypto-payment/ui'
 import { computed, ref } from 'vue'

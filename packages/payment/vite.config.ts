@@ -22,11 +22,6 @@ export default defineConfig({
       cleanVueFileName: true,
     }),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
   optimizeDeps: {
     exclude: [
       '@tac-crypto-payment/ui',

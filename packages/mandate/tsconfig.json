@@ -14,19 +14,9 @@
     "skipLibCheck": true,
     "noEmit": true,
     "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "paths": {
-      "@tac-crypto-payment/runtime": [
-        "../runtime/src/index.ts"
-      ],
-      "@/*": [
-        "src/*",
-        "../runtime/src/*"
-      ]
-    }
+    "baseUrl": "."
   },
   "include": [
-    "src/**/*",
-    "../runtime/src/**/*"
+    "src/**/*"
   ]
 }

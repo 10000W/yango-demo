@@ -2,7 +2,7 @@
 import { computed, inject } from 'vue'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { BaseButton } from '@tac-crypto-payment/ui'
-import type { PaymentConfig } from '@/types'
+import type { PaymentConfig } from '../types'
 
 const props = defineProps<{
   title?: string

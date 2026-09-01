@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import ProgressSteps from '@/components/common/ProgressSteps.vue'
-import { useDeposit } from '@/composables/useDeposit'
-import DepositSend from '@/components/deposit/DepositSend.vue'
-import DepositProcessing from '@/components/deposit/DepositProcessing.vue'
-import DepositCredited from '@/components/deposit/DepositCredited.vue'
-import DepositExpired from '@/components/deposit/DepositExpired.vue'
+import ProgressSteps from '../components/common/ProgressSteps.vue'
+import { useDeposit } from '../composables/useDeposit'
+import DepositSend from '../components/deposit/DepositSend.vue'
+import DepositProcessing from '../components/deposit/DepositProcessing.vue'
+import DepositCredited from '../components/deposit/DepositCredited.vue'
+import DepositExpired from '../components/deposit/DepositExpired.vue'
 
 const steps = [
   {
