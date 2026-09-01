@@ -4,7 +4,7 @@ import type { MandateSetup } from './types'
 import { useMandate } from './useMandate'
 
 export const createMandateRoutes = (setup: MandateSetup = {}): RouteRecordRaw[] => [{
-  path: '/mandate/:mandateId?',
+  path: '/riders/:mandateId?',
   alias: '/setup/:mandateId?',
   name: 'mandate',
   component: YangoMandate,

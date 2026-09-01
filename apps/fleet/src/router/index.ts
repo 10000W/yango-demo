@@ -7,7 +7,7 @@ import ChoosePage from '../pages/ChoosePage.vue'
 export const createFleetRoutes = (): RouteRecordRaw[] => [
   {
     name: 'fleet.main',
-    path: '/fleet/:id',
+    path: '/fleets/:id',
     component: MainView,
     redirect: to => ({
       name: 'fleet.deposit-setup',

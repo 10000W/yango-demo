@@ -24,11 +24,11 @@ export const featureForPath = (path: string): Feature | undefined => {
     return 'payment'
   }
 
-  if (path.startsWith('/mandate/') || path === '/mandate' || path.startsWith('/setup/')) {
+  if (path.startsWith('/riders/') || path === '/riders' || path.startsWith('/setup/')) {
     return 'mandate'
   }
 
-  if (path.startsWith('/fleet/') || path === '/fleet') {
+  if (path.startsWith('/fleets/') || path === '/fleets') {
     return 'fleet'
   }
 }

@@ -3,7 +3,7 @@ import { computed, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const isDesktop = computed(() => route.path === '/fleet' || route.path.startsWith('/fleet/'))
+const isDesktop = computed(() => route.path === '/fleets' || route.path.startsWith('/fleets/'))
 
 watch(isDesktop, (active) => {
   document.body.classList.toggle('is-desktop', active)
