@@ -1,0 +1,10 @@
+.git
+.idea
+.junie
+.tmp-pack
+node_modules
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+*.log
+README.md
