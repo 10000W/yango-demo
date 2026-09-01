@@ -1,4 +1,27 @@
 import axios from 'axios'
+import arbitrumIcon from '../../../public/img/crypto/arbitrum.svg?url'
+import baseIcon from '../../../public/img/crypto/base.svg?url'
+import bscIcon from '../../../public/img/crypto/bsc.svg?url'
+import ethereumIcon from '../../../public/img/crypto/ethereum.svg?url'
+import polygonIcon from '../../../public/img/crypto/polygon.svg?url'
+import solanaIcon from '../../../public/img/crypto/solana.svg?url'
+import tonIcon from '../../../public/img/crypto/ton.svg?url'
+import tronIcon from '../../../public/img/crypto/tron.svg?url'
+import usdcIcon from '../../../public/img/crypto/usdc.svg?url'
+import usdtIcon from '../../../public/img/crypto/usdt.svg?url'
+
+const cryptoIcons = {
+  ethereum: ethereumIcon,
+  bsc: bscIcon,
+  polygon: polygonIcon,
+  arbitrum: arbitrumIcon,
+  base: baseIcon,
+  solana: solanaIcon,
+  ton: tonIcon,
+  tron: tronIcon,
+  usdt: usdtIcon,
+  usdc: usdcIcon,
+}
 
 const PAYZAP_API_URL = 'https://staging-api.payzap.cc'
 
@@ -27,7 +50,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: 'ethereum',
     label: 'Ethereum',
     value: 'ethereum',
-    icon: '/img/crypto/ethereum.svg',
+    icon: cryptoIcons.ethereum,
     getExplorerLink: (hash: string) => `https://etherscan.io/tx/${hash}`,
   },
   {
@@ -35,7 +58,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: 'bsc',
     label: 'BNB Chain',
     value: 'bsc',
-    icon: '/img/crypto/bsc.svg',
+    icon: cryptoIcons.bsc,
     getExplorerLink: (hash: string) => `https://bscscan.com/tx/${hash}`,
   },
   {
@@ -43,7 +66,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: 'polygon',
     label: 'Polygon',
     value: 'polygon',
-    icon: '/img/crypto/polygon.svg',
+    icon: cryptoIcons.polygon,
     getExplorerLink: (hash: string) => `https://polygonscan.com/tx/${hash}`,
   },
   {
@@ -51,7 +74,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: 'arbitrum',
     label: 'Arbitrum',
     value: 'arbitrum',
-    icon: '/img/crypto/arbitrum.svg',
+    icon: cryptoIcons.arbitrum,
     getExplorerLink: (hash: string) => `https://arbiscan.io/tx/${hash}`,
   },
   {
@@ -59,7 +82,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: 'base',
     label: 'Base',
     value: 'base',
-    icon: '/img/crypto/base.svg',
+    icon: cryptoIcons.base,
     getExplorerLink: (hash: string) => `https://basescan.org/tx/${hash}`,
   },
   {
@@ -67,7 +90,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: null,
     label: 'Solana',
     value: 'solana',
-    icon: '/img/crypto/solana.svg',
+    icon: cryptoIcons.solana,
     getExplorerLink: (hash: string) => `https://solscan.io/tx/${hash}`,
   },
   {
@@ -75,7 +98,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: null,
     label: 'TON',
     value: 'ton',
-    icon: '/img/crypto/ton.svg',
+    icon: cryptoIcons.ton,
     getExplorerLink: (hash: string) => `https://tonviewer.com/transaction/${hash}`,
   },
   {
@@ -83,7 +106,7 @@ export const depositOptions: DepositOptionRecord[] = [
     network: null,
     label: 'Tron',
     value: 'tron',
-    icon: '/img/crypto/tron.svg',
+    icon: cryptoIcons.tron,
     getExplorerLink: (hash: string) => `https://tronscan.org/#/transaction/${hash}`,
   },
 ]
@@ -93,12 +116,12 @@ export const depositAssets: DepositAssetRecord[] = [
   {
     value: 'USDT',
     label: 'USDT',
-    icon: '/img/crypto/usdt.svg',
+    icon: cryptoIcons.usdt,
   },
   {
     value: 'USDC',
     label: 'USDC',
-    icon: '/img/crypto/usdc.svg',
+    icon: cryptoIcons.usdc,
   },
 ]
 export type Deposit = {
