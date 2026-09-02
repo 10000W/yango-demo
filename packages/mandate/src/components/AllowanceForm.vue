@@ -119,7 +119,7 @@ const submit = async () => {
 </script>
 
 <template>
-  <div class="column gap-24 flex-1">
+  <div class="column gap-24">
     <div class="column gap-8">
       <p>
         Spending cap
