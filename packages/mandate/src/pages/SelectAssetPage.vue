@@ -7,18 +7,16 @@ import { tronMainnet } from '@reown/appkit/networks'
 import { Asset } from '@tac-crypto-payment/sdk'
 import { useMandate } from '../useMandate'
 import { AssetOptionSelectable } from '@tac-crypto-payment/runtime'
-import { BaseButton } from '@tac-crypto-payment/ui'
-import { BaseIcon } from '@tac-crypto-payment/ui'
+import { BaseButton, BaseIcon, BaseAlert } from '@tac-crypto-payment/ui'
 import { useRouter } from 'vue-router'
 import {
   useAppKit,
   useAppKitAccount,
   useAppKitNetwork,
 } from '@tac-crypto-payment/runtime'
-import { BaseAlert } from '@tac-crypto-payment/ui'
 
 const router = useRouter()
-const { selectedPaymentOption, mandate, selectedAsset, approve } = useMandate()
+const { selectedPaymentOption, mandate, selectedAsset, updateMandate, approve } = useMandate()
 const {
   isConnected,
   chainId,
@@ -109,6 +107,7 @@ const submit = async () => {
     }
 
     await approve()
+    await updateMandate()
     router.replace({ name: 'mandate.status' })
   }
   catch (e) {

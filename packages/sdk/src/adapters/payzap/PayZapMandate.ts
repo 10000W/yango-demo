@@ -47,7 +47,7 @@ export class PayZapMandate implements IMandate {
   constructor(service: PayZapService, data: PayZapMandateSetupData) {
     this.service = service
     this.data = data
-    this.methods = data.methods
+    this.methods = this.getActiveMethods(data.methods)
   }
 
   static async create(options: PayZapMandateConfig) {
@@ -66,7 +66,7 @@ export class PayZapMandate implements IMandate {
     const { success, data } = await this.service.getMandateSetup(this.data.id)
     if (success) {
       this.data = data
-      this.methods = data.methods
+      this.methods = this.getActiveMethods(data.methods)
       return data
     }
     return data
@@ -74,6 +74,32 @@ export class PayZapMandate implements IMandate {
 
   async revoke() {
     return this.service.revoke(this.data.id)
+  }
+
+  async activateMethod(methodId: string) {
+    const response = await this.service.activateMandateMethod(this.data.id, methodId)
+    if (!response.success) {
+      throw new MandateError('Unable to activate mandate method', {
+        code: 'setup_failed',
+      })
+    }
+
+    this.methods = this.getActiveMethods(response.data.methods)
+    this.data = { ...this.data, methods: this.methods }
+    return this.methods
+  }
+
+  async revokeMethod(methodId: string) {
+    const response = await this.service.revokeMandateMethod(this.data.id, methodId)
+    if (!response.success) {
+      throw new MandateError('Unable to revoke mandate method', {
+        code: 'setup_failed',
+      })
+    }
+
+    this.methods = response.data.methods
+    this.data = { ...this.data, methods: response.data.methods }
+    return response.data.methods
   }
 
   async approve(
@@ -89,7 +115,9 @@ export class PayZapMandate implements IMandate {
     else {
       const { asset, fromAddress, toAddress, amount } = params
       const network = getNetworkName(asset.chain.id)
-      await params.executor.approve({ asset, fromAddress, toAddress, amount }, onUpdate)
+      await params.executor.approve({
+        force: true, asset, fromAddress, toAddress, amount,
+      }, onUpdate)
       return (await this.service.setMandateSetup(this.data.id, {
         kind: network === 'tron' ? 'tron_wallet' : 'evm_wallet',
         network,
@@ -97,5 +125,9 @@ export class PayZapMandate implements IMandate {
         customerWallet: fromAddress,
       })) as PayZapMandateSetupChainKindResponse
     }
+  }
+
+  private getActiveMethods(methods: PayZapMandateSetupDataMethod[]) {
+    return methods.filter(method => !method.revokedAt)
   }
 }

@@ -6,15 +6,25 @@ import { Asset } from '@tac-crypto-payment/sdk'
 const props = defineProps<{
   chain: string
   asset?: string | Asset
+  size?: number
 }>()
+
+const size = computed(() => props.size ?? 54)
 
 const chainIcon = computed(() => getChainIconUrl(props.chain))
 const chainStyle = computed(() => ({
   backgroundImage: chainIcon.value ? `url("${chainIcon.value}")` : undefined,
+  width: `${size.value}px`,
+  height: `${size.value}px`,
 }))
 const assetIcon = computed(() => getAssetIconUrl(props.asset))
 const assetStyle = computed(() => ({
   backgroundImage: assetIcon.value ? `url("${assetIcon.value}")` : undefined,
+  right: `${-size.value * 4 / 54}px`,
+  bottom: `${-size.value * 4 / 54}px`,
+  width: `${size.value * 28 / 54}px`,
+  height: `${size.value * 28 / 54}px`,
+  borderWidth: `${size.value * 4 / 54}px`,
 }))
 </script>
 
@@ -45,16 +55,10 @@ const assetStyle = computed(() => ({
 
 .chain {
   position: relative;
-  width: 54px;
-  height: 54px;
 }
 
 .asset {
   position: absolute;
-  right: -4px;
-  bottom: -4px;
-  width: 28px;
-  height: 28px;
   border-color: var(--ypm-color-bg-primary);
 }
 </style>

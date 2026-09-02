@@ -1,12 +1,19 @@
 import { type PaymentOption } from './payment'
 import { Asset, evmAssets, tronAssets } from '@tac-crypto-payment/sdk'
+import arbitrumIcon from '@tac-crypto-payment/ui/assets/crypto/arbitrum.svg?url'
+import baseIcon from '@tac-crypto-payment/ui/assets/crypto/base.svg?url'
+import bscIcon from '@tac-crypto-payment/ui/assets/crypto/bsc.svg?url'
+import ethereumIcon from '@tac-crypto-payment/ui/assets/crypto/ethereum.svg?url'
+import polygonIcon from '@tac-crypto-payment/ui/assets/crypto/polygon.svg?url'
+import tronIcon from '@tac-crypto-payment/ui/assets/crypto/tron.svg?url'
 
 const chainIconUrls: Record<string, string> = {
-  polygon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png',
-  bsc: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/info/logo.png',
-  arbitrum: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/arbitrum/info/logo.png',
-  base: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/base/info/logo.png',
-  tron: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/tron/info/logo.png',
+  polygon: polygonIcon,
+  bsc: bscIcon,
+  arbitrum: arbitrumIcon,
+  base: baseIcon,
+  tron: tronIcon,
+  ethereum: ethereumIcon,
 }
 
 export const getChainIconUrl = (chain: string) => chainIconUrls[chain.toLowerCase()]

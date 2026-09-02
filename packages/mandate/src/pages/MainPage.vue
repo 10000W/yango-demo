@@ -1,95 +1,80 @@
 <script setup lang="ts">
 import type { MandateConfig } from '../types'
-import { type PaymentOption } from '@tac-crypto-payment/runtime'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, ref, type Ref } from 'vue'
 import { useMandate } from '../useMandate'
-import { usePaymentMethods } from '@tac-crypto-payment/runtime'
 import { BaseIcon } from '@tac-crypto-payment/ui'
 import { BaseButton } from '@tac-crypto-payment/ui'
-import { PaymentOptionCard } from '@tac-crypto-payment/runtime'
 import MethodSelectable from '../components/MethodSelectable.vue'
-import { useAppKit } from '@tac-crypto-payment/runtime'
+import { BaseAlert } from '@tac-crypto-payment/ui'
 import { useRouter } from 'vue-router'
-import { BaseBottomSheet } from '@tac-crypto-payment/ui'
-import { paymentOptions } from '../entities/paymentOptions'
+// import CancelAllPaymentsButton from '../components/CancelAllPaymentsButton.vue'
+import { useDebounceFn, useTimeoutFn } from '@vueuse/core'
 
 const config = inject<MandateConfig | null>('tacPaymentUiConfig', null)
-const { isConnected: isEvmConnected, disconnect: disconnectEvm } = useAppKit()
 
-const { mandate, selectedPaymentOption, revoke } = useMandate()
-const { isPaymentMethodConnected } = usePaymentMethods()
+const { mandate, status, activateMethod } = useMandate()
 const onCloseCallback = config?.onClose
-const router = useRouter()
 
-const isConfirmOpen = ref(false)
-const confirmResolve = ref<((value: boolean) => void) | null>(null)
-const pendingOption = ref<PaymentOption | null>(null)
-const isRevokeConfirmOpen = ref(false)
-const isRevoking = ref(false)
-const revokeError = ref('')
+const router = useRouter()
+const pendingMethodId: Ref<string | undefined> = ref(undefined)
+const isActivatingMethod = ref(false)
+const isActivationDebounced = ref(false)
+const activationMessage = ref<{ message: string, variant: 'success' | 'error' } | null>(null)
+const { start: startMessageClear, stop: stopMessageClear } = useTimeoutFn(() => {
+  activationMessage.value = null
+}, 4000, { immediate: false })
 
 const methods = computed(() => mandate.value?.methods || [])
-const status = computed(() => mandate.value?.data.status || 'expired')
-const activeMethodId = computed(() => mandate.value?.methods.find(m => m.isActive)?.id)
+pendingMethodId.value = methods.value.find(m => m.isActive)?.id
 
-const confirmDisconnect = () => {
-  isConfirmOpen.value = true
-  return new Promise<boolean>((resolve) => {
-    confirmResolve.value = resolve
-  })
+const showActivationMessage = (message: string, variant: 'success' | 'error') => {
+  stopMessageClear()
+  activationMessage.value = { message, variant }
+  startMessageClear()
 }
-const handleConfirm = (value: boolean) => {
-  isConfirmOpen.value = false
-  if (confirmResolve.value) {
-    confirmResolve.value(value)
-    confirmResolve.value = null
+
+const activateSelectedMethod = useDebounceFn(async (methodId: string, previousMethodId?: string) => {
+  isActivationDebounced.value = false
+  isActivatingMethod.value = true
+
+  try {
+    await activateMethod(methodId)
+    showActivationMessage('Payment method activated.', 'success')
   }
-}
-const handlePaymentOptionClick = async (option: PaymentOption) => {
-  if (option.type === 'binance') {
-    selectedPaymentOption.value = option
-    router.push({ name: 'mandate.binance.form' })
+  catch (error) {
+    pendingMethodId.value = previousMethodId
+    showActivationMessage(
+      error instanceof Error
+        ? error.message
+        : 'Unable to activate payment method.',
+      'error')
+  }
+  finally {
+    isActivatingMethod.value = false
+  }
+}, 1000)
+
+const selectMethod = (methodId?: string) => {
+  if (!methodId
+    || methodId === pendingMethodId.value
+    || isActivationDebounced.value
+    || isActivatingMethod.value
+  ) {
     return
   }
 
-  if (isEvmConnected.value && !isPaymentMethodConnected(option)) {
-    pendingOption.value = option
-    const confirmed = await confirmDisconnect()
-    if (!confirmed) {
-      return
-    }
-    await disconnectEvm()
-  }
-
-  selectedPaymentOption.value = option
-  router.push({ name: 'mandate.connect' })
-}
-
-const openRevokeConfirm = () => {
-  revokeError.value = ''
-  isRevokeConfirmOpen.value = true
-}
-
-const handleRevoke = async () => {
-  revokeError.value = ''
-  isRevoking.value = true
-
-  try {
-    await revoke()
-    isRevokeConfirmOpen.value = false
-  }
-  catch (error) {
-    revokeError.value = error instanceof Error ? error.message : 'Unable to cancel automatic payments.'
-  }
-  finally {
-    isRevoking.value = false
-  }
+  const previousMethodId = pendingMethodId.value
+  pendingMethodId.value = methodId
+  isActivationDebounced.value = true
+  stopMessageClear()
+  activationMessage.value = null
+  void activateSelectedMethod(methodId, previousMethodId)
 }
 </script>
 
 <template>
   <template v-if="status === 'active'">
-    <div class="column gap-24">
+    <div class="column gap-16">
       <div class="flex-1">
         <div
           :class="$style.title"
@@ -100,129 +85,45 @@ const handleRevoke = async () => {
           </h1>
         </div>
 
-        <MethodSelectable
-          v-for="(method, key) in methods"
-          :key="key"
-          :method="method"
-          :model-value="activeMethodId"
-        />
+        <div :class="$style.list">
+          <MethodSelectable
+            v-for="method in methods"
+            :key="method.id"
+            :method
+            :loading="(isActivationDebounced || isActivatingMethod) && pendingMethodId === method.id"
+            :model-value="pendingMethodId"
+            @update:model-value="selectMethod"
+          />
+        </div>
+
+        <BaseButton
+          class="gap-8 mt-4"
+          variant="secondary"
+          wide
+          :to="router.resolve({ name: 'mandate.select' }).href"
+        >
+          <BaseIcon
+            :size="22"
+            name="plus"
+          />
+          Add another method
+        </BaseButton>
       </div>
 
-      <BaseButton
-        variant="danger"
-        wide
-        @click="openRevokeConfirm"
-      >
-        Cancel automatic payments
-      </BaseButton>
-
-      <BaseBottomSheet
-        v-model="isRevokeConfirmOpen"
-        to=".tac-crypto-payment"
-      >
-        <div class="column align-center p-24">
-          <div class="h2 mb-8 center">
-            Stop automatic payments?
-          </div>
-
-          <div class="c-text-secondary mb-24 center">
-            The app will no longer be able to charge you.
-          </div>
-
-          <p
-            v-if="revokeError"
-            class="c-text-error mb-24 center"
+      <div :class="$style.messageWrap">
+        <Transition name="slide">
+          <BaseAlert
+            v-if="activationMessage"
+            :class="$style.message"
+            :variant="activationMessage.variant"
+            :icon="activationMessage.variant === 'success' ? 'check' : 'important'"
           >
-            {{ revokeError }}
-          </p>
+            {{ activationMessage.message }}
+          </BaseAlert>
+        </Transition>
+      </div>
 
-          <div
-            class="flex gap-12"
-            :class="$style.confirmBtns"
-          >
-            <BaseButton
-              class="flex-1"
-              variant="danger"
-              :loading="isRevoking"
-              @click="handleRevoke"
-            >
-              Yes, cancel
-            </BaseButton>
-            <BaseButton
-              class="flex-1"
-              variant="secondary"
-              :disabled="isRevoking"
-              @click="isRevokeConfirmOpen = false"
-            >
-              Keep
-            </BaseButton>
-          </div>
-        </div>
-      </BaseBottomSheet>
-    </div>
-  </template>
-  <template v-else-if="status === 'pending'">
-    <div>
-      <h1 class="h1 mb-8">
-        Setup automatic payments
-      </h1>
-
-      <p class="c-text-secondary mb-8">
-        This merchant wants to charge future orders automatically.
-        Connect a crypto wallet once and approve a spending limit.
-      </p>
-
-      <ul
-        :class="$style.list"
-        class="column"
-      >
-        <li
-          v-for="o in paymentOptions"
-          :key="o.name"
-        >
-          <PaymentOptionCard
-            :payment-option="o"
-            :is-connected="isPaymentMethodConnected(o)"
-            @click="handlePaymentOptionClick(o)"
-          />
-        </li>
-      </ul>
-
-      <BaseBottomSheet
-        v-model="isConfirmOpen"
-        to=".tac-crypto-payment"
-        @close="handleConfirm(false)"
-      >
-        <div class="column align-center p-24">
-          <div class="h2 mb-8 center">
-            Switch wallet?
-          </div>
-
-          <div class="c-text-secondary mb-24 center">
-            You are already connected with another wallet. Do you want to disconnect it and connect {{ pendingOption?.name }}?
-          </div>
-
-          <div
-            class="flex gap-12"
-            :class="$style.confirmBtns"
-          >
-            <BaseButton
-              class="flex-1"
-              variant="secondary"
-              @click="handleConfirm(false)"
-            >
-              Cancel
-            </BaseButton>
-            <BaseButton
-              class="flex-1"
-              variant="primary"
-              @click="handleConfirm(true)"
-            >
-              Confirm
-            </BaseButton>
-          </div>
-        </div>
-      </BaseBottomSheet>
+      <!--<CancelAllPaymentsButton />-->
     </div>
   </template>
   <template v-else-if="status === 'expired' || status === 'revoked'">
@@ -277,12 +178,34 @@ const handleRevoke = async () => {
   list-style: none;
   padding: 0;
 
+  & > * {
+    padding: 12px 0;
+  }
+
   & > *:not(:last-child) {
-    border-bottom: 1px solid var(--ypm-color-border-default)
+    border-bottom: 1px solid var(--ypm-color-border-default);
   }
 }
 
-.confirmBtns {
-  width: 100%;
+.messageWrap {
+  position: sticky;
+  bottom: 16px;
+  padding-top: 8px;
+}
+
+.message {
+  backdrop-filter: blur(10px);
+}
+</style>
+
+<style>
+.slide-enter-active, .slide-leave-active {
+  transition: opacity 0.2s ease-in-out, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+}
+
+.slide-enter-from, .slide-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
 }
 </style>

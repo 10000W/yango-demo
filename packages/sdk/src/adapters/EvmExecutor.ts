@@ -71,7 +71,7 @@ export class EvmExecutor implements IChainExecutor<EvmAsset> {
   }
 
   async approve(params: ChainExecutorApproveParams<EvmAsset>, onUpdate?: (event: ExecutorEvent) => void) {
-    const { asset, amount, fromAddress, toAddress } = params
+    const { asset, amount, fromAddress, toAddress, force } = params
     let transactionHash: string | undefined
     let errorCode: ExecutorErrorCode = 'invalid_amount'
 
@@ -101,7 +101,7 @@ export class EvmExecutor implements IChainExecutor<EvmAsset> {
         args: [fromAddress as `0x${string}`, toAddress as `0x${string}`],
       })
 
-      if (allowance >= parsedAmount) {
+      if (allowance >= parsedAmount && !force) {
         onUpdate?.({ type: 'approval:completed' })
         return
       }

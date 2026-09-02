@@ -45,6 +45,9 @@ const allowanceAmount = ref('200')
 const isInfiniteAllowance = ref(false)
 
 const status = computed(() => mandate.value?.data.status)
+const isExpiredOrRevoked = computed(() =>
+  status.value === 'expired' || status.value === 'revoked',
+)
 
 const createPaymentExecutor = async () => {
   if (selectedAsset.value?.chain?.id === +tronMainnet.id) {
@@ -78,6 +81,20 @@ const revoke = async () => {
   }
 
   await mandate.value.refresh()
+}
+const activateMethod = async (methodId: string) => {
+  if (!mandate.value) {
+    throw new Error('Mandate is not initialized')
+  }
+
+  await mandate.value.activateMethod(methodId)
+}
+const revokeMethod = async (methodId: string) => {
+  if (!mandate.value) {
+    throw new Error('Mandate is not initialized')
+  }
+
+  await mandate.value.revokeMethod(methodId)
 }
 const approve = async () => {
   if (!mandate.value) {
@@ -136,8 +153,12 @@ export const useMandate = () => {
     binance,
     poll,
     status,
+    isExpiredOrRevoked,
     init,
     revoke,
+    activateMethod,
+    revokeMethod,
     approve,
+    updateMandate,
   }
 }

@@ -9,6 +9,7 @@ import { evmAsset, mandateData } from '../../../__tests__/fixtures'
 const createService = () => ({
   getMandateSetup: vi.fn().mockResolvedValue({ success: true, data: mandateData }),
   revoke: vi.fn().mockResolvedValue({ success: true }),
+  activateMandateMethod: vi.fn().mockResolvedValue({ success: true, data: { methods: [] } }),
   setMandateSetup: vi.fn().mockResolvedValue({ methodId: 'method-1' }),
 }) as unknown as PayZapService
 
@@ -19,6 +20,22 @@ describe('PayZapMandate', () => {
 
     expect(mandate.data).toBe(mandateData)
     expect(mandate.methods).toEqual(mandateData.methods)
+  })
+
+  it('does not expose revoked methods', async () => {
+    const service = createService()
+    const activeMethod = mandateData.methods[0]
+    vi.mocked(service.getMandateSetup).mockResolvedValue({
+      success: true,
+      data: {
+        ...mandateData,
+        methods: [activeMethod, { ...activeMethod, id: 'revoked-method', revokedAt: '2026-09-02T00:00:00Z' }],
+      },
+    })
+
+    const mandate = await PayZapMandate.create({ id: mandateData.id, payZapService: service })
+
+    expect(mandate.methods).toEqual([activeMethod])
   })
 
   it('rejects an unsuccessful mandate setup response', async () => {
@@ -73,5 +90,17 @@ describe('PayZapMandate', () => {
 
     expect(mandate.data).toBe(updatedData)
     expect(mandate.methods).toEqual(updatedData.methods)
+  })
+
+  it('activates a method and updates the mandate methods', async () => {
+    const service = createService()
+    const methods = [{ ...mandateData.methods[0], isActive: true }]
+    vi.mocked(service.activateMandateMethod).mockResolvedValue({ success: true, data: { methods } })
+    const mandate = await PayZapMandate.create({ id: mandateData.id, payZapService: service })
+
+    await mandate.activateMethod(methods[0].id)
+
+    expect(service.activateMandateMethod).toHaveBeenCalledWith(mandateData.id, methods[0].id)
+    expect(mandate.methods).toEqual(methods)
   })
 })

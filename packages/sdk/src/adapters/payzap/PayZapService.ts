@@ -14,6 +14,7 @@ import {
   PayZapMandateSetupResponse,
   PayZapMandateSetupChainKindResponse,
   PayZapMandateSetupBinanceKindResponse,
+  PayZapActivateMandateMethodResponse, PayZapRevokeMandateMethodResponse,
 } from './types'
 import { PayZapProduct } from './PayZapProduct'
 import { IService, ISponsorshipService, ServiceError } from '../../service'
@@ -112,6 +113,30 @@ export class PayZapService implements IService, ISponsorshipService {
   async revoke(id: string): Promise<PayZapRevokeMandateSetupResponse> {
     const { data } = await this.request('revoke', () =>
       this.http.post<PayZapRevokeMandateSetupResponse>(`/v1/public/mandate-setup/${id}/revoke`),
+    )
+    return data
+  }
+
+  async activateMandateMethod(
+    mandateId: string,
+    methodId: string,
+  ): Promise<PayZapActivateMandateMethodResponse> {
+    const { data } = await this.request('activateMandateMethod', () =>
+      this.http.post<PayZapActivateMandateMethodResponse>(
+        `/v1/public/mandate-setup/${mandateId}/methods/${methodId}/activate`,
+      ),
+    )
+    return data
+  }
+
+  async revokeMandateMethod(
+    mandateId: string,
+    methodId: string,
+  ): Promise<PayZapRevokeMandateMethodResponse> {
+    const { data } = await this.request('revokeMandateMethod', () =>
+      this.http.post<PayZapRevokeMandateMethodResponse>(
+        `/v1/public/mandate-setup/${mandateId}/methods/${methodId}/revoke`,
+      ),
     )
     return data
   }

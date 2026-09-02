@@ -9,7 +9,7 @@ import { ServiceError } from '@tac-crypto-payment/sdk'
 import { paymentOptions } from '../../entities/paymentOptions'
 
 const router = useRouter()
-const { binance, selectedPaymentOption, approve } = useMandate()
+const { binance, selectedPaymentOption, approve, updateMandate } = useMandate()
 
 const isSubmitting = ref(false)
 const localAmount = ref(binance.value.amount)
@@ -37,6 +37,7 @@ const next = async () => {
     }
     binance.value.amount = localAmount.value
     await approve()
+    await updateMandate()
     router.replace({ name: 'mandate.binance.confirm' })
   }
   catch (e) {

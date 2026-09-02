@@ -91,7 +91,7 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
   }
 
   async approve(params: ChainExecutorApproveParams<TronAsset>, onUpdate?: (event: ExecutorEvent) => void) {
-    const { asset, amount, fromAddress, toAddress } = params
+    const { asset, amount, fromAddress, toAddress, force } = params
     let transactionHash: string | undefined
     let errorCode: ExecutorErrorCode = 'invalid_amount'
 
@@ -106,7 +106,7 @@ export class TronExecutor implements IChainExecutor<TronAsset> {
       const allowance = await contract.allowance(fromAddress, toAddress).call()
       const allowanceValue = BigInt(allowance.toString())
 
-      if (allowanceValue >= parsedAmount) {
+      if (allowanceValue >= parsedAmount && !force) {
         onUpdate?.({ type: 'approval:completed' })
         return
       }

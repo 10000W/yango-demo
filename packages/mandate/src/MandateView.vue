@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, inject, provide } from 'vue'
+import { ref, onMounted, inject, provide, watch } from 'vue'
 import { BaseSpinner } from '@tac-crypto-payment/ui'
 import { useRoute, useRouter } from 'vue-router'
 import { BaseIcon } from '@tac-crypto-payment/ui'
@@ -18,7 +18,17 @@ const { isLoaded: isAppKitLoaded, init: initAppKit } = useAppKit()
 const isLoading = ref(true)
 const errorDetails = ref<{ title: string, message: string } | null>(null)
 
-const isGlowVisible = computed(() => ['promo'].includes(route.name as string))
+const redirectExpiredOrRevokedMandate = () => {
+  const { isExpiredOrRevoked } = useMandate()
+  if (isExpiredOrRevoked.value && route.name !== 'mandate.start') {
+    return router.replace({
+      name: 'mandate.start',
+      params: { mandateId: route.params.mandateId },
+    })
+  }
+}
+
+watch(() => useMandate().isExpiredOrRevoked.value, redirectExpiredOrRevokedMandate)
 
 onMounted(async () => {
   if (config.skipSetup) {
@@ -31,6 +41,7 @@ onMounted(async () => {
   try {
     const { init } = useMandate()
     await init()
+    await redirectExpiredOrRevokedMandate()
     initAppKit()
 
     await until(isAppKitLoaded).toBe(true)
@@ -53,7 +64,7 @@ onMounted(async () => {
 <template>
   <main
     class="tac-crypto-payment"
-    :class="[$style.viewport, {[$style._glow]: isGlowVisible}]"
+    :class="$style.viewport"
   >
     <div
       v-if="isLoading"
@@ -119,10 +130,6 @@ onMounted(async () => {
   & > *:first-child {
     flex-grow: 1;
     padding: 0 16px;
-  }
-
-  &._glow {
-    background: radial-gradient(circle, #FF1A1A -20%, rgba(255, 255, 255, 0) 60%) no-repeat 0 -450px
   }
 }
 

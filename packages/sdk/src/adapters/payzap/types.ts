@@ -109,6 +109,7 @@ export type PayZapMandateSetupDataMethod = {
   id: string
   kind: 'evm_wallet' | 'tron_wallet' | 'binance_pay' | 'solana_wallet' // evm_wallet, ...
   isActive: boolean
+  revokedAt?: string | null
   network: (typeof PayZapMandateNetworks)[number]
   tokenSymbol: string
   customerWallet: string
@@ -134,6 +135,12 @@ export type PayZapMandateSetupResponse = {
   success: boolean
   data: PayZapMandateSetupData
 }
+
+export type PayZapActivateMandateMethodResponse = {
+  success: boolean
+  data: Pick<PayZapMandateSetupData, 'methods'>
+}
+export type PayZapRevokeMandateMethodResponse = PayZapActivateMandateMethodResponse
 
 export type PayZapSetMandateSetupOptionsBase = {
   kind: PayZapMandateSetupDataMethod['kind']

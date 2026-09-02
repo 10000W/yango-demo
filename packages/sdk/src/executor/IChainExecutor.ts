@@ -7,7 +7,10 @@ export type ChainExecutorTransferParams<TAsset> = {
   fromAddress: string
   toAddress: string
 }
-export type ChainExecutorApproveParams<T> = ChainExecutorTransferParams<T>
+export type ChainExecutorApproveParams<T> = {
+  // Forces allowance reset even if already approved
+  force?: boolean
+} & ChainExecutorTransferParams<T>
 
 export interface IChainExecutor<TAsset> extends IExecutor {
   transfer: (params: ChainExecutorTransferParams<TAsset>, onUpdate?: (event: ExecutorEvent) => void) => Promise<unknown>

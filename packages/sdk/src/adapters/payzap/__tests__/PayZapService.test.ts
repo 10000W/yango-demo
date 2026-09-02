@@ -35,6 +35,16 @@ describe('PayZapService', () => {
     expect(service.getSponsorshipMechanism({ ...evmAsset, symbol: 'DAI' })).toBeNull()
   })
 
+  it('activates a mandate method', async () => {
+    const service = new PayZapService()
+    const post = vi.fn().mockResolvedValue({ data: { success: true, data: { methods: [] } } })
+    service.http = { post } as unknown as AxiosInstance
+
+    await service.activateMandateMethod('mandate-1', 'method-1')
+
+    expect(post).toHaveBeenCalledWith('/v1/public/mandate-setup/mandate-1/methods/method-1/activate')
+  })
+
   it('wraps a failed request in a ServiceError', async () => {
     const service = new PayZapService()
     service.maxRetries = 0
