@@ -15,6 +15,7 @@ const { selectedPaymentOption: option } = useMandate()
 const { isConnected, modal, disconnect } = useAppKit()
 
 const isConnecting = ref(false)
+const isConnectionAttempting = ref(false)
 
 const paymentTypeIconUrl = computed(() => option.value?.icon)
 
@@ -35,24 +36,41 @@ const load = async () => {
   }
 }
 const connect = async () => {
-  if (isConnected.value) {
-    await disconnect()
+  if (isConnectionAttempting.value) {
+    return
   }
-  if (walletButton) {
-    try {
+
+  isConnectionAttempting.value = true
+  try {
+    // AppKit can report a disconnected account after a WalletConnect failure while
+    // Wagmi still has the connector as its current connection. Disconnecting even
+    // in that state clears the stale connector before the next connect attempt.
+    await disconnect()
+
+    if (walletButton) {
       isConnecting.value = true
       await walletButton.connect(option.value?.walletName as Wallet)
-      isConnecting.value = false
     }
-    catch {
-      isConnecting.value = false
+    else if (modal) {
+      await modal.open({
+        view: 'Connect',
+        namespace: 'eip155',
+      })
     }
   }
-  else if (modal) {
-    await modal.open({
-      view: 'Connect',
-      namespace: 'eip155',
-    })
+  catch (error) {
+    // A failed WalletConnect handshake can leave Wagmi's current connector set.
+    // Best-effort cleanup makes the Connect button usable again without a reload.
+    try {
+      await disconnect()
+    }
+    catch {
+      console.warn('Unable to clear the failed wallet connection', error)
+    }
+  }
+  finally {
+    isConnecting.value = false
+    isConnectionAttempting.value = false
   }
 }
 
@@ -94,7 +112,7 @@ onMounted(async () => {
     </div>
 
     <BaseButton
-      :disabled="isConnecting"
+      :disabled="isConnecting || isConnectionAttempting"
       @click="connect()"
     >
       <div class="flex gap-8 align-center">
