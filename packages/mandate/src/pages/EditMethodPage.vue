@@ -55,6 +55,15 @@ const methodAllowance = computed(() => {
 const hasInfiniteAllowance = computed(() =>
   method ? isInfiniteAllowanceCap(method.capUnits, method.tokenDecimals) : false,
 )
+const methodWalletNamespace = computed(() => {
+  if (method?.kind === 'tron_wallet') {
+    return 'tron' as const
+  }
+  if (method?.kind === 'solana_wallet') {
+    return 'solana' as const
+  }
+  return 'eip155' as const
+})
 
 const saveAllowance = async ({ amount, isInfinite }: { amount: string, isInfinite: boolean }) => {
   if (!methodAsset.value) {
@@ -129,6 +138,9 @@ const handleRevoke = async () => {
         :amount="hasInfiniteAllowance ? '200' : methodAllowance"
         :is-infinite="hasInfiniteAllowance"
         :asset-symbol="method.tokenSymbol"
+        :wallet-namespace="methodWalletNamespace"
+        :wallet-address="method.customerWallet"
+        :target-chain-id="methodAsset?.chain.id"
         submit-label="Update permission"
         :on-submit="saveAllowance"
       />
