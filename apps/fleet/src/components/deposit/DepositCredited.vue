@@ -68,6 +68,7 @@ const explorerLink = computed(() => {
       <a
         :href="explorerLink"
         target="_blank"
+        rel="noreferrer"
         :class="$style.link"
         class="mx-auto flex gap-8 align-center c-text-secondary baseline"
       >
@@ -83,6 +84,7 @@ const explorerLink = computed(() => {
       <BaseButton
         wide
         :href="deposit?.returnUrl || undefined"
+        rel="noreferrer"
         :disabled="!deposit?.returnUrl"
       >
         Return to Fleet

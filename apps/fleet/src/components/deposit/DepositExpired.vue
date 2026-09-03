@@ -30,6 +30,7 @@ const { deposit } = useDeposit()
       <BaseButton
         wide
         :href="deposit?.returnUrl || undefined"
+        rel="noreferrer"
         :disabled="!deposit?.returnUrl"
       >
         Return to Fleet

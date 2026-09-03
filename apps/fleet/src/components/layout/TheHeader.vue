@@ -17,9 +17,10 @@ const { deposit } = useDeposit()
           variant="secondary"
           class="gap-8"
           :href="deposit?.returnUrl || undefined"
+          rel="noreferrer"
           :disabled="!deposit?.returnUrl"
         >
-          Return to fleet
+          Return to Fleet
           <BaseIcon name="link" />
         </BaseButton>
       </div>
