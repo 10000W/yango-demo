@@ -18,10 +18,12 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@tac-crypto-payment/sdk": "workspace:*",
     "@tac-crypto-payment/ui": "workspace:*",
     "@vueuse/core": "catalog:workspace",
     "axios": "catalog:workspace",
     "qrcode.vue": "catalog:workspace",
+    "viem": "2.55.19",
     "vue": "catalog:workspace",
     "vue-router": "catalog:workspace"
   },

@@ -8,13 +8,57 @@ import DepositDetailsCard from './DepositDetailsCard.vue'
 import { useDeposit } from '../../composables/useDeposit'
 import { computed } from 'vue'
 import { BaseAlert, BaseIcon, BaseProgressTimerLine } from '@tac-crypto-payment/ui'
+import { evmAssets, solanaAssets, tonAssets } from '@tac-crypto-payment/sdk'
 import { formatCryptocurrency } from '../../utils'
+import { parseUnits } from 'viem'
 
 const now = Date.now()
 
 const { deposit } = useDeposit()
 
-const qrValue = computed(() => deposit.value?.address ? `${deposit.value.address}` : '')
+const evmChainIds: Record<string, number> = {
+  ethereum: 1,
+  bsc: 56,
+  polygon: 137,
+  arbitrum: 42161,
+  base: 8453,
+}
+
+const qrValue = computed(() => {
+  const currentDeposit = deposit.value
+  if (!currentDeposit?.address) {
+    return ''
+  }
+  try {
+    const chainId = currentDeposit.network ? evmChainIds[currentDeposit.network] : undefined
+    const token = chainId === undefined
+      ? undefined
+      : evmAssets.find(asset => asset.chain.id === chainId && asset.symbol === currentDeposit.asset)
+    const atomicAmount = token ? parseUnits(currentDeposit.amount, token.decimals) : undefined
+
+    if (token && atomicAmount) {
+      return `ethereum:${token.address}@${chainId}/transfer?address=${currentDeposit.address}&uint256=${atomicAmount}`
+    }
+
+    const solanaToken = solanaAssets.find(asset => asset.symbol === currentDeposit.asset)
+    if (currentDeposit.chain === 'solana' && solanaToken) {
+      return `solana:${currentDeposit.address}?amount=${currentDeposit.amount}&spl-token=${solanaToken.address}`
+    }
+
+    const tonJetton = tonAssets.find(asset => asset.symbol === currentDeposit.asset)
+    const tonAmount = tonJetton ? parseUnits(currentDeposit.amount, tonJetton.decimals) : undefined
+    if (currentDeposit.chain === 'ton' && tonJetton && tonAmount) {
+      return `ton://transfer/${currentDeposit.address}?amount=${tonAmount}&jetton=${tonJetton.address}`
+    }
+
+    // fallback and tron
+    return currentDeposit.address
+  }
+  catch (e) {
+    console.warn(e)
+    return currentDeposit.address
+  }
+})
 const timerDuration = computed(() => {
   if (!deposit.value?.expiresAt) {
     return 15 * 60
@@ -42,14 +86,25 @@ const timerDuration = computed(() => {
       </p>
     </div>
 
-    <div class="flex justify-center">
+    <div
+      v-if="qrValue"
+      class="flex justify-center"
+    >
       <QrcodeVue
         :value="qrValue"
         :size="220"
-        level="M"
         :class="$style.qr"
       />
     </div>
+
+    <BaseAlert
+      v-else
+      variant="error"
+    >
+      We couldn't load the QR code. Try to reload the page.
+      <br>
+      If problem persists, send funds directly to the address specified below.
+    </BaseAlert>
 
     <div
       :class="$style.cards"

@@ -1,5 +1,7 @@
 // import { tronMainnet } from '@reown/appkit/networks'
 import { assets as evmAssets } from './evm'
+import { assets as solanaAssets } from './solana'
+import { assets as tonAssets } from './ton'
 import { assets as tronAssets } from './tron'
 
 export type AssetNamespace = 'ton' | 'tron' | 'eip155'
@@ -20,4 +22,4 @@ export type Asset = {
   decimals: number
 }
 
-export { evmAssets, tronAssets }
+export { evmAssets, solanaAssets, tonAssets, tronAssets }

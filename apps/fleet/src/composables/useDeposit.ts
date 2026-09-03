@@ -59,7 +59,8 @@ export const useDeposit = () => {
 
     try {
       isSelecting.value = true
-      deposit.value = await selectDepositOptionAndAsset(deposit.value?.id, option, asset)
+      await selectDepositOptionAndAsset(deposit.value?.id, option, asset)
+      deposit.value = await fetchDeposit(deposit.value.id)
       if (!['completed', 'expired'].includes(deposit.value.status)) {
         resume()
       }
